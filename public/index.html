@@ -54,6 +54,15 @@
     .applicationGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 16px;margin-top:12px}
     .applicationItem{display:flex;gap:8px;align-items:baseline;min-width:0}
     .applicationItem b{font-weight:500}
+    .applicationItem .copyButton{display:inline-flex;flex:none;align-items:center;justify-content:center;width:26px;height:26px;margin:-3px 0 -3px auto;padding:4px;border:0;border-radius:7px;background:transparent;color:var(--muted);cursor:pointer}
+    .applicationItem .copyButton:hover{background:#eef3ff;color:var(--brand)}
+    .applicationItem .copyButton:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+    .applicationItem .copyButton[data-copied="true"]{color:#16803c}
+    .applicationItem .copyButton svg{width:16px;height:16px;display:block}
+    .applicationItem .copyCheck{display:none}
+    .applicationItem .copyButton[data-copied="true"] .copyIcon{display:none}
+    .applicationItem .copyButton[data-copied="true"] .copyCheck{display:block}
+    .srOnly{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
     .taskBriefCard{width:100%;max-width:560px;margin:0 auto 16px;border-radius:32px}
     .flowCard{width:100%;max-width:560px;margin:0 auto;padding:0;border:0;background:transparent;box-shadow:none}
     .flowInstructions{margin:0 0 18px}
@@ -205,13 +214,14 @@
       <div class="notice">
         <b>申請資料</b>
         <div class="applicationGrid">
-          <div class="applicationItem"><span>銀行：</span><b>國泰世華銀行</b></div>
-          <div class="applicationItem"><span>分行：</span><b>三重分行</b></div>
-          <div class="applicationItem"><span>銀行帳號：</span><b>12345678</b></div>
-          <div class="applicationItem"><span>身分證：</span><b>A123456789</b></div>
-          <div class="applicationItem"><span>密碼：</span><b>Test1234</b></div>
-          <div class="applicationItem"><span>驗證碼/動態密碼：</span><b>123123</b></div>
+          <div class="applicationItem"><span>銀行：</span><b>國泰世華銀行</b><button class="copyButton" type="button" data-copy-value="國泰世華銀行" data-copy-label="銀行名稱" aria-label="複製銀行名稱" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg><svg class="copyCheck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg></button></div>
+          <div class="applicationItem"><span>分行：</span><b>三重分行</b><button class="copyButton" type="button" data-copy-value="三重分行" data-copy-label="分行" aria-label="複製分行" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg><svg class="copyCheck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg></button></div>
+          <div class="applicationItem"><span>銀行帳號：</span><b>12345678</b><button class="copyButton" type="button" data-copy-value="12345678" data-copy-label="銀行帳號" aria-label="複製銀行帳號" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg><svg class="copyCheck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg></button></div>
+          <div class="applicationItem"><span>身分證：</span><b>A123456789</b><button class="copyButton" type="button" data-copy-value="A123456789" data-copy-label="身分證" aria-label="複製身分證" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg><svg class="copyCheck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg></button></div>
+          <div class="applicationItem"><span>密碼：</span><b>Test1234</b><button class="copyButton" type="button" data-copy-value="Test1234" data-copy-label="密碼" aria-label="複製密碼" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg><svg class="copyCheck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg></button></div>
+          <div class="applicationItem"><span>驗證碼/動態密碼：</span><b>123123</b><button class="copyButton" type="button" data-copy-value="123123" data-copy-label="驗證碼/動態密碼" aria-label="複製驗證碼/動態密碼" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg><svg class="copyCheck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg></button></div>
         </div>
+        <span id="applicationCopyStatus" class="srOnly" role="status" aria-live="polite"></span>
       </div>
     </div>
     <div class="card flowCard">
@@ -388,6 +398,54 @@ addEventListener("beforeunload",()=>{
   if(session && currentPage===3 && !LOCAL_PREVIEW){
     navigator.sendBeacon("/api/events",new Blob([JSON.stringify({session_id:session.id,event_name:"page_exit",meta:{research_page:3}})],{type:"application/json"}));
   }
+});
+
+const applicationCopyStatus=document.getElementById("applicationCopyStatus");
+document.querySelectorAll(".applicationItem .copyButton").forEach(button=>{
+  button.addEventListener("click",async()=>{
+    const value=button.dataset.copyValue;
+    const label=button.dataset.copyLabel;
+    try{
+      if(navigator.clipboard?.writeText){
+        try{await navigator.clipboard.writeText(value)}
+        catch{
+          const copyField=document.createElement("textarea");
+          copyField.value=value;
+          copyField.setAttribute("readonly","");
+          copyField.style.position="fixed";
+          copyField.style.opacity="0";
+          document.body.append(copyField);
+          copyField.select();
+          const copied=document.execCommand("copy");
+          copyField.remove();
+          if(!copied) throw new Error("copy failed");
+        }
+      }else{
+        const copyField=document.createElement("textarea");
+        copyField.value=value;
+        copyField.setAttribute("readonly","");
+        copyField.style.position="fixed";
+        copyField.style.opacity="0";
+        document.body.append(copyField);
+        copyField.select();
+        const copied=document.execCommand("copy");
+        copyField.remove();
+        if(!copied) throw new Error("copy failed");
+      }
+      window.clearTimeout(button.copyResetTimer);
+      button.dataset.copied="true";
+      button.title="已複製";
+      button.setAttribute("aria-label",`已複製${label}`);
+      applicationCopyStatus.textContent=`已複製${label}`;
+      button.copyResetTimer=window.setTimeout(()=>{
+        delete button.dataset.copied;
+        button.title="複製";
+        button.setAttribute("aria-label",`複製${label}`);
+      },1400);
+    }catch{
+      applicationCopyStatus.textContent=`${label}複製失敗，請手動選取文字。`;
+    }
+  });
 });
 </script>
 </body>
