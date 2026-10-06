@@ -1,0 +1,12 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="ic_mml_info" clip-path="url(#clip0_0_164)">
+<path id="Vector" d="M15 8C15 11.8657 11.8648 15 7.99651 15C4.12818 15 1 11.8657 1 8C1 4.13433 4.13516 1 8.00349 1C11.8718 1 15 4.13433 15 8Z" stroke="#009EFF" stroke-width="1.5" stroke-miterlimit="5" stroke-linecap="round"/>
+<path id="Vector_2" d="M8 7.7501V11.7501" stroke="#009EFF" stroke-width="1.5" stroke-linecap="round"/>
+<circle id="Ellipse 42" cx="8.0001" cy="4.40005" r="1.2" fill="#009EFF"/>
+</g>
+<defs>
+<clipPath id="clip0_0_164">
+<rect width="16" height="16" fill="white"/>
+</clipPath>
+</defs>
+</svg>

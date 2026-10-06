@@ -1,0 +1,18 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="ic/send/default" clip-path="url(#clip0_0_134)">
+<circle id="BG" cx="20" cy="20" r="20" fill="url(#paint0_linear_0_134)"/>
+<g id="send">
+<path id="Combined Shape" fill-rule="evenodd" clip-rule="evenodd" d="M8.12548 15.3115C7.63784 15.8738 7.64231 16.7059 8.15887 17.2335L13.7721 22.9668L16.2065 31.8341C16.3952 32.5216 17.3139 32.6699 17.7539 32.0839L31.6272 13.6128C32.0849 13.0034 31.607 12.1713 30.85 12.2596L9.09877 14.796C8.77389 14.8339 8.46793 14.9771 8.22956 15.2028L8.12548 15.3115ZM9.84947 16.4369L29.038 14.1991L17.4366 29.6468L15.4111 22.2659C15.3739 22.1304 15.3031 22.0071 15.2048 21.9067L9.84947 16.4369Z" fill="#3A3A3A"/>
+<path id="Path" fill-rule="evenodd" clip-rule="evenodd" d="M29.3525 12.823C29.7527 12.5931 30.2884 12.7744 30.549 13.228C30.7878 13.6438 30.7125 14.144 30.39 14.4016L30.2959 14.4656L14.8344 23.3459C14.4341 23.5758 13.8985 23.3944 13.6379 22.9408C13.3991 22.525 13.4744 22.0248 13.7969 21.7673L13.891 21.7033L29.3525 12.823Z" fill="#3A3A3A"/>
+</g>
+</g>
+<defs>
+<linearGradient id="paint0_linear_0_134" x1="3" y1="37" x2="35" y2="4" gradientUnits="userSpaceOnUse">
+<stop stop-color="#887DFD"/>
+<stop offset="1" stop-color="#B0F7FF"/>
+</linearGradient>
+<clipPath id="clip0_0_134">
+<rect width="40" height="40" fill="white"/>
+</clipPath>
+</defs>
+</svg>

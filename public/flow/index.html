@@ -1,0 +1,697 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#ffffff" />
+    <title>國泰產險智能助理阿發</title>
+    <link rel="icon" type="image/svg+xml" href="assets/alpha-logo.svg" />
+    <link rel="stylesheet" href="app.css" />
+    <link rel="stylesheet" href="embed.css" />
+  </head>
+  <body>
+    <div class="preview-stage" id="preview-stage">
+      <nav class="preview-controls" aria-label="預覽控制">
+        <button class="preview-control" id="preview-fullscreen" type="button" aria-label="進入全螢幕" title="全螢幕" aria-pressed="false">
+          <svg class="preview-control-icon" data-fullscreen-enter viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3" />
+          </svg>
+          <svg class="preview-control-icon" data-fullscreen-exit viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" hidden>
+            <path d="M8 3v3a2 2 0 0 1-2 2H3M21 8h-3a2 2 0 0 1-2-2V3M16 21v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3" />
+          </svg>
+        </button>
+        <button class="preview-control" id="preview-restart" type="button" aria-label="重新開始" title="重新開始">
+          <svg class="preview-control-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
+            <path d="M3 3v5h5" />
+          </svg>
+        </button>
+        <button class="preview-control" id="preview-immersive" type="button" aria-label="進入沉浸全螢幕" title="沉浸全螢幕" aria-pressed="false">
+          <svg class="preview-control-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="3" width="18" height="18" rx="2" />
+            <path d="M3 8h18M8 21v-3m8 3v-3" />
+          </svg>
+        </button>
+      </nav>
+      <main class="app" aria-label="國泰產險智能助理阿發">
+      <div class="system-glow" aria-hidden="true"><img src="assets/system-bg.svg" alt="" /></div>
+      <div class="phone-chrome" aria-hidden="true"><img src="assets/ios-safari-chrome.svg" alt="" /></div>
+
+      <header class="top">
+        <div class="brand-row">
+          <p class="brand-name">國泰產險智能助理阿發</p>
+          <span class="beta">Beta</span>
+        </div>
+        <p class="ai-notice">
+          本服務由生成式 AI 提供，請勿輸入個人資料（如身分證號碼），使用前請詳閱
+          <a class="inline-link" id="ai-disclaimer-link" href="https://www.cathaybk.com.tw/cathaybk/personal/about/news/customer-benefits/ai-disclaimer/" target="_blank" rel="noopener">AI告知聲明</a>
+          與 <button class="inline-link" type="button" data-policy="注意事項">注意事項</button>。
+        </p>
+      </header>
+
+      <section class="chat-screen" id="chat-screen" aria-label="班機延誤諮詢對話" aria-live="polite" hidden></section>
+
+      <section class="welcome" aria-labelledby="welcome-title">
+        <div class="mascot" role="img" aria-label="阿發吉祥物">
+          <img class="mascot-face" src="assets/mascot-face.png" alt="" />
+          <img class="mascot-star" src="assets/mascot-star.svg" alt="" />
+        </div>
+        <h1 class="welcome-title" id="welcome-title">歡迎體驗班機延誤服務</h1>
+        <p class="welcome-subtitle">提供諮詢及理賠申請的協助</p>
+
+        <div class="suggestions" aria-label="常用問題">
+          <button class="suggestion" type="button" data-prompt="我想申請班機延誤理賠">
+            <span>我想申請班機延誤理賠</span>
+            <img src="assets/arrow.svg" alt="" />
+          </button>
+          <button class="suggestion" type="button" data-prompt="我想詢問班機延誤相關問題">
+            <span>我想詢問班機延誤相關問題</span>
+            <img src="assets/arrow.svg" alt="" />
+          </button>
+        </div>
+      </section>
+
+      <footer class="composer">
+        <form class="composer-form" id="composer-form">
+          <div class="message-field">
+            <img class="field-art" src="assets/input-field.svg" alt="" />
+            <input
+              class="message-input"
+              id="message-input"
+              name="message"
+              type="text"
+              maxlength="500"
+              autocomplete="off"
+              placeholder="告訴我你想做什麼"
+              aria-label="告訴我你想做什麼"
+            />
+          </div>
+          <button class="send-button" id="send-button" type="submit" aria-label="傳送" disabled>
+            <img src="assets/send.svg" alt="" />
+          </button>
+        </form>
+        <p class="message-note">
+          當您傳送訊息，即表示同意「AI告知聲明」。本服務由AI提供，<br />
+          內容僅供參考，實際資訊仍以國泰產險官網公告為準。
+        </p>
+      </footer>
+
+      <div class="policy-dialog" id="policy-dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title" hidden>
+        <button class="policy-scrim" type="button" aria-label="關閉注意事項" data-close-policy></button>
+        <section class="dialog-content" aria-describedby="dialog-copy">
+          <header class="sheet-header">
+            <h2 class="dialog-title" id="dialog-title">注意事項</h2>
+            <button class="dialog-x" type="button" data-close-policy aria-label="關閉">×</button>
+          </header>
+          <div class="dialog-copy" id="dialog-copy" tabindex="0"></div>
+        </section>
+      </div>
+
+      <div class="personal-data-dialog" id="personal-data-dialog" role="dialog" aria-modal="true" aria-labelledby="personal-data-title" hidden>
+        <button class="personal-data-scrim" type="button" aria-label="關閉個人資料告知事項" data-close-personal-data></button>
+        <section class="personal-data-sheet" aria-describedby="personal-data-copy">
+          <header class="sheet-header personal-data-header">
+            <h2 class="dialog-title" id="personal-data-title">個人資料運用告知事項</h2>
+            <button class="dialog-x" type="button" data-close-personal-data aria-label="關閉">×</button>
+          </header>
+          <div class="personal-data-copy" id="personal-data-copy" tabindex="0" aria-label="個人資料運用告知事項全文"></div>
+          <button class="scroll-to-agree" id="scroll-to-agree" type="button" aria-label="滑至最底">
+            <span>滑至最底</span>
+            <span class="scroll-chevron" aria-hidden="true"><img src="assets/arrow.svg" alt="" /></span>
+          </button>
+          <footer class="personal-data-footer">
+            <button class="personal-data-agree" id="personal-data-agree" type="button" disabled>同意</button>
+          </footer>
+        </section>
+      </div>
+
+      <div class="upload-dialog" id="upload-dialog" role="dialog" aria-modal="true" aria-labelledby="upload-title" hidden>
+        <button class="upload-scrim" type="button" aria-label="關閉檔案上傳" data-close-upload></button>
+        <section class="upload-sheet">
+          <header class="sheet-header upload-header">
+            <h2 class="dialog-title" id="upload-title">登機證上傳</h2>
+            <button class="dialog-x" type="button" data-close-upload aria-label="關閉"><img src="assets/close.svg" alt="" /></button>
+          </header>
+          <div class="upload-body">
+            <p class="upload-error" id="upload-error" role="alert" hidden></p>
+            <div class="upload-help-wrap" id="upload-help-wrap" hidden>
+              <button class="upload-help-trigger" id="upload-help-trigger" type="button" aria-expanded="false" aria-controls="upload-help-copy">
+                <img src="assets/ic-mml-info.svg" alt="" />
+                <span>如何取得班機延誤證明？</span>
+              </button>
+            </div>
+            <button class="upload-dropzone" id="upload-dropzone" type="button" aria-describedby="upload-notes upload-error">
+              <img class="upload-file-icon" src="assets/upload.svg" alt="" />
+              <span id="upload-drop-label">點擊上傳登機證</span>
+            </button>
+            <input class="upload-file-input" id="boarding-pass-input" type="file" aria-label="選擇登機證檔案" />
+            <div class="upload-file-list" id="upload-file-list" aria-live="polite"></div>
+            <ol class="upload-notes" id="upload-notes"></ol>
+          </div>
+          <footer class="upload-footer">
+            <button class="upload-confirm" id="upload-confirm" type="button" disabled>確認上傳</button>
+          </footer>
+          <div class="upload-help-tooltip" id="upload-help-copy" role="tooltip" hidden>
+            <div class="upload-help-bubble">
+              <p class="upload-help-text">可至航空公司櫃台申請紙本班機延誤證明，或至航空公司官網線上申請。</p>
+              <button class="upload-help-close" id="upload-help-close" type="button" aria-label="關閉提示">
+                <img src="assets/tooltip-close.svg" alt="" />
+              </button>
+            </div>
+            <span class="upload-help-tail-wrap" aria-hidden="true">
+              <img class="upload-help-tail" src="assets/tooltip-tail.svg" alt="" />
+            </span>
+          </div>
+        </section>
+        <div class="upload-loading" id="upload-loading" role="status" aria-live="polite" hidden>
+          <div class="upload-loading-card"><img src="assets/loading-star.svg" alt="" /><span>檔案上傳中</span></div>
+        </div>
+      </div>
+
+      <div class="upload-source-menu" id="upload-source-menu" hidden>
+        <button class="upload-source-scrim" type="button" data-close-source aria-label="關閉選取方式"></button>
+        <section class="upload-action-sheet" role="dialog" aria-modal="true" aria-label="選擇登機證來源">
+          <button type="button" data-upload-source="photos">照片圖庫</button>
+          <button type="button" data-upload-source="camera">拍照</button>
+          <button type="button" data-upload-source="files">選擇檔案</button>
+          <button type="button" data-upload-source="cancel">取消</button>
+        </section>
+      </div>
+
+      <section class="file-picker-screen" id="file-picker-screen" aria-label="檔案選擇器" hidden>
+        <header class="file-picker-header">
+          <button type="button" class="file-picker-cancel" data-close-picker>取消</button>
+          <h2>最近項目</h2>
+          <div class="file-picker-more" aria-hidden="true"><span></span><span></span><span></span></div>
+        </header>
+        <label class="file-picker-search">
+          <img src="assets/file-picker-asset-2.svg" alt="" />
+          <input id="file-picker-search" type="search" placeholder="搜尋" autocomplete="off" aria-label="搜尋最近項目" />
+        </label>
+        <div class="file-picker-content">
+          <div class="file-picker-heading"><h3>最近項目</h3><button type="button" id="file-picker-sort" data-sort="recent">名稱</button></div>
+          <div class="file-picker-list" id="file-picker-list">
+            <div class="file-picker-group" data-file-group="valid-files">
+              <button class="file-picker-row" type="button" data-research-boarding-pass data-sample-file="paper-boarding-pass" data-recent-order="1624">
+                <span class="file-picker-icon"><img src="assets/file-picker-asset-3.svg" alt="" /><span class="file-type-badge png">PNG</span></span>
+                <span class="file-picker-details"><span class="file-picker-name">登機證.png</span><span class="file-picker-meta">今天，下午 4:24 · 1.88 MB</span></span><span class="file-picker-ellipsis" aria-hidden="true">•••</span>
+              </button>
+              <button class="file-picker-row" type="button" data-sample-file="proof-jpg" data-recent-order="1623">
+                <span class="file-picker-icon"><img src="assets/file-picker-asset-3.svg" alt="" /><span class="file-type-badge jpg">JPG</span></span>
+                <span class="file-picker-details"><span class="file-picker-name">延誤證明.jpg</span><span class="file-picker-meta">今天，下午 4:21 · 2.16 MB</span></span><span class="file-picker-ellipsis" aria-hidden="true">•••</span>
+              </button>
+              <button class="file-picker-row" type="button" data-sample-file="proof-pdf" data-recent-order="1622">
+                <span class="file-picker-icon"><img src="assets/file-picker-asset-3.svg" alt="" /><span class="file-type-badge pdf">PDF</span></span>
+                <span class="file-picker-details"><span class="file-picker-name">延誤證明2.pdf</span><span class="file-picker-meta">今天，下午 4:22 · 1.24 MB</span></span><span class="file-picker-ellipsis" aria-hidden="true">•••</span>
+              </button>
+              <button class="file-picker-row" type="button" data-sample-file="bankbook-sample" data-recent-order="1620">
+                <span class="file-picker-icon"><img src="assets/file-picker-asset-3.svg" alt="" /><span class="file-type-badge jpg">JPG</span></span>
+                <span class="file-picker-details"><span class="file-picker-name">存摺.jpg</span><span class="file-picker-meta">今天，下午 4:20 · 1.42 MB</span></span><span class="file-picker-ellipsis" aria-hidden="true">•••</span>
+              </button>
+              <button class="file-picker-row" type="button" data-sample-file="zip" data-recent-order="1618">
+                <span class="file-picker-icon"><img src="assets/file-picker-asset-3.svg" alt="" /><span class="file-type-badge zip">ZIP</span></span>
+                <span class="file-picker-details"><span class="file-picker-name">租屋合約.zip</span><span class="file-picker-meta">今天，下午 4:18 · 684 KB</span></span><span class="file-picker-ellipsis" aria-hidden="true">•••</span>
+              </button>
+              <button class="file-picker-row" type="button" data-sample-file="mobile-photo" data-recent-order="1612">
+                <span class="file-picker-icon"><img src="assets/file-picker-asset-3.svg" alt="" /><span class="file-type-badge jpg">JPG</span></span>
+                <span class="file-picker-details"><span class="file-picker-name">手機照片.jpg</span><span class="file-picker-meta">今天，下午 4:12 · 20 MB</span></span><span class="file-picker-ellipsis" aria-hidden="true">•••</span>
+              </button>
+            </div>
+            <div class="file-picker-group" data-file-group="file-validation">
+              <h4 class="file-picker-group-title">格式與大小限制測試</h4>
+              <button class="file-picker-row" type="button" data-sample-file="zip" data-recent-order="1618">
+                <span class="file-picker-icon"><img src="assets/file-picker-asset-3.svg" alt="" /><span class="file-type-badge zip">ZIP</span></span>
+                <span class="file-picker-details"><span class="file-picker-name">航班資料_不支援格式.zip</span><span class="file-picker-meta">今天，下午 4:18 · 684 KB</span></span><span class="file-picker-ellipsis" aria-hidden="true">•••</span>
+              </button>
+              <button class="file-picker-row" type="button" data-sample-file="pdf" data-recent-order="1612">
+                <span class="file-picker-icon"><img src="assets/file-picker-asset-3.svg" alt="" /><span class="file-type-badge pdf">PDF</span></span>
+                <span class="file-picker-details"><span class="file-picker-name">班機延誤證明_超過10MB.pdf</span><span class="file-picker-meta">今天，下午 4:12 · 12.4 MB</span></span><span class="file-picker-ellipsis" aria-hidden="true">•••</span>
+              </button>
+              <button class="file-picker-row" type="button" data-sample-file="docx-large" data-recent-order="1611">
+                <span class="file-picker-icon"><img src="assets/file-picker-asset-3.svg" alt="" /><span class="file-type-badge docx">DOCX</span></span>
+                <span class="file-picker-details"><span class="file-picker-name">交易明細.docx</span><span class="file-picker-meta">今天，下午 4:11 · 12.4 MB</span></span><span class="file-picker-ellipsis" aria-hidden="true">•••</span>
+              </button>
+            </div>
+            <div class="file-picker-group" data-file-group="upload-outcomes">
+              <h4 class="file-picker-group-title">上傳錯誤情境</h4>
+              <button class="file-picker-row" type="button" data-sample-file="system-error" data-recent-order="1625">
+                <span class="file-picker-icon"><img src="assets/file-picker-asset-3.svg" alt="" /><span class="file-type-badge png">PNG</span></span>
+                <span class="file-picker-details"><span class="file-picker-name">系統異常測試.png</span><span class="file-picker-meta">今天，下午 4:25 · 模擬系統異常</span></span><span class="file-picker-ellipsis" aria-hidden="true">•••</span>
+              </button>
+              <button class="file-picker-row" type="button" data-sample-file="recognition-error" data-recent-order="1624">
+                <span class="file-picker-icon"><img src="assets/file-picker-asset-3.svg" alt="" /><span class="file-type-badge jpg">JPG</span></span>
+                <span class="file-picker-details"><span class="file-picker-name">辨識失敗測試.jpg</span><span class="file-picker-meta">今天，下午 4:24 · 模擬辨識失敗</span></span><span class="file-picker-ellipsis" aria-hidden="true">•••</span>
+              </button>
+              <button class="file-picker-row" type="button" data-sample-file="not-boarding-pass" data-recent-order="1622">
+                <span class="file-picker-icon"><img src="assets/file-picker-asset-3.svg" alt="" /><span class="file-type-badge jpg">JPG</span></span>
+                <span class="file-picker-details"><span class="file-picker-name">非登機證測試.jpg</span><span class="file-picker-meta">今天，下午 4:22 · 模擬辨識為非登機證</span></span><span class="file-picker-ellipsis" aria-hidden="true">•••</span>
+              </button>
+              <button class="file-picker-row" type="button" data-sample-file="network-error" data-recent-order="1623">
+                <span class="file-picker-icon"><img src="assets/file-picker-asset-3.svg" alt="" /><span class="file-type-badge png">PNG</span></span>
+                <span class="file-picker-details"><span class="file-picker-name">連線異常測試.png</span><span class="file-picker-meta">今天，下午 4:23 · 模擬網路異常</span></span><span class="file-picker-ellipsis" aria-hidden="true">•••</span>
+              </button>
+            </div>
+            <div class="file-picker-group" data-file-group="data-lookup">
+              <h4 class="file-picker-group-title">航班資料比對</h4>
+              <button class="file-picker-row" type="button" data-sample-file="no-data" data-recent-order="1626">
+                <span class="file-picker-icon"><img src="assets/file-picker-asset-3.svg" alt="" /><span class="file-type-badge jpg">JPG</span></span>
+                <span class="file-picker-details"><span class="file-picker-name">查無航班資料測試.jpg</span><span class="file-picker-meta">今天，下午 4:26 · 模擬查無航班資料</span></span><span class="file-picker-ellipsis" aria-hidden="true">•••</span>
+              </button>
+            </div>
+          </div>
+          <p class="file-picker-location">iCloud 雲碟 <span aria-hidden="true">›</span> 下載項目</p>
+        </div>
+      </section>
+
+      <div class="boarding-info-dialog" id="boarding-info-dialog" role="dialog" aria-modal="true" aria-labelledby="boarding-info-title" hidden>
+        <button class="boarding-info-scrim" type="button" data-close-info aria-label="關閉登機證資訊確認"></button>
+        <section class="boarding-info-sheet">
+          <header class="sheet-header boarding-info-header">
+            <h2 class="dialog-title" id="boarding-info-title">登機證資訊確認</h2>
+            <button class="dialog-x" type="button" data-close-info aria-label="關閉"><img src="assets/close.svg" alt="" /></button>
+          </header>
+          <form id="boarding-info-form" class="boarding-info-form" novalidate>
+            <div class="boarding-info-fields">
+              <label class="boarding-field"><span>乘客姓名</span><input name="passenger" value="Hoshimi Miyabi" required aria-describedby="passenger-error" /><span class="boarding-field-error" id="passenger-error" hidden>請輸入乘客姓名</span></label>
+              <label class="boarding-field"><span>航班編號</span><input name="flight" value="EK-366" required aria-describedby="flight-error" /><span class="boarding-field-error" id="flight-error" hidden>請輸入航班編號</span></label>
+              <div class="boarding-field airport-field">
+                <span id="origin-label">出發地</span>
+                <div class="airport-combobox" data-airport>
+                  <input class="airport-input" id="origin-airport" name="origin" value="DXB" required role="combobox" aria-labelledby="origin-label" aria-describedby="origin-error" aria-autocomplete="list" aria-expanded="false" aria-controls="origin-airport-options" autocomplete="off" />
+                  <span class="airport-state-icon" aria-hidden="true"><img src="assets/Direction=down.svg" alt="" /></span>
+                  <div class="airport-results" id="origin-airport-options" role="listbox" hidden>
+                    <p class="airport-empty" role="status" hidden>找不到符合的機場</p>
+                  </div>
+                </div>
+                <span class="boarding-field-error" id="origin-error" hidden>請選擇出發地</span>
+              </div>
+              <div class="boarding-field airport-field">
+                <span id="destination-label">目的地</span>
+                <div class="airport-combobox" data-airport>
+                  <input class="airport-input" id="destination-airport" name="destination" value="TPE" required role="combobox" aria-labelledby="destination-label" aria-describedby="destination-error" aria-autocomplete="list" aria-expanded="false" aria-controls="destination-airport-options" autocomplete="off" />
+                  <span class="airport-state-icon" aria-hidden="true"><img src="assets/Direction=down.svg" alt="" /></span>
+                  <div class="airport-results" id="destination-airport-options" role="listbox" hidden>
+                    <p class="airport-empty" role="status" hidden>找不到符合的機場</p>
+                  </div>
+                </div>
+                <span class="boarding-field-error" id="destination-error" hidden>請選擇目的地</span>
+              </div>
+              <div class="boarding-date-row">
+                <label class="boarding-field"><span>起飛年份</span><input name="year" inputmode="numeric" pattern="[0-9]{4}" value="2026" required aria-describedby="year-error" /><span class="boarding-field-error" id="year-error" hidden>請輸入正確年份</span></label>
+                <label class="boarding-field"><span>起飛日期</span><input name="date" inputmode="numeric" maxlength="5" pattern="[0-9]{2}/[0-9]{2}" value="03/30" required aria-describedby="date-error" /><span class="boarding-field-error" id="date-error" hidden>請輸入正確的起飛日期</span></label>
+              </div>
+            </div>
+            <footer class="boarding-info-footer"><button id="confirm-info" type="submit">確認資訊</button></footer>
+          </form>
+        </section>
+      </div>
+
+      <div class="scheduled-time-dialog" id="scheduled-time-dialog" role="dialog" aria-modal="true" aria-labelledby="scheduled-time-title" tabindex="-1" hidden>
+        <button class="scheduled-time-scrim" type="button" data-close-scheduled-time aria-label="關閉原定班機時間" tabindex="-1"></button>
+        <section class="scheduled-time-sheet">
+          <header class="sheet-header scheduled-time-header">
+            <h2 class="dialog-title" id="scheduled-time-title">原定班機時間</h2>
+            <button class="dialog-x" type="button" data-close-scheduled-time aria-label="關閉"><img src="assets/close.svg" alt="" /></button>
+          </header>
+          <form id="scheduled-time-form" class="scheduled-time-form" novalidate>
+            <div class="scheduled-time-fields">
+              <label class="scheduled-time-field" id="scheduled-date-field">
+                <span>原定起飛日期</span>
+                <input id="scheduled-date" name="scheduled-date" type="text" inputmode="numeric" autocomplete="off" maxlength="10" placeholder="YYYY/MM/DD" aria-describedby="scheduled-date-error" />
+                <span class="scheduled-time-error" id="scheduled-date-error" role="alert" hidden>請輸入正確的日期</span>
+              </label>
+              <label class="scheduled-time-field" id="scheduled-hour-field">
+                <span>原定起飛時間(24hr)</span>
+                <input id="scheduled-hour" name="scheduled-hour" type="text" inputmode="numeric" autocomplete="off" maxlength="5" placeholder="HH:MM" aria-describedby="scheduled-hour-error" />
+                <span class="scheduled-time-error" id="scheduled-hour-error" role="alert" hidden>請輸入正確的時間</span>
+              </label>
+            </div>
+            <footer class="scheduled-time-footer">
+              <button id="confirm-scheduled-time" type="submit" disabled>確認資訊</button>
+            </footer>
+          </form>
+        </section>
+      </div>
+
+      <div class="bank-info-dialog" id="bank-info-dialog" role="dialog" aria-modal="true" aria-labelledby="bank-info-title" tabindex="-1" hidden>
+        <button class="bank-info-scrim" type="button" data-close-bank-info aria-label="關閉匯款資料"></button>
+        <section class="bank-info-sheet">
+          <header class="sheet-header bank-info-header">
+            <h2 class="dialog-title" id="bank-info-title">帳戶資訊</h2>
+            <button class="dialog-x" type="button" data-close-bank-info aria-label="關閉"><img src="assets/close.svg" alt="" /></button>
+          </header>
+          <form class="bank-info-form" id="bank-info-form" novalidate>
+            <div class="bank-info-body">
+              <div class="bankbook-section-group">
+                <p class="bankbook-error" id="bankbook-error" role="alert" hidden></p>
+                <section class="bankbook-section" aria-labelledby="bankbook-intro">
+                  <p class="bank-info-intro" id="bankbook-intro">上傳存摺或填寫匯款資料</p>
+                  <input class="bankbook-file-input" id="bankbook-file-input" type="file" accept=".jpg,.jpeg,.png,.heic,.pdf" aria-label="上傳文件" />
+                  <button class="bankbook-dropzone" id="bankbook-dropzone" type="button" aria-describedby="bankbook-error">
+                    <img src="assets/file-upload.svg" alt="" />
+                    <span>上傳文件</span>
+                  </button>
+                  <div class="bankbook-selected" id="bankbook-selected" aria-live="polite" hidden>
+                    <span class="bankbook-selected-name" id="bankbook-selected-name"></span>
+                    <button class="bankbook-remove" id="bankbook-remove" type="button" aria-label="移除上傳文件"><img src="assets/file-delete.svg" alt="" /></button>
+                  </div>
+                  <ol class="bankbook-notes">
+                    <li>支援 JPG、JPEG、PNG、HEIC 及 PDF，單檔上限 10 MB，最多上傳 1 個檔案。</li>
+                    <li>上傳存摺後，填寫內容將被直接覆蓋</li>
+                  </ol>
+                </section>
+              </div>
+              <div class="bank-info-fields">
+                <label class="bank-info-field"><span>匯款戶名</span><input name="accountName" value="星O雅" readonly aria-readonly="true" /></label>
+                <label class="bank-info-field"><span id="bank-label">匯款銀行</span>
+                  <input type="hidden" name="bank" value="" />
+                  <div class="bank-combobox" id="bank-combobox">
+                    <input class="bank-combobox-input" id="bank-combobox-input" type="text" placeholder="請搜尋匯款銀行" role="combobox" aria-labelledby="bank-label" aria-required="true" aria-autocomplete="list" aria-expanded="false" aria-controls="bank-options" autocomplete="off" />
+                    <span class="airport-state-icon" aria-hidden="true"><img src="assets/Direction=down.svg" alt="" /></span>
+                    <div class="airport-results" id="bank-options" role="listbox" hidden>
+                      <p class="airport-empty" role="status" hidden>找不到符合的銀行</p>
+                    </div>
+                  </div>
+                </label>
+                <label class="bank-info-field"><span id="branch-label">分行別</span>
+                  <input type="hidden" name="branch" value="" />
+                  <div class="bank-combobox" id="branch-combobox">
+                    <input class="bank-combobox-input" id="branch-combobox-input" type="text" placeholder="請搜尋分行別" role="combobox" aria-labelledby="branch-label" aria-required="true" aria-autocomplete="list" aria-expanded="false" aria-controls="branch-options" autocomplete="off" disabled />
+                    <span class="airport-state-icon" aria-hidden="true"><img src="assets/Direction=down.svg" alt="" /></span>
+                    <div class="airport-results" id="branch-options" role="listbox" hidden>
+                      <p class="airport-empty" role="status" hidden>找不到符合的分行</p>
+                    </div>
+                  </div>
+                </label>
+                <label class="bank-info-field" id="bank-account-field"><span>匯款帳號</span><input name="account" type="text" inputmode="numeric" maxlength="14" autocomplete="off" placeholder="請輸入匯款帳號" aria-describedby="bank-account-error" aria-invalid="false" required /><span class="bank-account-error" id="bank-account-error" role="alert" hidden>請輸入正確的匯款帳號</span></label>
+              </div>
+            </div>
+            <footer class="bank-info-footer"><button id="confirm-bank-info" type="submit" disabled>確認資訊</button></footer>
+          </form>
+        </section>
+        <div class="bank-info-loading" id="bank-info-loading" role="status" aria-live="polite" hidden>
+          <div class="bank-info-loading-card"><img src="assets/loading-star.svg" alt="" /><span>圖片辨識中</span></div>
+        </div>
+      </div>
+
+      <div class="otp-dialog" id="otp-dialog" role="dialog" aria-modal="true" aria-labelledby="otp-title" tabindex="-1" hidden>
+        <button class="otp-scrim" type="button" data-close-otp aria-label="關閉動態密碼驗證"></button>
+        <section class="otp-sheet">
+          <header class="sheet-header otp-header">
+            <h2 class="dialog-title" id="otp-title">動態密碼驗證</h2>
+            <button class="dialog-x" type="button" data-close-otp aria-label="關閉"><img src="assets/close.svg" alt="" /></button>
+          </header>
+          <form class="otp-form" id="otp-form" novalidate>
+            <div class="otp-body">
+              <p class="otp-sent">動態密碼已發送至：<br /><strong>0963-****30</strong><br /><strong>Cathay***@***il.com</strong></p>
+              <p class="otp-expiry">動態密碼將在 5 分鐘後失效</p>
+              <label class="otp-field" id="otp-field">
+                <span>請輸入動態密碼</span>
+                <input id="otp-input" name="otp" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" aria-describedby="otp-error otp-countdown" />
+              </label>
+              <p class="otp-error" id="otp-error" role="alert" hidden></p>
+              <div class="otp-resend-row">
+                <span class="otp-countdown" id="otp-countdown" aria-live="polite"></span>
+                <button class="otp-resend" id="otp-resend" type="button" hidden>重新發送</button>
+              </div>
+              <div class="otp-help" id="otp-help">
+                <button class="otp-help-trigger" id="otp-help-trigger" type="button" aria-expanded="false" aria-controls="otp-help-note">
+                  <img src="assets/ic-mml-info.svg" alt="" />
+                  <span>收不到動態密碼簡訊？</span>
+                </button>
+              </div>
+            </div>
+            <footer class="otp-footer">
+              <button id="otp-next" type="submit" disabled>下一步</button>
+            </footer>
+          </form>
+          <div class="otp-help-note" id="otp-help-note" role="note" hidden>
+            <p>簡訊可能有延遲，請稍候並確認手機號碼是否正確。</p>
+            <button type="button" id="otp-help-close" aria-label="關閉提示">×</button>
+          </div>
+        </section>
+      </div>
+
+      <div class="auth-dialog" id="auth-dialog" role="dialog" aria-modal="true" aria-labelledby="auth-title" tabindex="-1" hidden>
+        <button class="auth-scrim" type="button" data-close-auth aria-label="關閉登入或註冊"></button>
+        <section class="auth-sheet" id="auth-sheet" data-view="login-password">
+          <header class="sheet-header auth-header">
+            <button class="auth-back" id="auth-back" type="button" hidden>上一步</button>
+            <h2 class="dialog-title" id="auth-title">登入</h2>
+            <button class="dialog-x" type="button" data-close-auth aria-label="關閉"><img src="assets/close.svg" alt="" /></button>
+          </header>
+          <div class="auth-tabs" id="auth-tabs" role="tablist" aria-label="登入方式">
+            <button type="button" role="tab" id="auth-password-tab" aria-controls="auth-view-login-password" aria-selected="true" data-auth-tab="login-password">密碼登入</button>
+            <button type="button" role="tab" id="auth-code-tab" aria-controls="auth-view-login-birthday" aria-selected="false" data-auth-tab="login-birthday">驗證碼登入</button>
+          </div>
+          <div class="auth-scroll" id="auth-scroll">
+            <section class="auth-view" id="auth-view-login-password" data-auth-view="login-password" role="tabpanel" aria-labelledby="auth-password-tab">
+              <form class="auth-form" id="auth-password-form" data-auth-form="login-password" novalidate>
+                <p class="auth-status" id="auth-status" role="status" hidden></p>
+                <div class="auth-field">
+                  <label for="login-id">帳號</label>
+                  <span class="auth-input-action">
+                    <input id="login-id" name="account" type="password" autocomplete="username" placeholder="請輸入你的身分證號 / 居留證號" aria-describedby="login-id-error" />
+                    <button class="auth-icon-button" type="button" data-toggle-password="login-id" data-toggle-label="帳號" aria-label="顯示帳號" aria-pressed="false"><img src="assets/auth-eye-closed.svg" alt="" /></button>
+                  </span>
+                  <span class="auth-field-error" id="login-id-error" data-auth-error-for="login-id" role="alert" hidden></span>
+                </div>
+                <div class="auth-field auth-password-field">
+                  <div class="auth-password-heading">
+                    <label for="login-password">密碼</label>
+                    <a class="auth-inline-link" href="https://www.cathay-ins.com.tw/INSOCWeb/servlet/HttpDispatcher/OCH1_0300/prompt" target="_blank" rel="noopener noreferrer">忘記密碼</a>
+                  </div>
+                  <span class="auth-input-action">
+                    <input id="login-password" name="password" type="password" autocomplete="current-password" placeholder="請輸入密碼" aria-describedby="login-password-error" />
+                    <button class="auth-icon-button" type="button" data-toggle-password="login-password" aria-label="顯示密碼" aria-pressed="false"><img src="assets/auth-eye-closed.svg" alt="" /></button>
+                  </span>
+                  <span class="auth-field-error" id="login-password-error" data-auth-error-for="login-password" role="alert" hidden></span>
+                </div>
+                <div class="auth-field auth-captcha-field">
+                  <label for="login-captcha-input">驗證碼</label>
+                  <div class="auth-captcha-control">
+                    <input id="login-captcha-input" name="captcha" type="text" autocomplete="off" autocapitalize="characters" maxlength="4" placeholder="請輸入驗證碼" aria-describedby="login-captcha-error" />
+                    <span class="auth-captcha-image-wrap"><img class="auth-captcha-image" id="auth-captcha-image" src="assets/login-captcha.png" alt="圖形驗證碼" /></span>
+                    <button class="auth-icon-button" type="button" id="auth-captcha-refresh" aria-label="刷新驗證碼"><img src="assets/login-captcha-refresh.svg" alt="" /></button>
+                    <button class="auth-icon-button" type="button" id="auth-captcha-audio" aria-label="播放驗證碼"><img src="assets/login-captcha-audio.svg" alt="" /></button>
+                  </div>
+                  <span class="auth-field-error" id="login-captcha-error" data-auth-error-for="login-captcha-input" role="alert" hidden></span>
+                </div>
+              </form>
+            </section>
+
+            <section class="auth-view" id="auth-view-login-birthday" data-auth-view="login-birthday" role="tabpanel" aria-labelledby="auth-code-tab" hidden>
+              <form class="auth-form" id="auth-birthday-form" data-auth-form="login-birthday" novalidate>
+                <div class="auth-field">
+                  <label for="login-code-id">帳號</label>
+                  <span class="auth-input-action">
+                    <input id="login-code-id" name="account" type="password" autocomplete="username" placeholder="請輸入你的身分證號 / 居留證號" aria-describedby="login-code-id-error" />
+                    <button class="auth-icon-button" type="button" data-toggle-password="login-code-id" data-toggle-label="帳號" aria-label="顯示帳號" aria-pressed="false"><img src="assets/auth-eye-closed.svg" alt="" /></button>
+                  </span>
+                  <span class="auth-field-error" id="login-code-id-error" data-auth-error-for="login-code-id" role="alert" hidden></span>
+                </div>
+                <div class="auth-field auth-password-field">
+                  <label for="login-birthday">生日</label>
+                  <span class="auth-input-action">
+                    <input id="login-birthday" name="birthday" type="password" inputmode="numeric" maxlength="8" autocomplete="bday" placeholder="請輸入西元年格式，例如19990511" aria-describedby="login-birthday-error" />
+                    <button class="auth-icon-button" type="button" data-toggle-password="login-birthday" data-toggle-label="生日" aria-label="顯示生日" aria-pressed="false"><img src="assets/auth-eye-closed.svg" alt="" /></button>
+                  </span>
+                  <span class="auth-field-error" id="login-birthday-error" data-auth-error-for="login-birthday" role="alert" hidden></span>
+                </div>
+              </form>
+            </section>
+
+            <section class="auth-view" id="auth-view-login-code" data-auth-view="login-code" role="tabpanel" aria-labelledby="auth-code-tab" hidden>
+              <form class="auth-form" id="login-code-form" data-auth-form="login-code" novalidate>
+                <div class="login-otp-message">
+                  <p class="auth-otp-sent">驗證碼已發送至：<br /><span id="login-otp-phone">0963-****30</span><br /><span id="login-otp-email">Cathay***@***il.com</span></p>
+                  <p class="auth-otp-expiry">驗證碼將在 5 分鐘後失效</p>
+                </div>
+                <div class="login-otp-component">
+                  <label class="auth-field login-otp-field" for="login-otp-input">
+                    <span>請輸入驗證碼：</span>
+                    <span class="login-otp-entry-row">
+                      <span class="login-otp-prefix" aria-hidden="true">NBDW -</span>
+                      <input id="login-otp-input" name="otp" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="請輸入驗證碼" aria-describedby="login-otp-error login-otp-countdown" />
+                    </span>
+                    <span class="auth-field-error" id="login-otp-error" role="alert" hidden></span>
+                  </label>
+                  <div class="auth-resend-row login-otp-resend"><span id="login-otp-countdown" aria-live="polite"><span data-countdown-time>0:59</span> 後可以重新發送</span><button class="auth-inline-link" id="login-otp-resend" type="button" hidden>重新發送動態密碼</button></div>
+                </div>
+                <div class="otp-help login-code-help" id="login-code-help">
+                  <button class="otp-help-trigger" id="login-otp-help-trigger" type="button" aria-expanded="false" aria-controls="login-otp-help-note">
+                    <img src="assets/ic-mml-info.svg" alt="" />
+                    <span>收不到動態密碼簡訊？</span>
+                  </button>
+                </div>
+              </form>
+            </section>
+
+            <section class="auth-view" id="auth-view-forgot-phone" data-auth-view="forgot-phone" hidden>
+              <form class="auth-form" id="forgot-phone-form" data-auth-form="forgot-phone" novalidate>
+                <h3 class="auth-recovery-heading">忘記密碼嗎？別擔心，讓我協助您找回</h3>
+                <p class="auth-recovery-copy">若您更改手機號碼或 Email，以致無法收到驗證碼，請洽免費客服電話 0800-212-880。</p>
+                <label class="auth-field" for="forgot-phone"><span>請輸入註冊時填寫的手機號碼</span><input id="forgot-phone" name="phone" type="tel" inputmode="numeric" maxlength="10" autocomplete="tel" placeholder="09XXXXXXXX" aria-describedby="forgot-phone-error" /><span class="auth-field-error" id="forgot-phone-error" data-auth-error-for="forgot-phone" role="alert" hidden></span></label>
+              </form>
+            </section>
+
+            <section class="auth-view" id="auth-view-forgot-code" data-auth-view="forgot-code" hidden>
+              <form class="auth-form" id="forgot-code-form" data-auth-form="forgot-code" novalidate>
+                <p class="auth-otp-sent">驗證碼已發送至：<br /><span id="forgot-otp-phone">09XX-****XX</span></p>
+                <p class="auth-otp-expiry">驗證碼將在 5 分鐘後失效</p>
+                <label class="auth-field" for="forgot-otp-input"><span>請輸入動態密碼</span><input id="forgot-otp-input" name="otp" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code" aria-describedby="forgot-otp-error forgot-otp-countdown" /><span class="auth-field-error" id="forgot-otp-error" role="alert" hidden></span></label>
+                <div class="auth-resend-row"><span id="forgot-otp-countdown" aria-live="polite"></span><button class="auth-inline-link" id="forgot-otp-resend" type="button" hidden>重新發送</button></div>
+              </form>
+            </section>
+
+            <section class="auth-view" id="auth-view-forgot-password" data-auth-view="forgot-password" hidden>
+              <form class="auth-form" id="forgot-password-form" data-auth-form="forgot-password" novalidate>
+                <label class="auth-field" for="forgot-new-password"><span>設定新密碼</span><span class="auth-input-action"><input id="forgot-new-password" name="password" type="password" autocomplete="new-password" aria-describedby="forgot-new-password-error" /><button class="auth-icon-button" type="button" data-toggle-password="forgot-new-password" aria-label="顯示密碼" aria-pressed="false"><img src="assets/auth-eye-closed.svg" alt="" /></button></span><span class="auth-field-error" id="forgot-new-password-error" data-auth-error-for="forgot-new-password" role="alert" hidden></span></label>
+                <label class="auth-field" for="forgot-confirm-password"><span>再次輸入新密碼</span><input id="forgot-confirm-password" name="confirmPassword" type="password" autocomplete="new-password" aria-describedby="forgot-confirm-password-error" /><span class="auth-field-error" id="forgot-confirm-password-error" data-auth-error-for="forgot-confirm-password" role="alert" hidden></span></label>
+                <p class="auth-password-hint">8-12 位英數混合，不含特殊符號或連續 3 碼</p>
+              </form>
+            </section>
+
+            <section class="auth-view" id="auth-view-signup-1" data-auth-view="signup-1" hidden>
+              <div class="auth-progress" data-step="1"><div class="auth-progress-label"><span>填寫基本資料</span><span>1 / 4</span></div><div class="auth-progress-track"><img class="auth-progress-fill" src="assets/signup-progress-bar.png" alt="" /></div></div>
+              <form class="auth-form auth-signup-form" id="signup-basic-form" data-auth-form="signup-1" novalidate>
+                <label class="auth-field" for="signup-id"><span>帳號</span><input id="signup-id" name="identity" type="text" autocomplete="username" autocapitalize="characters" placeholder="請輸入你的身分證或居留證號" aria-describedby="signup-id-error" /><span class="auth-field-error" id="signup-id-error" data-auth-error-for="signup-id" role="alert" hidden></span></label>
+                <label class="auth-field" for="signup-birthday"><span>生日(需年滿 18 歲)</span><input id="signup-birthday" name="birthday" type="text" inputmode="numeric" maxlength="10" autocomplete="bday" placeholder="YYYY/MM/DD" aria-describedby="signup-birthday-error" /><span class="auth-field-error" id="signup-birthday-error" data-auth-error-for="signup-birthday" role="alert" hidden></span></label>
+                <div class="auth-field auth-nationality-field" id="signup-nationality-field" hidden>
+                  <div class="auth-nationality-heading"><label id="signup-nationality-label" for="signup-nationality-trigger">國籍</label><button class="auth-nationality-help-trigger" id="signup-nationality-help" type="button" aria-expanded="false" aria-controls="signup-nationality-tooltip"><img src="assets/ic-mml-info.svg" alt="" /><span>無法注冊的國籍</span></button></div>
+                  <div class="auth-nationality-control">
+                    <select class="auth-nationality-native" id="signup-nationality" name="nationality" autocomplete="country-name" aria-describedby="signup-nationality-error" aria-hidden="true" tabindex="-1" required><option value="" selected disabled>輸入國籍</option></select>
+                    <div class="auth-nationality-search-wrap" id="signup-nationality-search-wrap" hidden>
+                      <input class="auth-nationality-search" id="signup-nationality-search" type="search" placeholder="輸入國籍" role="combobox" aria-label="搜尋國籍" aria-autocomplete="list" aria-expanded="false" aria-controls="signup-nationality-options" aria-describedby="signup-nationality-error" aria-required="true" autocomplete="off" />
+                      <img src="assets/airport-search.svg" alt="" aria-hidden="true" />
+                    </div>
+                    <button class="auth-nationality-select" id="signup-nationality-trigger" type="button" aria-labelledby="signup-nationality-label signup-nationality-value" aria-haspopup="listbox" aria-expanded="false" aria-controls="signup-nationality-options" aria-describedby="signup-nationality-error" aria-required="true">
+                      <span class="auth-nationality-value is-placeholder" id="signup-nationality-value">輸入國籍</span><img src="assets/Direction=down.svg" alt="" />
+                    </button>
+                  </div>
+                  <span class="auth-field-error" id="signup-nationality-error" data-auth-error-for="signup-nationality" role="alert" hidden></span>
+                </div>
+                <label class="auth-field" for="signup-name"><span>姓名</span><input id="signup-name" name="name" type="text" autocomplete="name" placeholder="輸入姓名" aria-describedby="signup-name-error" /><span class="auth-field-error" id="signup-name-error" data-auth-error-for="signup-name" role="alert" hidden></span></label>
+                <label class="auth-field" for="signup-phone"><span>手機號碼</span><input id="signup-phone" name="phone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="請輸入你的手機號碼" aria-describedby="signup-phone-error" /><span class="auth-field-error" id="signup-phone-error" data-auth-error-for="signup-phone" role="alert" hidden></span></label>
+                <label class="auth-field" for="signup-promo"><span>活動碼(非必填)</span><input id="signup-promo" name="promo" type="text" autocomplete="off" placeholder="非必填，無代碼可以不用輸入" aria-describedby="signup-promo-error" /><span class="auth-field-error" id="signup-promo-error" data-auth-error-for="signup-promo" role="alert" hidden></span></label>
+              </form>
+            </section>
+
+            <section class="auth-view" id="auth-view-signup-2" data-auth-view="signup-2" hidden>
+              <div class="auth-progress" data-step="2"><div class="auth-progress-label"><span>閱讀/同意聲明事項</span><span>2 / 4</span></div><div class="auth-progress-track"><img class="auth-progress-fill" src="assets/signup-progress-bar.png" alt="" /></div></div>
+              <p class="auth-section-heading">請審閱後勾選以下條款</p>
+              <fieldset class="auth-declarations"><legend class="visually-hidden">請閱讀並同意四項聲明</legend>
+                <div class="auth-declaration-item"><input type="checkbox" name="declaration" value="privacy" aria-label="已閱讀個人資料蒐集與告知事項" /><span>一、</span><button type="button" class="auth-declaration-link" data-open-signup-statement="privacy" aria-haspopup="dialog" aria-controls="signup-statement-dialog">個人資料蒐集與告知事項</button></div>
+                <div class="auth-declaration-item"><input type="checkbox" name="declaration" value="terms" aria-label="已閱讀國泰產險網站服務使用約定書" /><span>二、</span><button type="button" class="auth-declaration-link" data-open-signup-statement="terms" aria-haspopup="dialog" aria-controls="signup-statement-dialog">國泰產險網站服務使用約定書</button></div>
+                <div class="auth-declaration-item"><input type="checkbox" name="declaration" value="online-service" aria-label="已閱讀網路保險服務聲明事項" /><span>三、</span><button type="button" class="auth-declaration-link" data-open-signup-statement="online-service" aria-haspopup="dialog" aria-controls="signup-statement-dialog">網路保險服務聲明事項</button></div>
+                <div class="auth-declaration-item"><input type="checkbox" name="declaration" value="online-insurance" aria-label="已閱讀網路投保聲明暨同意書" /><span>四、</span><button type="button" class="auth-declaration-link" data-open-signup-statement="online-insurance" aria-haspopup="dialog" aria-controls="signup-statement-dialog">網路投保聲明暨同意書</button></div>
+              </fieldset>
+              <div class="auth-declaration-all"><input id="signup-all-declarations" type="checkbox" /><label for="signup-all-declarations">我已詳閱並同意以上四項聲明事項，並知悉相關契約書有至少五日審閱期且完成審閱。</label></div>
+            </section>
+
+            <section class="auth-view" id="auth-view-signup-3" data-auth-view="signup-3" hidden>
+              <div class="auth-progress" data-step="3"><div class="auth-progress-label"><span>動態密碼驗證</span><span class="auth-progress-count"><strong>3</strong><span class="auth-progress-total"> / 4</span></span></div><div class="auth-progress-track"><img class="auth-progress-fill" src="assets/signup-progress-bar.png" alt="" /></div></div>
+              <form class="auth-form auth-signup-otp-form" id="signup-otp-form" data-auth-form="signup-3" novalidate>
+                <div class="auth-otp-message">
+                  <p class="auth-otp-sent">動態密碼已發送至：<br /><strong id="signup-otp-phone">09XX-****XX</strong></p>
+                  <p class="auth-otp-expiry">動態密碼將在 5 分鐘後失效</p>
+                </div>
+                <div class="auth-otp-component">
+                  <label class="auth-field auth-otp-field" for="signup-otp-input">
+                    <span>請輸入動態密碼：</span>
+                    <span class="auth-otp-field-block">
+                      <span class="auth-otp-entry-row"><span class="auth-otp-prefix" aria-hidden="true">NBDW -</span><input id="signup-otp-input" name="otp" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="請輸入動態密碼" aria-describedby="signup-otp-error signup-otp-countdown" /></span>
+                      <span class="auth-field-error" id="signup-otp-error" role="alert" hidden></span>
+                    </span>
+                  </label>
+                  <div class="auth-resend-row auth-signup-otp-resend"><span id="signup-otp-countdown" aria-live="polite"><span data-countdown-time>0:59</span><span> 後可以重新發送動態密碼</span></span><button class="auth-inline-link" id="signup-otp-resend" type="button" hidden>重新發送動態密碼</button></div>
+                </div>
+              </form>
+            </section>
+
+            <section class="auth-view" id="auth-view-signup-4" data-auth-view="signup-4" hidden>
+              <div class="auth-progress" data-step="4"><div class="auth-progress-label"><span>設定密碼</span><span>4 / 4</span></div><div class="auth-progress-track"><img class="auth-progress-fill" src="assets/signup-progress-bar.png" alt="" /></div></div>
+              <form class="auth-form" id="signup-password-form" data-auth-form="signup-4" novalidate>
+                <label class="auth-field" for="signup-password"><span>設定會員密碼</span><span class="auth-input-action"><input id="signup-password" name="password" type="password" autocomplete="new-password" placeholder="8-12 英數字，禁連續 3 碼及特殊符號" aria-describedby="signup-password-error" /><button class="auth-icon-button" type="button" data-toggle-password="signup-password" aria-label="顯示密碼" aria-pressed="false"><img src="assets/auth-eye-closed.svg" alt="" /></button></span><span class="auth-field-error" id="signup-password-error" data-auth-error-for="signup-password" role="alert" hidden></span></label>
+                <label class="auth-field" for="signup-confirm-password"><span>再次輸入密碼</span><span class="auth-input-action"><input id="signup-confirm-password" name="confirmPassword" type="password" autocomplete="new-password" placeholder="8-12 英數字，禁連續 3 碼及特殊符號" aria-describedby="signup-confirm-password-error" /><button class="auth-icon-button" type="button" data-toggle-password="signup-confirm-password" data-toggle-label="再次輸入的密碼" aria-label="顯示再次輸入的密碼" aria-pressed="false"><img src="assets/auth-eye-closed.svg" alt="" /></button></span><span class="auth-field-error" id="signup-confirm-password-error" data-auth-error-for="signup-confirm-password" role="alert" hidden></span></label>
+              </form>
+            </section>
+          </div>
+          <footer class="auth-footer">
+            <button class="auth-primary" id="auth-primary" type="submit" form="auth-password-form" disabled>登入</button>
+            <p class="auth-footer-prompt" id="auth-footer-prompt"><button type="button" data-auth-register><span class="auth-footer-prompt-intro">還不是會員？</span> <span>立即註冊</span></button></p>
+          </footer>
+          <div class="otp-help-note login-otp-help-note" id="login-otp-help-note" role="note" hidden>
+            <p>簡訊可能有延遲，請稍候並確認手機號碼是否正確。</p>
+            <button type="button" id="login-otp-help-close" aria-label="關閉提示">×</button>
+          </div>
+        </section>
+        <div class="auth-nationality-menu" id="signup-nationality-menu" hidden>
+          <div class="auth-nationality-options" id="signup-nationality-options" role="listbox" aria-label="國籍"></div>
+          <p class="auth-nationality-empty" id="signup-nationality-empty" role="status" hidden>找不到符合的國籍</p>
+        </div>
+        <div class="auth-nationality-tooltip" id="signup-nationality-tooltip" role="tooltip" data-placement="above" hidden>
+          <div class="auth-nationality-tooltip-body">
+            <p>南蘇丹、黎巴嫩、剛果民主共和國、蘇丹、伊朗、利比亞及北韓 無法注冊。</p>
+            <button type="button" id="signup-nationality-help-close" aria-label="關閉提示"><img src="assets/tooltip-close.svg" alt="" /></button>
+          </div>
+          <img class="auth-nationality-tooltip-tail" src="assets/tooltip-tail.svg" alt="" aria-hidden="true" />
+        </div>
+        <div class="auth-statement-dialog" id="signup-statement-dialog" role="dialog" aria-modal="true" aria-labelledby="signup-statement-title" hidden>
+          <section class="auth-statement-sheet">
+            <header class="sheet-header auth-statement-header">
+              <h2 class="dialog-title">聲明事項</h2>
+              <button class="dialog-x" id="signup-statement-close" type="button" aria-label="關閉聲明"><img src="assets/close.svg" alt="" /></button>
+            </header>
+            <div class="auth-statement-scroll" id="signup-statement-scroll" tabindex="0">
+              <div class="auth-statement-content">
+                <h3 id="signup-statement-title"></h3>
+                <div class="auth-statement-copy">
+                  <p>此處為會員聲明閱讀流程示意，目前尚未置入正式條款文字。</p>
+                  <p>正式聲明內容及適用範圍，請以國泰產險提供並確認的正式文件為準。</p>
+                  <p>這段示意文字只用來呈現閱讀彈窗、滑至底部及點選同意的操作，不代表正式契約內容，也不代表實際的個人資料蒐集、處理或利用方式。</p>
+                  <p>以下段落為介面測試用的延伸內容，目的是呈現較長的閱讀區域與捲動狀態。實際使用時，這裡應替換成經確認的完整聲明本文。</p>
+                  <p>正式聲明可能依服務流程分成不同項目，並說明各項內容的名稱、用途、適用範圍與注意事項。這份示意稿不描述任何實際服務規則，也不會作為會員申請或保險服務的依據。</p>
+                  <p>閱讀時可以在此區域上下滑動，逐段查看本頁文字。畫面下方的操作按鈕會固定顯示，方便在閱讀完成後返回流程；閱讀區域本身則可以獨立捲動。</p>
+                  <p>為了檢查長內容在手機畫面中的呈現方式，示意文字刻意分成多個段落。每一段在正式版本中都應由對應的條款文字取代，並依原文保留標題、段落順序與必要的標點格式。</p>
+                  <p>當正式內容較長時，使用者可以繼續向下閱讀，直到本文最後一段。請確認文字不會被固定頁尾遮住，也要能清楚辨認目前的閱讀位置以及尚未閱讀的部分。</p>
+                  <p>如果正式聲明包含項目清單、分段標題或其他補充說明，這些內容也應放在可捲動區域內。此示意頁不代表清單項目或補充規則已經完整，也沒有設定任何額外的同意條件。</p>
+                  <p>閱讀完成後，請使用頁面底部的「同意」按鈕返回註冊畫面。按鈕的狀態只用來示範介面流程；實際的確認文字、按鈕行為及紀錄方式仍須依正式需求確認。</p>
+                  <p>在正式條款提供前，請勿將這些示意段落視為法律聲明、個資告知、服務約定或投保同意內容。所有正式文字都需要由業務及法務相關人員確認後再置入。</p>
+                  <p>此區域也用來確認不同手機尺寸下的閱讀體驗。視窗高度改變時，本文仍應保留足夠的捲動空間；固定標題與底部按鈕不應遮擋主要內容或妨礙操作。</p>
+                  <p>若使用者尚未閱讀到本文底部，介面會維持尚未完成的狀態。這個互動只供流程原型展示，正式產品仍需依確認後的條款內容和使用者流程規格實作。</p>
+                  <p>正式上線前，需由國泰產險提供完整聲明內容，並確認各項條款、適用對象及相關告知事項。</p>
+                  <p>請閱讀本頁內容後滑至最底，再點選「同意」。完成後，這項聲明才會在註冊畫面中標記為已閱讀。</p>
+                  <p>四項聲明都完成閱讀與勾選，並確認最下方的同意聲明後，才能繼續註冊流程。</p>
+                </div>
+              </div>
+            </div>
+            <button class="auth-statement-scroll-button" id="signup-statement-scroll-button" type="button">滑至最底 <span aria-hidden="true"></span></button>
+            <footer class="auth-statement-footer"><button class="auth-primary" id="signup-statement-agree" type="button" disabled>同意</button></footer>
+          </section>
+        </div>
+      </div>
+      </main>
+    </div>
+
+    <dialog class="policy-dialog confirm-dialog" id="confirm-dialog" aria-labelledby="confirm-title" aria-describedby="confirm-copy">
+      <div class="dialog-content confirm-content">
+        <div class="mini-alpha assistant-avatar" aria-hidden="true">
+          <img class="mascot-face" src="assets/mascot-face.png" alt="" />
+          <span class="avatar-star-position"><span class="avatar-star-inset"><img class="mascot-star" src="assets/mascot-star.svg" alt="" /></span></span>
+        </div>
+        <h2 class="dialog-title" id="confirm-title">即將前往國泰產險官網</h2>
+        <p class="dialog-copy" id="confirm-copy">您即將離開阿發，前往產險服務頁面。</p>
+        <div class="confirm-actions">
+          <button class="dialog-secondary" id="confirm-cancel" type="button">取消</button>
+          <a class="dialog-close dialog-link" id="confirm-go" href="https://www.cathay-ins.com.tw/cathayins/personal/claim/travel/" target="_blank" rel="noopener">前往官網</a>
+        </div>
+      </div>
+    </dialog>
+
+    <script src="../tracker-bridge.js" defer></script>
+    <script src="assets/bank-branch-directory.js" defer></script>
+    <script src="app.js" defer></script>
+    <script src="embed.js" defer></script>
+  </body>
+</html>

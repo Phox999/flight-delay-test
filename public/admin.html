@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>班機延誤測試後台</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--text:#172033;--muted:#687386;--line:#e6eaf0;--brand:#2667ff}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif;background:var(--bg);color:var(--text)}
+main{width:min(1240px,calc(100% - 32px));margin:28px auto 60px}h1{margin-bottom:6px}.muted{color:var(--muted)}
+.toolbar,.cards,.panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;margin:16px 0}
+.toolbar{display:flex;gap:10px;align-items:center}.toolbar input{flex:1;border:1px solid var(--line);padding:11px 12px;border-radius:10px}
+button{background:var(--brand);color:white;border:0;padding:11px 16px;border-radius:10px;font-weight:700;cursor:pointer}
+.cards{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}.metric{padding:14px;background:#f8fafc;border-radius:12px}.metric b{display:block;font-size:26px;margin-top:6px}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:12px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{color:#475569;background:#fafbfd;position:sticky;top:0}
+.badge{display:inline-block;padding:5px 8px;border-radius:999px;background:#eef3ff;color:#2667ff;font-weight:700;font-size:12px}
+.path{max-width:360px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+dialog{width:min(900px,calc(100% - 32px));border:0;border-radius:16px;padding:0;box-shadow:0 20px 70px rgba(0,0,0,.25)}
+.dialogIn{padding:24px}.event{padding:9px 0;border-bottom:1px solid var(--line)}.event small{color:var(--muted)}
+@media(max-width:900px){.cards{grid-template-columns:1fr 1fr}.panel{overflow:auto}}
+</style>
+</head>
+<body><main>
+<h1>班機延誤｜線上測試後台</h1><div class="muted">查看每位受測者的完成狀態、時間、重試、辨識失敗與操作路徑。</div>
+<div class="toolbar"><input id="key" type="password" placeholder="輸入後台金鑰"><button onclick="loadAll()">載入資料</button></div>
+<div class="cards" id="cards"></div>
+<div class="panel"><table><thead><tr>
+<th>受測者</th><th>組別</th><th>狀態</th><th>完成時間</th><th>返回</th><th>重試</th><th>辨識失敗</th><th>修改 AI</th><th>替代方式</th><th>放棄位置</th><th>操作路徑</th>
+</tr></thead><tbody id="rows"></tbody></table></div>
+<dialog id="dlg"><div class="dialogIn"><button style="float:right" onclick="dlg.close()">關閉</button><h2>受測者明細</h2><div id="detail"></div></div></dialog>
+<script>
+const dlg=document.getElementById("dlg");
+async function api(path){const r=await fetch(path,{headers:{"X-Admin-Key":document.getElementById("key").value}});if(!r.ok)throw new Error(await r.text());return r.json()}
+function sec(ms){if(ms==null)return "—";return Math.round(ms/1000)+" 秒"}
+async function loadAll(){
+  try{
+    const [s,list]=await Promise.all([api("/api/admin/summary"),api("/api/admin/sessions")]);
+    document.getElementById("cards").innerHTML=[
+      ["有效樣本",s.total],["完成率",s.completion_rate+"%"],["中位完成時間",sec(s.median_duration_ms)],
+      ["平均重試",s.avg_retry],["替代方式發現率",s.recovery_rate+"%"]
+    ].map(x=>`<div class="metric"><span>${x[0]}</span><b>${x[1]}</b></div>`).join("");
+    document.getElementById("rows").innerHTML=list.sessions.map(x=>`<tr onclick="openDetail('${x.id}')" style="cursor:pointer">
+      <td>${x.id.slice(0,8)}</td><td><span class="badge">${x.group_code}</span></td><td>${x.status}</td><td>${sec(x.duration_ms)}</td>
+      <td>${x.back_count}</td><td>${x.retry_count}</td><td>${x.ocr_fail_count}</td><td>${x.ai_edit_count?"是":"否"}</td>
+      <td>${x.recovery_found_count?"是":"否"}</td><td>${x.abandon_location||"—"}</td><td class="path">${x.operation_path||"—"}</td>
+    </tr>`).join("");
+  }catch(e){alert(e.message)}
+}
+async function openDetail(id){
+  const d=await api("/api/admin/session/"+id);
+  document.getElementById("detail").innerHTML=`
+  <p><b>組別：</b>${d.session.group_code}　<b>狀態：</b>${d.session.status}　<b>任務難易度：</b>${d.session.difficulty??"—"}</p>
+  <p><b>最不確定：</b>${d.session.uncertainty_text||"—"}</p>
+  <h3>各頁停留時間</h3>${Object.entries(d.page_dwell_ms).map(([k,v])=>`<div>${k}：${sec(v)}</div>`).join("")||"—"}
+  <h3>操作事件</h3>${d.events.map(e=>`<div class="event"><b>${e.event_name}</b> ${e.page_name||e.page_id||""}<br><small>${new Date(e.created_at).toLocaleString()} ${e.meta?JSON.stringify(e.meta):""}</small></div>`).join("")}`;
+  dlg.showModal();
+}
+</script></main></body></html>
