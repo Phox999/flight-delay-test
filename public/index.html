@@ -54,14 +54,16 @@
     .applicationGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 16px;margin-top:12px}
     .applicationItem{display:flex;gap:8px;align-items:baseline;min-width:0}
     .applicationItem b{font-weight:500}
-    .applicationItem .copyButton{display:inline-flex;flex:none;align-items:center;justify-content:center;width:26px;height:26px;margin:-3px 0 -3px auto;padding:4px;border:0;border-radius:7px;background:transparent;color:var(--muted);cursor:pointer}
+    .applicationItem .copyButton{display:inline-flex;flex:none;align-items:center;justify-content:center;width:32px;height:32px;margin:-3px 0 -3px auto;padding:3px;border:0;border-radius:8px;background:transparent;color:var(--muted);cursor:pointer}
     .applicationItem .copyButton:hover{background:#eef3ff;color:var(--brand)}
     .applicationItem .copyButton:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
     .applicationItem .copyButton[data-copied="true"]{color:#16803c}
-    .applicationItem .copyButton svg{width:16px;height:16px;display:block}
-    .applicationItem .copyCheck{display:none}
-    .applicationItem .copyButton[data-copied="true"] .copyIcon{display:none}
-    .applicationItem .copyButton[data-copied="true"] .copyCheck{display:block}
+    .applicationItem .copyButton svg{width:22px;height:22px;display:block}
+    .applicationItem--verification{gap:4px}
+    .applicationItem--verification>span{white-space:nowrap;font-size:12px;letter-spacing:-.03em}
+    .signupData{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+    .signupDataTitle{display:block;margin-bottom:8px}
+    .signupDataNote{margin:8px 0 0;font-size:12px;color:var(--muted)}
     .srOnly{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
     .taskBriefCard{width:100%;max-width:560px;margin:0 auto 16px;border-radius:32px}
     .flowCard{width:100%;max-width:560px;margin:0 auto;padding:0;border:0;background:transparent;box-shadow:none}
@@ -214,12 +216,22 @@
       <div class="notice">
         <b>申請資料</b>
         <div class="applicationGrid">
-          <div class="applicationItem"><span>銀行：</span><b>國泰世華銀行</b><button class="copyButton" type="button" data-copy-value="國泰世華銀行" data-copy-label="銀行名稱" aria-label="複製銀行名稱" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg><svg class="copyCheck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg></button></div>
-          <div class="applicationItem"><span>分行：</span><b>三重分行</b><button class="copyButton" type="button" data-copy-value="三重分行" data-copy-label="分行" aria-label="複製分行" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg><svg class="copyCheck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg></button></div>
-          <div class="applicationItem"><span>銀行帳號：</span><b>12345678</b><button class="copyButton" type="button" data-copy-value="12345678" data-copy-label="銀行帳號" aria-label="複製銀行帳號" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg><svg class="copyCheck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg></button></div>
-          <div class="applicationItem"><span>身分證：</span><b>A123456789</b><button class="copyButton" type="button" data-copy-value="A123456789" data-copy-label="身分證" aria-label="複製身分證" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg><svg class="copyCheck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg></button></div>
-          <div class="applicationItem"><span>密碼：</span><b>Test1234</b><button class="copyButton" type="button" data-copy-value="Test1234" data-copy-label="密碼" aria-label="複製密碼" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg><svg class="copyCheck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg></button></div>
-          <div class="applicationItem"><span>驗證碼/動態密碼：</span><b>123123</b><button class="copyButton" type="button" data-copy-value="123123" data-copy-label="驗證碼/動態密碼" aria-label="複製驗證碼/動態密碼" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg><svg class="copyCheck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg></button></div>
+          <div class="applicationItem"><span>銀行：</span><b>國泰世華銀行</b><button class="copyButton" type="button" data-copy-value="國泰世華銀行" data-copy-label="銀行名稱" aria-label="複製銀行名稱" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
+          <div class="applicationItem"><span>分行：</span><b>三重分行</b><button class="copyButton" type="button" data-copy-value="三重分行" data-copy-label="分行" aria-label="複製分行" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
+          <div class="applicationItem"><span>銀行帳號：</span><b>12345678</b><button class="copyButton" type="button" data-copy-value="12345678" data-copy-label="銀行帳號" aria-label="複製銀行帳號" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
+          <div class="applicationItem"><span>身分證：</span><b>A123456789</b><button class="copyButton" type="button" data-copy-value="A123456789" data-copy-label="身分證" aria-label="複製身分證" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
+          <div class="applicationItem" data-login-only><span>登入密碼：</span><b>Test1234</b><button class="copyButton" type="button" data-copy-value="Test1234" data-copy-label="登入密碼" aria-label="複製登入密碼" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
+          <div class="applicationItem applicationItem--verification"><span>驗證碼/動態密碼：</span><b>123123</b><button class="copyButton" type="button" data-copy-value="123123" data-copy-label="驗證碼/動態密碼" aria-label="複製驗證碼/動態密碼" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
+        </div>
+        <div class="signupData" id="signupData" hidden>
+          <b class="signupDataTitle">會員註冊測試資料（A 組）</b>
+          <div class="applicationGrid">
+            <div class="applicationItem"><span>姓名：</span><b>王小明</b><button class="copyButton" type="button" data-copy-value="王小明" data-copy-label="姓名" aria-label="複製姓名" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
+            <div class="applicationItem"><span>生日：</span><b>1990/01/01</b><button class="copyButton" type="button" data-copy-value="1990/01/01" data-copy-label="生日" aria-label="複製生日" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
+            <div class="applicationItem"><span>手機：</span><b>0900000000</b><button class="copyButton" type="button" data-copy-value="0900000000" data-copy-label="手機號碼" aria-label="複製手機號碼" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
+            <div class="applicationItem"><span>註冊密碼：</span><b>Test2468</b><button class="copyButton" type="button" data-copy-value="Test2468" data-copy-label="註冊密碼" aria-label="複製註冊密碼" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
+          </div>
+          <p class="signupDataNote">以上是虛構測試資料，請勿填寫真實個人資料。</p>
         </div>
         <span id="applicationCopyStatus" class="srOnly" role="status" aria-live="polite"></span>
       </div>
@@ -338,8 +350,10 @@ document.getElementById("profileBtn").onclick=async()=>{
 
 function setupTask(){
   const group=session.group_code;
+  document.getElementById("signupData").hidden=group!=="A";
+  document.querySelector("[data-login-only]").hidden=group==="A";
   document.getElementById("taskCopy").innerHTML = group==="A"
-   ? `<p>你剛從日本回到台北。回程班機在 <b>2026/8/24 中午 12:00</b> 起飛，當天雖然延誤，你最後還是搭上原班機。</p><p>你有買國泰產險的旅遊平安險，手邊也留著<b>紙本登機證</b>。請用阿發申請班機延誤理賠，照畫面一步步操作，完成你覺得需要的步驟。</p>`
+   ? `<p>你剛從日本回到台北。回程班機在 <b>2026/8/24 中午 12:00</b> 起飛，當天雖然延誤，你最後還是搭上原班機。</p><p>你有買國泰產險的旅遊平安險，手邊也留著<b>紙本登機證</b>，而且還不是國泰產險會員。請先用下方的虛構測試資料完成會員註冊，再用阿發申請班機延誤理賠，照畫面一步步操作，完成你覺得需要的步驟。</p>`
    : `<p>你剛從日本回到台北。回程班機在 <b>2026/8/24 中午 12:00</b> 起飛，當天雖然延誤，你最後還是搭上原班機。</p><p>你有買國泰產險的旅遊平安險，手邊只有航空公司 App 或手機錢包裡的<b>電子登機證 QR Code</b>。請用阿發申請班機延誤理賠，照畫面一步步操作，完成你覺得需要的步驟。</p>`;
   document.getElementById("groupBQuestions").classList.toggle("hidden",group!=="B");
 }

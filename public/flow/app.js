@@ -1410,6 +1410,9 @@ function finishAuthLogin() {
 
 function finishSignup() {
   registeredMemberIds.add(authSignupProfile.identity.toUpperCase());
+  if (isUsabilityResearch) {
+    window.ResearchTracker?.emit("signup_complete", { group: usabilityGroup }, "membership-registration", "會員註冊");
+  }
   clearAuthOtpTimers();
   authDialog.hidden = true;
   authReturnToLogin = false;

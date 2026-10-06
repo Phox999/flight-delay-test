@@ -80,6 +80,11 @@ async function handleApi(request, env, url) {
     return json({ok:true});
   }
 
+  if (url.pathname === "/api/admin/analytics" && m === "GET") {
+    if (!adminOK(request,env)) return json({error:"unauthorized"},401);
+    return json(await buildAdminAnalytics(env,url));
+  }
+
   if (url.pathname === "/api/admin/summary" && m === "GET") {
     if (!adminOK(request,env)) return json({error:"unauthorized"},401);
     const rows = (await env.DB.prepare(`
@@ -135,3 +140,77 @@ async function handleApi(request, env, url) {
   return json({error:"not found"},404);
 }
 function safeParse(s){ try{return JSON.parse(s||"{}")}catch{return{}} }
+
+async function buildAdminAnalytics(env,url) {
+  const requested=url.searchParams.get("days");
+  const parsed=requested===null?30:Number(requested);
+  const days=Number.isFinite(parsed)&&parsed>=0?Math.min(3650,Math.floor(parsed)):30;
+  const cutoff=days?Date.now()-days*86400000:null;
+  const sessionsSql=`SELECT id,group_code,started_at,completed_at,abandoned_at,status,abandon_location,age_range,gender,travel_insurance_count,viewport,difficulty,recovery_understanding,progress_confidence FROM sessions ${cutoff===null?"":"WHERE started_at >= ?"} ORDER BY started_at DESC`;
+  const eventsSql=`SELECT session_id,event_name,created_at FROM events ${cutoff===null?"":"WHERE created_at >= ?"} ORDER BY created_at`;
+  const [sessionResult,eventResult]=await Promise.all([
+    cutoff===null?env.DB.prepare(sessionsSql).all():env.DB.prepare(sessionsSql).bind(cutoff).all(),
+    cutoff===null?env.DB.prepare(eventsSql).all():env.DB.prepare(eventsSql).bind(cutoff).all()
+  ]);
+  const sessions=sessionResult.results||[],events=eventResult.results||[];
+  const eventStats=new Map(),participantEvents=new Map(),bySession=new Map();
+  for(const event of events){
+    const total=eventStats.get(event.event_name)||0;
+    eventStats.set(event.event_name,total+1);
+    if(!participantEvents.has(event.event_name))participantEvents.set(event.event_name,new Set());
+    participantEvents.get(event.event_name).add(event.session_id);
+    if(!bySession.has(event.session_id))bySession.set(event.session_id,{retry:0,ocr_fail:0,ai_edit:0,recovery_found:0,back:0,names:new Set()});
+    const stats=bySession.get(event.session_id);
+    stats.names.add(event.event_name);
+    if(Object.hasOwn(stats,event.event_name))stats[event.event_name]+=1;
+  }
+  const sessionStats=session=>bySession.get(session.id)||{retry:0,ocr_fail:0,ai_edit:0,recovery_found:0,back:0,names:new Set()};
+  const completed=sessions.filter(session=>session.status==="completed"||sessionStats(session).names.has("task_success"));
+  const abandoned=sessions.filter(session=>session.status==="abandoned");
+  const durations=completed.map(session=>session.completed_at&&session.started_at?Math.max(0,session.completed_at-session.started_at):null).filter(value=>value!==null).sort((a,b)=>a-b);
+  const median=durations.length?(durations.length%2?durations[(durations.length-1)/2]:(durations[durations.length/2-1]+durations[durations.length/2])/2):null;
+  const retryTotal=sessions.reduce((sum,session)=>sum+sessionStats(session).retry,0);
+  const grouped={A:[],B:[]};
+  for(const session of sessions)if(grouped[session.group_code])grouped[session.group_code].push(session);
+  const average=(rows,key)=>{const values=rows.map(row=>row[key]).filter(value=>value!==null&&value!==undefined&&Number.isFinite(Number(value))).map(Number);return{value:values.length?values.reduce((sum,value)=>sum+value,0)/values.length:null,count:values.length}};
+  const groups=Object.entries(grouped).filter(([,rows])=>rows.length).map(([group_code,rows])=>{
+    const done=rows.filter(session=>session.status==="completed"||sessionStats(session).names.has("task_success"));
+    const groupDurations=done.map(session=>session.completed_at&&session.started_at?Math.max(0,session.completed_at-session.started_at):null).filter(value=>value!==null).sort((a,b)=>a-b);
+    const groupMedian=groupDurations.length?(groupDurations.length%2?groupDurations[(groupDurations.length-1)/2]:(groupDurations[groupDurations.length/2-1]+groupDurations[groupDurations.length/2])/2):null;
+    const retry=rows.reduce((sum,session)=>sum+sessionStats(session).retry,0);
+    const difficulty=average(rows,"difficulty"),recovery=average(rows,"recovery_understanding"),confidence=average(rows,"progress_confidence");
+    return{group_code,total:rows.length,completed:done.length,completion_rate:rows.length?Math.round(done.length*100/rows.length):0,median_duration_ms:groupMedian,avg_retry:rows.length?retry/rows.length:0,ocr_fail_users:rows.filter(session=>sessionStats(session).ocr_fail>0).length,recovery_users:rows.filter(session=>sessionStats(session).recovery_found>0).length,avg_difficulty:difficulty.value,difficulty_responses:difficulty.count,avg_recovery_understanding:recovery.value,recovery_responses:recovery.count,avg_progress_confidence:confidence.value,confidence_responses:confidence.count};
+  });
+  const distribution=(key,labelFor=value=>String(value||"未填"))=>{
+    const counts=new Map();
+    for(const session of sessions){const label=labelFor(session[key]);counts.set(label,(counts.get(label)||0)+1)}
+    return[...counts].map(([label,total])=>({label,total})).sort((a,b)=>b.total-a.total);
+  };
+  const deviceLabel=viewport=>{
+    const width=Number.parseInt(String(viewport||"").split("x")[0],10);
+    if(!Number.isFinite(width))return"未記錄";
+    return width<768?"手機":width<1024?"平板":"桌機";
+  };
+  const dailyMap=new Map(),formatTaipeiDay=timestamp=>{
+    const parts=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Taipei",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date(timestamp));
+    const values=Object.fromEntries(parts.map(part=>[part.type,part.value]));
+    return`${values.year}-${values.month}-${values.day}`;
+  };
+  for(const session of sessions){
+    if(session.started_at){const day=formatTaipeiDay(session.started_at);if(!dailyMap.has(day))dailyMap.set(day,{day,started:0,completed:0});dailyMap.get(day).started+=1;}
+    if(session.status==="completed"&&session.completed_at){const day=formatTaipeiDay(session.completed_at);if(!dailyMap.has(day))dailyMap.set(day,{day,started:0,completed:0});dailyMap.get(day).completed+=1;}
+  }
+  const taskStarted=new Set(events.filter(event=>event.event_name==="task_start").map(event=>event.session_id));
+  const taskCompleted=new Set([...completed.map(session=>session.id),...events.filter(event=>event.event_name==="task_success").map(event=>event.session_id)]);
+  const abandonCounts=new Map();
+  for(const session of abandoned){const label=session.abandon_location||"未記錄";abandonCounts.set(label,(abandonCounts.get(label)||0)+1)}
+  return{
+    summary:{total:sessions.length,completed:completed.length,abandoned:abandoned.length,in_progress:sessions.filter(session=>session.status==="in_progress").length,completion_rate:sessions.length?Math.round(completed.length*100/sessions.length):0,median_duration_ms:median,avg_duration_ms:durations.length?durations.reduce((sum,value)=>sum+value,0)/durations.length:null,avg_retry:sessions.length?retryTotal/sessions.length:0,retry_total:retryTotal},
+    funnel:{registered:sessions.length,task_started:taskStarted.size,task_completed:taskCompleted.size,feedback_submitted:sessions.filter(session=>session.difficulty!==null&&session.difficulty!==undefined).length},
+    daily:[...dailyMap.values()].sort((a,b)=>a.day.localeCompare(b.day)),
+    events:[...eventStats].map(([event_name,total])=>({event_name,total,participants:(participantEvents.get(event_name)||new Set()).size})).sort((a,b)=>b.total-a.total),
+    groups,
+    demographics:{age_range:distribution("age_range"),gender:distribution("gender"),device:distribution("viewport",deviceLabel)},
+    abandon_locations:[...abandonCounts].map(([label,total])=>({label,total})).sort((a,b)=>b.total-a.total)
+  };
+}
