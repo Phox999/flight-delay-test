@@ -552,18 +552,19 @@ a.inline-link { text-decoration: underline; }
 
 .single-button-row {
   display: flex;
-  width: 100%;
-  gap: 16px;
+  width: max-content;
+  max-width: 100%;
+  gap: 8px;
   margin-top: 12px;
 }
 .single-button-row .chat-action {
   display: inline-flex;
-  flex: 1 1 0;
+  flex: 0 0 auto;
   min-width: 0;
   min-height: 44px;
   align-items: center;
   justify-content: center;
-  padding: 10px 12px;
+  padding: 8px 24px;
   border: 0;
   border-radius: 999px;
   color: var(--brand-highlight);
@@ -1416,7 +1417,7 @@ a.inline-link { text-decoration: underline; }
 }
 .boarding-info-sheet {
   position: absolute;
-  top: 10%;
+  top: 19.16%;
   right: 0;
   bottom: 0;
   left: 0;
@@ -1479,7 +1480,7 @@ a.inline-link { text-decoration: underline; }
   line-height: 22px;
   cursor: text;
 }
-.boarding-field input.airport-input::placeholder,
+.boarding-field input::placeholder,
 .bank-info-field input.bank-combobox-input::placeholder { color: var(--text-placeholder); opacity: 1; }
 .boarding-field input.airport-input:focus-visible,
 .airport-combobox.is-open .airport-input,

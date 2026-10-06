@@ -272,12 +272,12 @@
           </header>
           <form id="boarding-info-form" class="boarding-info-form" novalidate>
             <div class="boarding-info-fields">
-              <label class="boarding-field"><span>乘客姓名</span><input name="passenger" value="Hoshimi Miyabi" required aria-describedby="passenger-error" /><span class="boarding-field-error" id="passenger-error" hidden>請輸入乘客姓名</span></label>
-              <label class="boarding-field"><span>航班編號</span><input name="flight" value="EK-366" required aria-describedby="flight-error" /><span class="boarding-field-error" id="flight-error" hidden>請輸入航班編號</span></label>
+              <label class="boarding-field"><span>乘客姓名</span><input name="passenger" value="Hoshimi Miyabi" placeholder="請輸入您的英文姓名" required aria-describedby="passenger-error" /><span class="boarding-field-error" id="passenger-error" hidden>請輸入乘客姓名</span></label>
+              <label class="boarding-field"><span>航班編號</span><input name="flight" value="EK-366" placeholder="請輸入航班編號" required aria-describedby="flight-error" /><span class="boarding-field-error" id="flight-error" hidden>請輸入航班編號</span></label>
               <div class="boarding-field airport-field">
                 <span id="origin-label">出發地</span>
                 <div class="airport-combobox" data-airport>
-                  <input class="airport-input" id="origin-airport" name="origin" value="DXB" required role="combobox" aria-labelledby="origin-label" aria-describedby="origin-error" aria-autocomplete="list" aria-expanded="false" aria-controls="origin-airport-options" autocomplete="off" />
+                  <input class="airport-input" id="origin-airport" name="origin" value="DXB" placeholder="請選擇出發地" required role="combobox" aria-labelledby="origin-label" aria-describedby="origin-error" aria-autocomplete="list" aria-expanded="false" aria-controls="origin-airport-options" autocomplete="off" />
                   <span class="airport-state-icon" aria-hidden="true"><img src="assets/Direction=down.svg" alt="" /></span>
                   <div class="airport-results" id="origin-airport-options" role="listbox" hidden>
                     <p class="airport-empty" role="status" hidden>找不到符合的機場</p>
@@ -288,7 +288,7 @@
               <div class="boarding-field airport-field">
                 <span id="destination-label">目的地</span>
                 <div class="airport-combobox" data-airport>
-                  <input class="airport-input" id="destination-airport" name="destination" value="TPE" required role="combobox" aria-labelledby="destination-label" aria-describedby="destination-error" aria-autocomplete="list" aria-expanded="false" aria-controls="destination-airport-options" autocomplete="off" />
+                  <input class="airport-input" id="destination-airport" name="destination" value="TPE" placeholder="請選擇目的地" required role="combobox" aria-labelledby="destination-label" aria-describedby="destination-error" aria-autocomplete="list" aria-expanded="false" aria-controls="destination-airport-options" autocomplete="off" />
                   <span class="airport-state-icon" aria-hidden="true"><img src="assets/Direction=down.svg" alt="" /></span>
                   <div class="airport-results" id="destination-airport-options" role="listbox" hidden>
                     <p class="airport-empty" role="status" hidden>找不到符合的機場</p>
@@ -297,8 +297,8 @@
                 <span class="boarding-field-error" id="destination-error" hidden>請選擇目的地</span>
               </div>
               <div class="boarding-date-row">
-                <label class="boarding-field"><span>起飛年份</span><input name="year" inputmode="numeric" pattern="[0-9]{4}" value="2026" required aria-describedby="year-error" /><span class="boarding-field-error" id="year-error" hidden>請輸入正確年份</span></label>
-                <label class="boarding-field"><span>起飛日期</span><input name="date" inputmode="numeric" maxlength="5" pattern="[0-9]{2}/[0-9]{2}" value="03/30" required aria-describedby="date-error" /><span class="boarding-field-error" id="date-error" hidden>請輸入正確的起飛日期</span></label>
+                <label class="boarding-field"><span>起飛年份</span><input name="year" inputmode="numeric" pattern="[0-9]{4}" value="2026" placeholder="YYYY" required aria-describedby="year-error" /><span class="boarding-field-error" id="year-error" hidden>請輸入正確年份</span></label>
+                <label class="boarding-field"><span>起飛日期</span><input name="date" inputmode="numeric" maxlength="5" pattern="[0-9]{2}/[0-9]{2}" value="03/30" placeholder="MM/DD" required aria-describedby="date-error" /><span class="boarding-field-error" id="date-error" hidden>請輸入正確的起飛日期</span></label>
               </div>
             </div>
             <footer class="boarding-info-footer"><button id="confirm-info" type="submit">確認資訊</button></footer>
