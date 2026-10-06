@@ -233,7 +233,7 @@
       <div class="statusPill" id="taskStatus">進行中</div>
       <div class="taskNavActions">
         <button class="ghost" id="backTaskBtn">返回上一步</button>
-        <button class="danger" id="giveUpBtn">我想先結束</button>
+        <button class="primary" id="giveUpBtn">我已完成</button>
       </div>
     </div>
   </section>
@@ -282,7 +282,7 @@ const LOCAL_PREVIEW = location.protocol === "file:";
 const FLOW_URL = (window.APP_CONFIG && APP_CONFIG.FLOW_URL) || (LOCAL_PREVIEW
   ? new URL("./flow/index.html", location.href).href
   : new URL("/flow/", location.origin).href);
-let currentPage = 1, session = null;
+let currentPage = 1, session = null, taskCompletionInProgress = false;
 
 const localPreviewNotice = document.getElementById("localPreviewNotice");
 if (LOCAL_PREVIEW && localPreviewNotice) localPreviewNotice.classList.remove("hidden");
@@ -359,24 +359,31 @@ async function sendEvent(event_name, meta={}, page_id=null, page_name=null){
   try{ await api("/api/events",{method:"POST",body:JSON.stringify({session_id:session.id,event_name,page_id,page_name,meta})}); }catch(e){}
 }
 
+async function completeTask(source, event={}){
+  if(taskCompletionInProgress || !session) return;
+  taskCompletionInProgress = true;
+  const eventMeta = source === "flow" ? (event.meta || {}) : {source:"participant-button"};
+  await sendEvent("task_success",eventMeta,event.page_id || null,event.page_name || null);
+  document.getElementById("taskStatus").textContent="任務已完成";
+  await api(`/api/sessions/${session.id}/finish`,{method:"POST",body:JSON.stringify({status:"completed",abandon_location:null})});
+  go(4);
+}
+
 window.addEventListener("message", async (ev)=>{
   const allowed = new URL(FLOW_URL).origin;
   if(ev.origin!==allowed) return;
   const d=ev.data||{};
   if(d.type!=="flight-delay-research") return;
-  await sendEvent(d.event,d.meta||{},d.page_id||null,d.page_name||null);
   if(d.event==="task_success"){
-    document.getElementById("taskStatus").textContent="任務已完成";
-    await api(`/api/sessions/${session.id}/finish`,{method:"POST",body:JSON.stringify({status:"completed",abandon_location:null})});
-    setTimeout(()=>go(4),500);
+    await completeTask("flow",d);
+    return;
   }
+  await sendEvent(d.event,d.meta||{},d.page_id||null,d.page_name||null);
 });
 
 document.getElementById("giveUpBtn").onclick=async()=>{
-  if(!confirm("要先結束這次任務嗎？")) return;
-  await sendEvent("task_abandon",{source:"participant"});
-  await api(`/api/sessions/${session.id}/finish`,{method:"POST",body:JSON.stringify({status:"abandoned"})});
-  go(4);
+  if(!confirm("已完成操作，要前往回饋頁嗎？")) return;
+  await completeTask("participant");
 };
 
 document.getElementById("finishBtn").onclick=async()=>{
