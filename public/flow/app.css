@@ -323,7 +323,7 @@ a.inline-link { text-decoration: underline; }
   gap: 16px;
   overflow-x: hidden;
   overflow-y: auto;
-  padding: 24px 0 0;
+  padding: 24px 0 20px;
   scrollbar-width: none;
 }
 
@@ -575,6 +575,7 @@ a.inline-link { text-decoration: underline; }
   text-align: center;
 }
 .single-button-row .chat-action:hover { background: #fff; }
+.boarding-recognition-actions .chat-action { color: var(--text-primary); }
 
 .chat-inline-action { display: block; margin-top: 22px; padding: 0; border: 0; color: var(--link); background: transparent; font-size: 16px; line-height: 22px; text-align: left; cursor: pointer; }
 

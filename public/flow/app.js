@@ -13,6 +13,7 @@ const welcome = document.querySelector(".welcome");
 const chatScreen = document.querySelector("#chat-screen");
 const input = document.querySelector("#message-input");
 const sendButton = document.querySelector("#send-button");
+const defaultMessagePlaceholder = input.placeholder;
 const policyDialog = document.querySelector("#policy-dialog");
 const policyTitle = document.querySelector("#dialog-title");
 const policyCopy = document.querySelector("#dialog-copy");
@@ -560,6 +561,12 @@ function scrollChatToBottom() {
   requestAnimationFrame(() => { chatScreen.scrollTop = chatScreen.scrollHeight; });
 }
 
+function setComposerFlowLock(locked) {
+  input.disabled = locked;
+  input.placeholder = locked ? "請完成理賠申請流程後再聊天" : defaultMessagePlaceholder;
+  sendButton.disabled = locked || input.value.trim().length === 0;
+}
+
 function appendUserMessage(message) {
   const row = document.createElement("div");
   row.className = "chat-user-row";
@@ -778,7 +785,7 @@ function isTaiwanNationalId(value) {
 
 function isResidencePermitId(value) {
   const normalized = value.trim().toUpperCase();
-  return /^[A-Z][89]\d{8}$/.test(normalized) || /^[A-Z]{1,3}\d{8}$/.test(normalized);
+  return /^[A-Z][89]\d{8}$/.test(normalized) || /^[A-Z]{2}\d{8}$/.test(normalized);
 }
 
 function isValidMemberId(value) {
@@ -1285,6 +1292,7 @@ function closeAuthDialog() {
     return;
   }
   authDialog.hidden = true;
+  setComposerFlowLock(false);
   clearAuthOtpTimers();
   authIsVerifying = false;
   if (authOrigin === "claim") appendLoginDeclinedMessage();
@@ -1293,11 +1301,13 @@ function closeAuthDialog() {
 
 function openClaimLogin(returnFocus = document.activeElement) {
   if (!authDialog.hidden) return;
+  setComposerFlowLock(true);
   showAuthDialog({ origin: "claim", returnFocus });
   appendUserMessage("確認申請");
 }
 
 function openClaimSignup(returnFocus = document.activeElement) {
+  setComposerFlowLock(true);
   appendUserMessage("加入國泰產險會員");
   showAuthDialog({ origin: "signup", returnFocus });
   showSignupFlow();
@@ -2086,31 +2096,23 @@ function finishBoardingPassUpload() {
     closeUploadDialog({ restoreFocus: false, showNoProof: false });
     appendUserMessage("確認上傳");
 
-    const content = document.createElement("div");
-    const message = document.createElement("p");
     if (isUsabilityResearch && usabilityGroup === "B" && selectedBoardingPass.researchElectronicQr) {
       window.ResearchTracker?.ocrFail({ file_name: selectedBoardingPass.name, source: "electronic-boarding-pass-qr" });
-      message.textContent = "電子登機證 QR Code 目前無法辨識，請改上傳班機延誤證明繼續申請。";
-      const actions = document.createElement("div");
-      actions.className = "single-button-row";
-      actions.append(makeAction("上傳班機延誤證明", "upload-delay-proof"));
-      content.append(message, actions);
-      appendAssistantMessage(content);
-      return;
     }
-    message.textContent = boardingPassRecognitionFailures < 2
+    const message = boardingPassRecognitionFailures < 2
       ? "你上傳的文件無法辨識，請手動輸入或重新上傳。"
       : "文件已上傳成功，但目前無法辨識內容，請改用手動輸入。";
     const actions = document.createElement("div");
-    actions.className = "single-button-row";
+    actions.className = "single-button-row boarding-recognition-actions";
     if (boardingPassRecognitionFailures < 2) {
       actions.append(makeAction("手動輸入", "manual-boarding-info"));
       actions.append(makeAction("重新上傳", "retry-boarding-pass"));
     } else {
       actions.append(makeAction("手動輸入", "manual-boarding-info"));
     }
-    content.append(message, actions);
-    appendAssistantMessage(content);
+    const { column } = appendAssistantMessage(message);
+    column.append(actions);
+    scrollChatToBottom();
     return;
   }
 
@@ -2959,6 +2961,7 @@ function finishOtpVerification() {
   otpInput.disabled = false;
   otpNext.textContent = "下一步";
   otpDialog.hidden = true;
+  setComposerFlowLock(false);
   const result = document.createElement("div");
   const message = document.createElement("p");
   message.textContent = "已收到你的匯款資料，案件編號 00910-HAC，可以隨時在會員中心查看理賠進度。";
@@ -2995,6 +2998,7 @@ function finishOtpApiError() {
   otpInput.setAttribute("aria-invalid", "false");
   otpNext.textContent = "下一步";
   otpDialog.hidden = true;
+  setComposerFlowLock(false);
   otpHelpNote.hidden = true;
   otpHelpTrigger.setAttribute("aria-expanded", "false");
 
@@ -3766,10 +3770,22 @@ function isValidBoardingDate(yearValue, dateValue) {
   const day = Number(dateMatch[2]);
   if (month < 1 || month > 12 || day < 1) return false;
 
-  const year = /^\d{4}$/.test(yearValue.trim()) ? Number(yearValue) : 2000;
+  if (boardingYearError(yearValue)) return false;
+  const year = Number(yearValue.trim());
   const isLeapYear = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
   const daysInMonth = [31, isLeapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-  return day <= daysInMonth[month - 1];
+  if (day > daysInMonth[month - 1]) return false;
+
+  const today = new Date();
+  return year < today.getFullYear()
+    || (year === today.getFullYear() && (month < today.getMonth() + 1
+      || (month === today.getMonth() + 1 && day <= today.getDate())));
+}
+
+function boardingYearError(yearValue) {
+  const normalized = yearValue.trim();
+  if (!/^\d{4}$/.test(normalized)) return "請輸入正確年份";
+  return Number(normalized) > new Date().getFullYear() ? "起飛年份不可晚於今年" : "";
 }
 
 function setBoardingFieldError(input, message) {
@@ -3816,8 +3832,11 @@ function validateBoardingInfo() {
     if (fieldMessage) errors.push(field);
   });
 
-  const yearMessage = /^\d{4}$/.test(year.value.trim()) ? "" : "請輸入正確年份";
-  const dateMessage = isValidBoardingDate(year.value, date.value) ? "" : "請輸入正確的起飛日期";
+  const yearMessage = boardingYearError(year.value);
+  let dateMessage = "";
+  if (!yearMessage && !isValidBoardingDate(year.value, date.value)) {
+    dateMessage = "請輸入不晚於今天的正確起飛日期";
+  }
   setBoardingFieldError(year, yearMessage);
   setBoardingFieldError(date, dateMessage);
   if (yearMessage) errors.push(year);
@@ -3879,6 +3898,12 @@ boardingInfoForm.addEventListener("input", () => {
   updateBoardingInfoButton();
   if (boardingInfoValidationAttempted) validateBoardingInfo();
 });
+boardingInfoForm.elements.year.addEventListener("input", (event) => {
+  const year = event.currentTarget;
+  const value = year.value.trim();
+  if (/^\d{4}$/.test(value)) setBoardingFieldError(year, boardingYearError(value));
+  else if (!boardingInfoValidationAttempted) setBoardingFieldError(year, "");
+});
 boardingInfoForm.addEventListener("change", () => {
   boardingInfoConfirmed = false;
   updateBoardingInfoButton();
@@ -3897,6 +3922,7 @@ chatScreen.addEventListener("click", (event) => {
       showPersonalDataNotice();
       break;
     case "return-login":
+      setComposerFlowLock(true);
       showAuthDialog({ origin: "claim", returnFocus: button });
       break;
     case "open-upload":

@@ -220,7 +220,7 @@
           <div class="applicationItem"><span>分行：</span><b>三重分行</b><button class="copyButton" type="button" data-copy-value="三重分行" data-copy-label="分行" aria-label="複製分行" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
           <div class="applicationItem"><span>銀行帳號：</span><b>12345678</b><button class="copyButton" type="button" data-copy-value="12345678" data-copy-label="銀行帳號" aria-label="複製銀行帳號" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
           <div class="applicationItem"><span>身分證：</span><b>A123456789</b><button class="copyButton" type="button" data-copy-value="A123456789" data-copy-label="身分證" aria-label="複製身分證" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
-          <div class="applicationItem" data-login-only><span>登入密碼：</span><b>Test1234</b><button class="copyButton" type="button" data-copy-value="Test1234" data-copy-label="登入密碼" aria-label="複製登入密碼" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
+          <div class="applicationItem hidden" data-login-only hidden><span>登入密碼：</span><b>Test1234</b><button class="copyButton" type="button" data-copy-value="Test1234" data-copy-label="登入密碼" aria-label="複製登入密碼" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
           <div class="applicationItem applicationItem--verification"><span>驗證碼/動態密碼：</span><b>123123</b><button class="copyButton" type="button" data-copy-value="123123" data-copy-label="驗證碼/動態密碼" aria-label="複製驗證碼/動態密碼" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
         </div>
         <div class="signupData" id="signupData" hidden>
@@ -351,10 +351,14 @@ document.getElementById("profileBtn").onclick=async()=>{
 function setupTask(){
   const group=session.group_code;
   document.getElementById("signupData").hidden=group!=="A";
-  document.querySelector("[data-login-only]").hidden=group==="A";
+  document.querySelectorAll("[data-login-only]").forEach((item)=>{
+    const showForGroupB=group==="B";
+    item.hidden=!showForGroupB;
+    item.classList.toggle("hidden",!showForGroupB);
+  });
   document.getElementById("taskCopy").innerHTML = group==="A"
    ? `<p>你剛從日本回到台北。回程班機在 <b>2026/8/24 中午 12:00</b> 起飛，當天雖然延誤，你最後還是搭上原班機。</p><p>你有買國泰產險的旅遊平安險，手邊也留著<b>紙本登機證</b>，而且還不是國泰產險會員。請先用下方的虛構測試資料完成會員註冊，再用阿發申請班機延誤理賠，照畫面一步步操作，完成你覺得需要的步驟。</p>`
-   : `<p>你剛從日本回到台北。回程班機在 <b>2026/8/24 中午 12:00</b> 起飛，當天雖然延誤，你最後還是搭上原班機。</p><p>你有買國泰產險的旅遊平安險，手邊只有航空公司 App 或手機錢包裡的<b>電子登機證 QR Code</b>。請用阿發申請班機延誤理賠，照畫面一步步操作，完成你覺得需要的步驟。</p>`;
+   : `<p>你剛從日本回到台北。回程班機在 <b>2026/8/24 中午 12:00</b> 起飛，當天雖然延誤，你最後還是搭上原班機。</p><p>你有買國泰產險的旅遊平安險，手邊只有航空公司 App 或手機錢包裡的<b>電子登機證 QR Code</b>。請用阿發申請班機延誤理賠，照畫面一步步操作，完成你覺得需要的步驟。</p><p><b>B 組航班範例測試資料</b>：乘客姓名 TARO TEST、航班編號 TEST-001、航線 大阪關西（KIX）→桃園（TPE）、起飛日期與時間 2026/8/24 12:00。登機證辨識失敗後，可用這些範例資料手動輸入。</p>`;
   document.getElementById("groupBQuestions").classList.toggle("hidden",group!=="B");
 }
 
