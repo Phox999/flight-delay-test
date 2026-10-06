@@ -13,7 +13,7 @@
 ```bash
 npx wrangler d1 create flight-delay-usability
 ```
-把回傳的 `database_id` 填入 `wrangler.jsonc`。
+把 Cloudflare 回傳的有效 `database_id` 填入 `wrangler.jsonc`。目前若仍是範例提示文字，部署會失敗；不要自行填入資料庫名稱代替 ID。
 
 ## 2. 建立資料表
 ```bash
@@ -34,7 +34,12 @@ npx wrangler deploy
 `https://你的-worker.workers.dev/`
 
 後台：
-`https://你的-worker.workers.dev/admin.html`
+`https://你的-worker.workers.dev/admin`
+
+API：
+`https://你的-worker.workers.dev/api/`
+
+Cloudflare Workers Static Assets 會將 `/admin` 對應到 `public/admin.html`；後台 API 仍由 Worker 的 `/api/admin/*` 路徑處理。後台還需要設定 `ADMIN_KEY` secret 才能讀取資料。
 
 ## 5. 阿發嵌入與事件追蹤
 

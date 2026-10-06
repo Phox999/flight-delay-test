@@ -1,10 +1,11 @@
 {
-  "name": "flight-delay-usability-test",
+  "name": "flight-delay-test",
   "main": "src/index.js",
   "compatibility_date": "2026-10-01",
   "assets": {
     "directory": "./public",
-    "binding": "ASSETS"
+    "binding": "ASSETS",
+    "html_handling": "auto-trailing-slash"
   },
   "vars": {
     "FLOW_URL": "/flow/"
@@ -13,7 +14,7 @@
     {
       "binding": "DB",
       "database_name": "flight-delay-usability",
-      "database_id": "請替換成你的 D1 database_id"
+      "database_id": "392eb8bd-326a-4981-8774-38c07df77aa7"
     }
   ]
 }
