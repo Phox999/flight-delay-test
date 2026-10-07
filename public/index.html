@@ -95,9 +95,8 @@
     .scenarioSection+.scenarioSection{margin-top:18px;border-top:1px solid var(--line);padding-top:14px}
     .scenarioSection h2{margin:0 0 6px;color:var(--brand);font-size:16px}
     .scenarioSection p{margin:0 0 10px}
+    .scenarioSection p:last-child{margin-bottom:0}
     .scenarioCard p{font-size:16px;line-height:1.9}
-    .scenarioPrompt{margin:20px 0 0;padding:14px 16px;border-radius:14px;background:#f3f6ff;color:#405477;line-height:1.7}
-    .scenarioPrompt p{margin:4px 0 0}
     .taskBackground{margin-top:16px;border-top:1px solid var(--line);padding-top:14px}
     .taskBackground summary{cursor:pointer;color:var(--brand);font-weight:700}
     .taskBackground[open] summary{margin-bottom:10px}
@@ -312,9 +311,8 @@
   <section class="page" data-page="3">
     <div class="card scenarioCard">
       <span class="scenarioEyebrow">任務情境</span>
-      <h1 id="scenarioTitle">請用阿發申請班機延誤理賠</h1>
+      <h1>使用智能助理阿發完成班機延誤理賠申請</h1>
       <div id="scenarioCopy"></div>
-      <div class="scenarioPrompt" id="scenarioPrompt"></div>
       <div class="actions">
         <button class="ghost" id="backScenarioBtn">上一步</button>
         <button class="primary" id="beginTaskBtn">開始測試</button>
@@ -635,11 +633,8 @@ function setupTask(){
    ? `<p>你已購買國泰產險的旅遊平安險，手上仍保留 <b>紙本登機證</b>，但目前還不是國泰產險會員。</p>`
    : `<p>你已購買國泰產險的旅遊平安險，手上保留的是航空公司 App／手機錢包中的 <b>電子登機證 QR Code</b>，但目前還不是國泰產險會員。</p>`);
   const task = `<p>請先完成 <b>國泰產險會員註冊</b>，再透過阿發申請 <b>班機延誤理賠</b>，依照畫面完成你認為需要的操作。</p>`;
-  const operationTip = `<strong>操作提示</strong><p>測試過程中如遇到需要填寫資料的欄位，可直接使用系統提供的 <b>測試資料一鍵帶入</b>，不需要輸入自己的真實資料。<br>當你認為任務已完成時，請點擊下方「我已完成」。</p>`;
-  const groupTitle = group==="A" ? "A 組｜紙本登機證" : "B 組｜電子登機證";
-  document.getElementById("scenarioTitle").textContent = groupTitle;
-  document.getElementById("scenarioCopy").innerHTML = `<section class="scenarioSection"><h2>情境</h2>${situation}</section><section class="scenarioSection"><h2>任務</h2>${task}</section>`;
-  document.getElementById("scenarioPrompt").innerHTML = operationTip;
+  const operationTip = `<section class="scenarioSection"><h2>操作提示</h2><p>測試過程中如遇到需要填寫資料的欄位，可直接使用系統提供的 <b>測試資料一鍵帶入</b>，不需要輸入自己的真實資料。</p><p>當你認為任務已完成時，請點擊下方「我已完成」。</p></section>`;
+  document.getElementById("scenarioCopy").innerHTML = `<section class="scenarioSection"><h2>情境</h2>${situation}</section><section class="scenarioSection"><h2>任務</h2>${task}</section>${operationTip}`;
   document.getElementById("taskCopy").innerHTML = `<section class="scenarioSection"><h2>情境</h2>${situation}</section>`;
   document.getElementById("groupBQuestions").classList.toggle("hidden",group!=="B");
 }
