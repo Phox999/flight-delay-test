@@ -1,9 +1,9 @@
 # 班機延誤｜線上易用性測試
 
 這個專案包含：
-- `public/index.html`：4 階段線上測試頁面
+- `public/index.html`：包含操作前問卷、情境說明、阿發操作與測後回饋的線上測試頁面
 - `public/admin.html`：研究後台
-- `public/flow/`：嵌入第三頁的阿發 HTML、CSS、JavaScript 與圖片資產
+- `public/flow/`：嵌入第四頁的阿發 HTML、CSS、JavaScript 與圖片資產
 - `public/tracker-bridge.js`：核心流程往外層問卷傳送事件的橋接
 - `src/index.js`：Cloudflare Worker API
 - `schema.sql`：D1 資料表
@@ -72,6 +72,8 @@ ResearchTracker.success();
 - 完成送件：`ResearchTracker.success()`
 
 ## 後台目前可看
+- 操作前問卷：搭機次數、旅遊險購買次數、班機延誤經驗、登機證使用偏好、紙本／電子登機證取得方式與保留習慣
+- 第 5、6 題會依第 4 題選擇顯示；每位受測者的答案可在明細與 CSV 匯出查看
 - 任務是否完成
 - 完成時間
 - 各頁停留時間

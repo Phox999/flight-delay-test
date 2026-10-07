@@ -51,6 +51,16 @@
     .page[data-page="2"] .grid{gap:16px}
     .page[data-page="2"] .grid + .field,
     .page[data-page="2"] .field + .grid{margin-top:16px}
+    .surveyIntro{margin:-6px 0 20px;color:var(--muted);font-size:14px}
+    .surveyGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 24px}
+    .surveyQuestion{min-width:0;margin:0;padding:0;border:0}
+    .surveyQuestion legend{margin-bottom:9px;font-weight:700;font-size:15px;line-height:1.55}
+    .surveyQuestion legend .questionNumber{color:var(--brand);margin-right:5px}
+    .surveyOptions{display:flex;flex-wrap:wrap;gap:8px}
+    .surveyOptions label{display:inline-flex;align-items:center;gap:7px;margin:0;padding:9px 12px;border:1px solid var(--line);border-radius:12px;background:#fff;font-size:14px;font-weight:500;line-height:1.35;cursor:pointer}
+    .surveyOptions input{width:auto;margin:0;accent-color:var(--brand)}
+    .surveyQuestion--wide{grid-column:1/-1}
+    .surveyConditional[hidden]{display:none}
     .applicationGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 16px;margin-top:12px}
     .applicationItem{display:flex;gap:8px;align-items:baseline;min-width:0}
     .applicationItem b{font-weight:500;overflow-wrap:anywhere}
@@ -119,7 +129,7 @@
     .retryCount{font-variant-numeric:tabular-nums}
     @media(max-width:850px){
       .taskLayout{grid-template-columns:1fr}.taskBrief{position:static}.phone{width:100%;height:auto;aspect-ratio:393/852}.taskActions{width:100%;margin-top:16px;padding:12px 24px calc(12px + env(safe-area-inset-bottom))}
-      .grid{grid-template-columns:1fr}.card{padding:22px}.flowCard{padding:0}.top{padding:14px 16px}h1{font-size:27px}
+      .grid{grid-template-columns:1fr}.surveyGrid{grid-template-columns:1fr;gap:18px}.surveyQuestion--wide{grid-column:auto}.card{padding:22px}.flowCard{padding:0}.top{padding:14px 16px}h1{font-size:27px}
       .welcomeCard{grid-template-columns:1fr;margin:0 auto;padding:0}
       .welcomeVisual{min-height:230px;padding:22px 24px;display:grid;grid-template-columns:88px 1fr;grid-template-rows:auto 1fr;column-gap:18px;align-items:center}
       .welcomeVisualLabel{grid-column:1/-1;margin-bottom:16px}
@@ -179,40 +189,72 @@
 
   <section class="page" data-page="2">
     <div class="card">
-      <h2>基本資料</h2>
-      <div class="grid">
-        <div class="field">
-          <label>年齡區間</label>
-          <select id="age" required>
-            <option value="">請選擇</option><option>20–34</option><option>35–44</option><option>45–54</option><option>55+</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>性別</label>
-          <select id="gender" required>
-            <option value="">請選擇</option><option>男</option><option>女</option><option>其他／不透露</option>
-          </select>
-        </div>
-      </div>
-      <div class="field">
-          <label>過去一年，你買過幾次旅遊平安險？</label>
-          <input id="travelCount" type="number" min="0" max="50" placeholder="例如：2">
-      </div>
-      <div class="grid">
-        <div class="field">
-          <label>你曾申請過旅遊平安險理賠嗎？</label>
-          <div class="radioRow">
-            <label><input name="travelClaim" type="radio" value="是">是</label>
-            <label><input name="travelClaim" type="radio" value="否">否</label>
+      <h2>操作前｜基本資料</h2>
+      <p class="surveyIntro">請依照過去一年的實際經驗作答；第 5、6 題會依你選擇的登機證類型出現。</p>
+      <div class="surveyGrid">
+        <fieldset class="surveyQuestion">
+          <legend><span class="questionNumber">1.</span>過去 1 年，你搭乘飛機的次數？</legend>
+          <div class="surveyOptions">
+            <label><input name="flightFrequency" type="radio" value="0 次">0 次</label>
+            <label><input name="flightFrequency" type="radio" value="1–2 次">1–2 次</label>
+            <label><input name="flightFrequency" type="radio" value="3–5 次">3–5 次</label>
+            <label><input name="flightFrequency" type="radio" value="6 次以上">6 次以上</label>
           </div>
-        </div>
-        <div class="field">
-          <label>你曾申請過其他保險理賠嗎？</label>
-          <div class="radioRow">
-            <label><input name="anyClaim" type="radio" value="是">是</label>
-            <label><input name="anyClaim" type="radio" value="否">否</label>
+        </fieldset>
+        <fieldset class="surveyQuestion">
+          <legend><span class="questionNumber">2.</span>過去 1 年，你購買旅遊險的次數？</legend>
+          <div class="surveyOptions">
+            <label><input name="insuranceFrequency" type="radio" value="0 次">0 次</label>
+            <label><input name="insuranceFrequency" type="radio" value="1–2 次">1–2 次</label>
+            <label><input name="insuranceFrequency" type="radio" value="3–5 次">3–5 次</label>
+            <label><input name="insuranceFrequency" type="radio" value="6 次以上">6 次以上</label>
           </div>
-        </div>
+        </fieldset>
+        <fieldset class="surveyQuestion">
+          <legend><span class="questionNumber">3.</span>過去 1 年是否曾遇過班機延誤？</legend>
+          <div class="surveyOptions">
+            <label><input name="flightDelayExperience" type="radio" value="沒有">沒有</label>
+            <label><input name="flightDelayExperience" type="radio" value="有，1 次">有，1 次</label>
+            <label><input name="flightDelayExperience" type="radio" value="有，2 次以上">有，2 次以上</label>
+          </div>
+        </fieldset>
+        <fieldset class="surveyQuestion">
+          <legend><span class="questionNumber">4.</span>搭乘飛機時，你平常較常使用哪種登機證？</legend>
+          <div class="surveyOptions">
+            <label><input name="boardingPassPreference" type="radio" value="紙本登機證">紙本登機證</label>
+            <label><input name="boardingPassPreference" type="radio" value="電子登機證／QR Code">電子登機證／QR Code</label>
+            <label><input name="boardingPassPreference" type="radio" value="兩種都會使用">兩種都會使用</label>
+            <label><input name="boardingPassPreference" type="radio" value="沒有固定">沒有固定</label>
+          </div>
+        </fieldset>
+        <fieldset class="surveyQuestion surveyQuestion--wide surveyConditional" id="paperSourcesField" hidden>
+          <legend><span class="questionNumber">5.</span>如果使用紙本登機證，你通常如何取得？（複選）</legend>
+          <div class="surveyOptions">
+            <label><input name="paperBoardingPassSources" type="checkbox" value="自己事先列印">自己事先列印</label>
+            <label><input name="paperBoardingPassSources" type="checkbox" value="機場自助報到機列印">機場自助報到機列印</label>
+            <label><input name="paperBoardingPassSources" type="checkbox" value="報到／托運行李時由櫃檯列印">報到／托運行李時由櫃檯列印</label>
+            <label><input name="paperBoardingPassSources" type="checkbox" value="其他">其他</label>
+          </div>
+        </fieldset>
+        <fieldset class="surveyQuestion surveyQuestion--wide surveyConditional" id="electronicSourcesField" hidden>
+          <legend><span class="questionNumber">6.</span>如果使用電子登機證，你通常從哪裡取得或保存？（複選）</legend>
+          <div class="surveyOptions">
+            <label><input name="electronicBoardingPassSources" type="checkbox" value="航空公司 App">航空公司 App</label>
+            <label><input name="electronicBoardingPassSources" type="checkbox" value="Apple Wallet／Google Wallet 等手機錢包">Apple Wallet／Google Wallet 等手機錢包</label>
+            <label><input name="electronicBoardingPassSources" type="checkbox" value="Email">Email</label>
+            <label><input name="electronicBoardingPassSources" type="checkbox" value="截圖／儲存在相簿">截圖／儲存在相簿</label>
+            <label><input name="electronicBoardingPassSources" type="checkbox" value="其他">其他</label>
+          </div>
+        </fieldset>
+        <fieldset class="surveyQuestion surveyQuestion--wide">
+          <legend><span class="questionNumber">7.</span>旅程結束後，你通常會保留登機證嗎？</legend>
+          <div class="surveyOptions">
+            <label><input name="boardingPassRetention" type="radio" value="會，通常會保留">會，通常會保留</label>
+            <label><input name="boardingPassRetention" type="radio" value="有需要時才會保留">有需要時才會保留</label>
+            <label><input name="boardingPassRetention" type="radio" value="通常不會保留">通常不會保留</label>
+            <label><input name="boardingPassRetention" type="radio" value="沒特別注意">沒特別注意</label>
+          </div>
+        </fieldset>
       </div>
       <div class="actions">
         <button class="ghost" onclick="go(1)">上一步</button>
@@ -339,6 +381,16 @@ const localPreviewNotice = document.getElementById("localPreviewNotice");
 if (LOCAL_PREVIEW && localPreviewNotice) localPreviewNotice.classList.remove("hidden");
 
 function selected(name){ return document.querySelector(`input[name="${name}"]:checked`)?.value || ""; }
+function selectedMany(name){ return [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(input=>input.value); }
+function updateBoardingSourceQuestions(){
+  const preference=selected("boardingPassPreference");
+  const showPaper=["紙本登機證","兩種都會使用"].includes(preference);
+  const showElectronic=["電子登機證／QR Code","兩種都會使用"].includes(preference);
+  document.getElementById("paperSourcesField").hidden=!showPaper;
+  document.getElementById("electronicSourcesField").hidden=!showElectronic;
+  if(!showPaper) document.querySelectorAll('input[name="paperBoardingPassSources"]').forEach(input=>input.checked=false);
+  if(!showElectronic) document.querySelectorAll('input[name="electronicBoardingPassSources"]').forEach(input=>input.checked=false);
+}
 function go(n){
   currentPage = n;
   document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active", +p.dataset.page===n));
@@ -372,16 +424,29 @@ document.getElementById("startBtn").onclick=()=>{
   go(2);
 };
 
+document.querySelectorAll('input[name="boardingPassPreference"]').forEach(input=>input.addEventListener("change",updateBoardingSourceQuestions));
+
 document.getElementById("profileBtn").onclick=async()=>{
-  const age=document.getElementById("age").value, gender=document.getElementById("gender").value;
-  const travelCount=document.getElementById("travelCount").value;
-  const travelClaim=selected("travelClaim"), anyClaim=selected("anyClaim");
-  if(!age||!gender||travelCount===""||!travelClaim||!anyClaim) return alert("請先填完基本資料喔。");
+  const preference=selected("boardingPassPreference");
+  const profile={
+    flight_frequency:selected("flightFrequency"),
+    travel_insurance_frequency:selected("insuranceFrequency"),
+    flight_delay_experience:selected("flightDelayExperience"),
+    boarding_pass_preference:preference,
+    paper_boarding_pass_sources:selectedMany("paperBoardingPassSources"),
+    electronic_boarding_pass_sources:selectedMany("electronicBoardingPassSources"),
+    boarding_pass_retention:selected("boardingPassRetention")
+  };
+  const hasPaperQuestion=["紙本登機證","兩種都會使用"].includes(preference);
+  const hasElectronicQuestion=["電子登機證／QR Code","兩種都會使用"].includes(preference);
+  if(!profile.flight_frequency||!profile.travel_insurance_frequency||!profile.flight_delay_experience||!preference||!profile.boarding_pass_retention) return alert("請先完成第 1、2、3、4、7 題。");
+  if(hasPaperQuestion&&!profile.paper_boarding_pass_sources.length) return alert("請完成第 5 題。");
+  if(hasElectronicQuestion&&!profile.electronic_boarding_pass_sources.length) return alert("請完成第 6 題。");
   session = await api("/api/sessions",{method:"POST",body:JSON.stringify({
-    age_range:age, gender, travel_insurance_count:+travelCount,
-    travel_claimed:travelClaim==="是", any_claimed:anyClaim==="是",
     viewport:`${innerWidth}x${innerHeight}`, user_agent:navigator.userAgent
   })});
+  const profileRecorded=await sendEvent("pre_task_profile",profile);
+  if(!profileRecorded) return alert("基本資料尚未成功儲存，請確認網路連線後再按繼續。");
   taskRetryCount = 0;
   taskStarted = false;
   taskCompletionInProgress = false;

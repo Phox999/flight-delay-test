@@ -36,7 +36,7 @@ async function handleApi(request, env, url) {
       INSERT INTO sessions
       (id, group_code, started_at, status, age_range, gender, travel_insurance_count, travel_claimed, any_claimed, viewport, user_agent)
       VALUES (?, ?, ?, 'in_progress', ?, ?, ?, ?, ?, ?, ?)
-    `).bind(sid, group, Date.now(), b.age_range, b.gender, b.travel_insurance_count ?? 0, b.travel_claimed ? 1:0, b.any_claimed ? 1:0, b.viewport||"", b.user_agent||"").run();
+    `).bind(sid, group, Date.now(), b.age_range??null, b.gender??null, b.travel_insurance_count ?? 0, b.travel_claimed ? 1:0, b.any_claimed ? 1:0, b.viewport||"", b.user_agent||"").run();
     return json({ id:sid, group_code:group });
   }
 
@@ -113,7 +113,8 @@ async function handleApi(request, env, url) {
         (SELECT COUNT(*) FROM events e WHERE e.session_id=s.id AND e.event_name='ocr_fail') ocr_fail_count,
         (SELECT COUNT(*) FROM events e WHERE e.session_id=s.id AND e.event_name='ai_edit') ai_edit_count,
         (SELECT COUNT(*) FROM events e WHERE e.session_id=s.id AND e.event_name='recovery_found') recovery_found_count,
-        (SELECT GROUP_CONCAT(COALESCE(e.page_name,e.page_id),' → ') FROM events e WHERE e.session_id=s.id AND e.event_name='page_view') operation_path
+        (SELECT GROUP_CONCAT(COALESCE(e.page_name,e.page_id),' → ') FROM events e WHERE e.session_id=s.id AND e.event_name='page_view') operation_path,
+        (SELECT e.meta_json FROM events e WHERE e.session_id=s.id AND e.event_name='pre_task_profile' ORDER BY e.created_at DESC LIMIT 1) pre_task_profile_json
       FROM sessions s ORDER BY s.started_at DESC LIMIT 500
     `).all()).results;
     return json({sessions:rows});
@@ -153,8 +154,12 @@ async function buildAdminAnalytics(env,url) {
     cutoff===null?env.DB.prepare(eventsSql).all():env.DB.prepare(eventsSql).bind(cutoff).all()
   ]);
   const sessions=sessionResult.results||[],events=eventResult.results||[];
-  const eventStats=new Map(),participantEvents=new Map(),bySession=new Map();
+  const eventStats=new Map(),participantEvents=new Map(),bySession=new Map(),profilesBySession=new Map();
   for(const event of events){
+    if(event.event_name==="pre_task_profile"){
+      profilesBySession.set(event.session_id,safeParse(event.meta_json));
+      continue;
+    }
     const total=eventStats.get(event.event_name)||0;
     eventStats.set(event.event_name,total+1);
     if(!participantEvents.has(event.event_name))participantEvents.set(event.event_name,new Set());
@@ -185,6 +190,14 @@ async function buildAdminAnalytics(env,url) {
     const counts=new Map();
     for(const session of sessions){const label=labelFor(session[key]);counts.set(label,(counts.get(label)||0)+1)}
     return[...counts].map(([label,total])=>({label,total})).sort((a,b)=>b.total-a.total);
+  };
+  const profileDistribution=(key,allowMultiple=false)=>{
+    const counts=new Map();
+    for(const profile of profilesBySession.values()){
+      const values=allowMultiple?(Array.isArray(profile[key])?profile[key]:[]):[profile[key]];
+      for(const value of new Set(values.filter(Boolean)))counts.set(value,(counts.get(value)||0)+1);
+    }
+    return[...counts].map(([label,total])=>({label,total})).sort((a,b)=>b.total-a.total||a.label.localeCompare(b.label,"zh-TW"));
   };
   const deviceLabel=viewport=>{
     const width=Number.parseInt(String(viewport||"").split("x")[0],10);
@@ -247,6 +260,15 @@ async function buildAdminAnalytics(env,url) {
     events:[...eventStats].map(([event_name,total])=>({event_name,total,participants:(participantEvents.get(event_name)||new Set()).size})).sort((a,b)=>b.total-a.total),
     groups,
     demographics:{age_range:distribution("age_range"),gender:distribution("gender"),device:distribution("viewport",deviceLabel)},
+    pre_task_survey:{
+      flight_frequency:profileDistribution("flight_frequency"),
+      travel_insurance_frequency:profileDistribution("travel_insurance_frequency"),
+      flight_delay_experience:profileDistribution("flight_delay_experience"),
+      boarding_pass_preference:profileDistribution("boarding_pass_preference"),
+      paper_boarding_pass_sources:profileDistribution("paper_boarding_pass_sources",true),
+      electronic_boarding_pass_sources:profileDistribution("electronic_boarding_pass_sources",true),
+      boarding_pass_retention:profileDistribution("boarding_pass_retention")
+    },
     abandon_locations:[...abandonCounts].map(([label,total])=>({label,total})).sort((a,b)=>b.total-a.total)
   };
 }
