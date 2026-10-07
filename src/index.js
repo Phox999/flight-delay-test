@@ -286,7 +286,9 @@ async function buildAdminAnalytics(env,url) {
       boarding_pass_preference:profileDistribution("boarding_pass_preference"),
       paper_boarding_pass_sources:profileDistribution("paper_boarding_pass_sources",true),
       electronic_boarding_pass_sources:profileDistribution("electronic_boarding_pass_sources",true),
-      boarding_pass_retention:profileDistribution("boarding_pass_retention")
+      boarding_pass_retention:profileDistribution("boarding_pass_retention"),
+      travel_insurance_claim_experience:profileDistribution("travel_insurance_claim_experience"),
+      other_insurance_claim_experience:profileDistribution("other_insurance_claim_experience")
     },
     abandon_locations:[...abandonCounts].map(([label,total])=>({label,total})).sort((a,b)=>b.total-a.total)
   };

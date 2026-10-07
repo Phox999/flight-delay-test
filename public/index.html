@@ -92,8 +92,12 @@
     .scenarioCard{max-width:700px;margin:0 auto;border-radius:32px}
     .scenarioEyebrow{display:inline-flex;margin-bottom:10px;color:var(--brand);font-size:13px;font-weight:800;letter-spacing:.04em}
     .scenarioCard h1{font-size:28px}
+    .scenarioSection+.scenarioSection{margin-top:18px;border-top:1px solid var(--line);padding-top:14px}
+    .scenarioSection h2{margin:0 0 6px;color:var(--brand);font-size:16px}
+    .scenarioSection p{margin:0 0 10px}
     .scenarioCard p{font-size:16px;line-height:1.9}
     .scenarioPrompt{margin:20px 0 0;padding:14px 16px;border-radius:14px;background:#f3f6ff;color:#405477;line-height:1.7}
+    .scenarioPrompt p{margin:4px 0 0}
     .taskBackground{margin-top:16px;border-top:1px solid var(--line);padding-top:14px}
     .taskBackground summary{cursor:pointer;color:var(--brand);font-weight:700}
     .taskBackground[open] summary{margin-bottom:10px}
@@ -146,7 +150,6 @@
     .hidden{display:none!important}
     .statusPill{display:inline-flex;padding:7px 10px;border-radius:999px;background:#f1f5f9;color:#475569;font-size:13px;font-weight:800}
     .taskActions button:disabled{opacity:.55;cursor:wait}
-    .retryCount{font-variant-numeric:tabular-nums}
     @media(max-width:850px){
       .taskLayout{grid-template-columns:1fr}.taskBrief{position:static}.phone{width:100%;height:auto;aspect-ratio:393/852}.taskActions{width:100%;margin-top:16px;padding:12px 24px calc(12px + env(safe-area-inset-bottom))}
       .grid{grid-template-columns:1fr}.surveyGrid{grid-template-columns:1fr;gap:18px}.surveyQuestion--wide{grid-column:auto}.card{padding:22px}.flowCard{padding:0}.top{padding:14px 16px}h1{font-size:27px}
@@ -282,6 +285,22 @@
             <label><input name="boardingPassRetention" type="radio" value="沒特別注意">沒特別注意</label>
           </div>
         </fieldset>
+        <fieldset class="surveyQuestion surveyQuestion--wide">
+          <legend><span class="questionNumber">8.</span>你有申請過旅遊險的理賠嗎？</legend>
+          <div class="surveyOptions">
+            <label><input name="travelInsuranceClaimExperience" type="radio" value="沒有">沒有</label>
+            <label><input name="travelInsuranceClaimExperience" type="radio" value="有，1 次">有，1 次</label>
+            <label><input name="travelInsuranceClaimExperience" type="radio" value="有，2 次以上">有，2 次以上</label>
+          </div>
+        </fieldset>
+        <fieldset class="surveyQuestion surveyQuestion--wide">
+          <legend><span class="questionNumber">9.</span>你有申請過其他保險的理賠嗎？</legend>
+          <div class="surveyOptions">
+            <label><input name="otherInsuranceClaimExperience" type="radio" value="沒有">沒有</label>
+            <label><input name="otherInsuranceClaimExperience" type="radio" value="有，1 次">有，1 次</label>
+            <label><input name="otherInsuranceClaimExperience" type="radio" value="有，2 次以上">有，2 次以上</label>
+          </div>
+        </fieldset>
       </div>
       <div class="actions">
         <button class="ghost" onclick="go(1)">上一步</button>
@@ -293,9 +312,9 @@
   <section class="page" data-page="3">
     <div class="card scenarioCard">
       <span class="scenarioEyebrow">任務情境</span>
-      <h1>請用智能助理阿發申請班機延誤理賠</h1>
+      <h1 id="scenarioTitle">請用阿發申請班機延誤理賠</h1>
       <div id="scenarioCopy"></div>
-      <div class="scenarioPrompt">請依照情境操作智能助理阿發模擬流程。當你認為任務已完成時，請點擊下方「我已完成」按鈕。</div>
+      <div class="scenarioPrompt" id="scenarioPrompt"></div>
       <div class="actions">
         <button class="ghost" id="backScenarioBtn">上一步</button>
         <button class="primary" id="beginTaskBtn">開始測試</button>
@@ -358,7 +377,7 @@
       <div class="statusPill" id="taskStatus">進行中</div>
       <div class="taskNavActions">
         <button class="ghost" id="backTaskBtn">返回上一步</button>
-        <button class="ghost" id="retryTaskBtn" type="button" title="重新開始智能助理阿發流程並記錄一次重試" aria-label="重新開始智能助理阿發流程並記錄一次重試">重試 <span id="retryCount" class="retryCount" hidden>0 次</span></button>
+        <button class="ghost" id="retryTaskBtn" type="button" title="重新開始阿發理賠流程" aria-label="重新開始阿發理賠流程">重試</button>
         <button class="primary" id="giveUpBtn">我已完成</button>
       </div>
     </div>
@@ -573,11 +592,13 @@ document.getElementById("profileBtn").onclick=async()=>{
     paper_boarding_pass_sources_other:document.getElementById("paperBoardingPassOther").value.trim(),
     electronic_boarding_pass_sources:selectedMany("electronicBoardingPassSources"),
     electronic_boarding_pass_sources_other:document.getElementById("electronicBoardingPassOther").value.trim(),
-    boarding_pass_retention:selected("boardingPassRetention")
+    boarding_pass_retention:selected("boardingPassRetention"),
+    travel_insurance_claim_experience:selected("travelInsuranceClaimExperience"),
+    other_insurance_claim_experience:selected("otherInsuranceClaimExperience")
   };
   const hasPaperQuestion=["紙本登機證","兩種都會使用"].includes(preference);
   const hasElectronicQuestion=["電子登機證／QR Code","兩種都會使用"].includes(preference);
-  if(!profile.flight_frequency||!profile.travel_insurance_frequency||!profile.flight_delay_experience||!preference||!profile.boarding_pass_retention) return alert("請先完成第 1、2、3、4、7 題。");
+  if(!profile.flight_frequency||!profile.travel_insurance_frequency||!profile.flight_delay_experience||!preference||!profile.boarding_pass_retention||!profile.travel_insurance_claim_experience||!profile.other_insurance_claim_experience) return alert("請先完成第 1、2、3、4、7、8、9 題。");
   if(hasPaperQuestion&&!profile.paper_boarding_pass_sources.length) return alert("請完成第 5 題。");
   if(hasElectronicQuestion&&!profile.electronic_boarding_pass_sources.length) return alert("請完成第 6 題。");
   if(profile.paper_boarding_pass_sources.includes("其他")&&!profile.paper_boarding_pass_sources_other) return alert("請補充第 5 題的其他取得方式。");
@@ -595,10 +616,8 @@ document.getElementById("profileBtn").onclick=async()=>{
   flowFrame.src="about:blank";
   document.getElementById("taskStatus").textContent="進行中";
   document.getElementById("beginTaskBtn").textContent="開始測試";
-  document.getElementById("retryCount").hidden = true;
-  document.getElementById("retryCount").textContent = "0 次";
   document.getElementById("retryTaskBtn").disabled = false;
-  document.getElementById("retryTaskBtn").setAttribute("aria-label", "重新開始智能助理阿發流程並記錄一次重試");
+  document.getElementById("retryTaskBtn").setAttribute("aria-label", "重新開始阿發理賠流程");
   setupTask();
   go(3);
 };
@@ -612,11 +631,16 @@ function setupTask(){
     item.hidden=!showForGroupB;
     item.classList.toggle("hidden",!showForGroupB);
   });
-  const scenario = group==="A"
-   ? `<p>你剛結束日本旅遊並返回台北。回程航班日期為 <b>2026/09/30</b>，當天班機延誤約 <b>5 小時</b> 後才順利返台。</p><p>你已購買國泰產險的旅遊平安險，手上仍保留<b>紙本登機證</b>，但目前還不是國泰產險會員。請先使用下一頁提供的<b>虛構測試資料完成會員註冊</b>，再透過智能助理阿發申請班機延誤理賠，依照畫面完成你認為需要的操作。</p>`
-   : `<p>你剛結束日本旅遊並返回台北。回程航班日期為 <b>2026/09/30</b>，當天班機延誤約 <b>5 小時</b> 後才順利返台。</p><p>你已購買國泰產險的旅遊平安險，手上保留的是航空公司 App／手機錢包中的<b>電子登機證 QR Code</b>，但目前還不是國泰產險會員。請先使用下一頁提供的<b>虛構測試資料完成會員註冊</b>，再透過智能助理阿發申請班機延誤理賠，依照畫面完成你認為需要的操作。</p>`;
-  document.getElementById("scenarioCopy").innerHTML = scenario;
-  document.getElementById("taskCopy").innerHTML = scenario;
+  const situation = `<p>你剛結束日本旅遊並返回台北。回程航班日期為 <b>2026/09/30</b>，當天班機延誤約 <b>5 小時</b> 後才順利返台。</p>` + (group==="A"
+   ? `<p>你已購買國泰產險的旅遊平安險，手上仍保留 <b>紙本登機證</b>，但目前還不是國泰產險會員。</p>`
+   : `<p>你已購買國泰產險的旅遊平安險，手上保留的是航空公司 App／手機錢包中的 <b>電子登機證 QR Code</b>，但目前還不是國泰產險會員。</p>`);
+  const task = `<p>請先完成 <b>國泰產險會員註冊</b>，再透過阿發申請 <b>班機延誤理賠</b>，依照畫面完成你認為需要的操作。</p>`;
+  const operationTip = `<strong>操作提示</strong><p>測試過程中如遇到需要填寫資料的欄位，可直接使用系統提供的 <b>測試資料一鍵帶入</b>，不需要輸入自己的真實資料。<br>當你認為任務已完成時，請點擊下方「我已完成」。</p>`;
+  const groupTitle = group==="A" ? "A 組｜紙本登機證" : "B 組｜電子登機證";
+  document.getElementById("scenarioTitle").textContent = groupTitle;
+  document.getElementById("scenarioCopy").innerHTML = `<section class="scenarioSection"><h2>情境</h2>${situation}</section><section class="scenarioSection"><h2>任務</h2>${task}</section>`;
+  document.getElementById("scenarioPrompt").innerHTML = operationTip;
+  document.getElementById("taskCopy").innerHTML = `<section class="scenarioSection"><h2>情境</h2>${situation}</section>`;
   document.getElementById("groupBQuestions").classList.toggle("hidden",group!=="B");
 }
 
@@ -643,10 +667,6 @@ document.getElementById("retryTaskBtn").onclick=async(event)=>{
   const recorded=await sendEvent("retry",{source:"task-footer",attempt:nextCount});
   if(recorded){
     taskRetryCount=nextCount;
-    const count=document.getElementById("retryCount");
-    count.textContent=`${taskRetryCount} 次`;
-    count.hidden=false;
-    button.setAttribute("aria-label",`已記錄 ${taskRetryCount} 次重試；按下會重新開始智能助理阿發流程`);
     const url=new URL(FLOW_URL);
     url.searchParams.set("research","1");
     url.searchParams.set("group",session.group_code);
