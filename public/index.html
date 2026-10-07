@@ -398,18 +398,16 @@
       </div>
       <div id="groupBQuestions" class="hidden">
         <div class="field">
-          <label>4. 第一次看到「登機證無法辨識」時，你當下認為最可能發生了什麼？</label>
+          <label>4. 剛才看到「登機證無法辨識」的畫面時，這個畫面有告訴你原因嗎？</label>
           <div class="surveyOptions">
-            <label><input type="radio" name="failureCause" value="我上傳的登機證／操作方式有問題">我上傳的登機證／操作方式有問題</label>
-            <label><input type="radio" name="failureCause" value="電子登機證或 QR Code 無法被系統辨識">電子登機證或 QR Code 無法被系統辨識</label>
-            <label><input type="radio" name="failureCause" value="系統暫時發生問題">系統暫時發生問題</label>
-            <label><input type="radio" name="failureCause" value="我提供的資料可能不符合申請條件">我提供的資料可能不符合申請條件</label>
-            <label><input type="radio" name="failureCause" value="不確定發生了什麼">不確定發生了什麼</label>
-            <label><input type="radio" name="failureCause" value="其他">其他</label>
+            <label><input type="radio" name="failureCause" value="有，畫面說明了原因">有，畫面說明了原因（請簡述）</label>
+            <label><input type="radio" name="failureCause" value="畫面有提到可能的原因，但不夠明確">畫面有提到可能的原因，但不夠明確</label>
+            <label><input type="radio" name="failureCause" value="畫面沒有說明原因">畫面沒有說明原因</label>
+            <label><input type="radio" name="failureCause" value="我沒有仔細看畫面">我沒有仔細看畫面</label>
           </div>
           <div class="surveyOtherWrap" id="failureCauseOtherWrap" hidden>
-            <label for="failureCauseOther">請補充其他原因</label>
-            <input id="failureCauseOther" type="text" maxlength="200" placeholder="請簡單描述" />
+            <label for="failureCauseOther">請簡述畫面說明的原因</label>
+            <input id="failureCauseOther" type="text" maxlength="200" placeholder="請簡單描述畫面上的說明" />
           </div>
         </div>
         <div class="field">
@@ -503,9 +501,9 @@ scale("submissionConfidenceScale","submissionConfidence","非常不確定","非�
 scale("nextStepClarityScale","nextStepClarity","完全不清楚","非常清楚");
 scale("independentConfidenceScale","independentConfidence","非常不同意","非常同意");
 document.querySelectorAll('input[name="failureCause"]').forEach(input=>input.addEventListener("change",()=>{
-  const isOther=selected("failureCause")==="其他";
-  document.getElementById("failureCauseOtherWrap").hidden=!isOther;
-  if(!isOther) document.getElementById("failureCauseOther").value="";
+  const needsExplanation=selected("failureCause")==="有，畫面說明了原因";
+  document.getElementById("failureCauseOtherWrap").hidden=!needsExplanation;
+  if(!needsExplanation) document.getElementById("failureCauseOther").value="";
 }));
 
 async function api(path, opts={}){
@@ -739,7 +737,7 @@ document.getElementById("finishBtn").onclick=async()=>{
   if(!submissionConfidence) return alert("請先完成第 2 題。");
   if(!completionEvidence) return alert("請填寫第 3 題。");
   if(isGroupB&&!failureCause) return alert("請先完成第 4 題。");
-  if(isGroupB&&failureCause==="其他"&&!failureCauseOther) return alert("請補充第 4 題的其他原因。");
+  if(isGroupB&&failureCause==="有，畫面說明了原因"&&!failureCauseOther) return alert("請簡述畫面說明的原因。");
   if(isGroupB&&!nextStepClarity) return alert("請先完成第 5 題。");
   if(isGroupB&&!delayProofPlan) return alert("請填寫第 6 題。");
   if(!eligibilityScenarios.length) return alert("請至少選擇一個第 7 題的情況。");
