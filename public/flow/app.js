@@ -899,6 +899,7 @@ function signupFieldError(inputId) {
   if (inputId === "signup-birthday" && !isAdultBirthday(value("#signup-birthday"))) return "請輸入正確的生日";
   if (inputId === "signup-name" && !isValidSignupName(value("#signup-name"))) return "請輸入正確的姓名";
   if (inputId === "signup-phone" && !/^09\d{8}$/.test(value("#signup-phone"))) return "請輸入正確的手機號碼";
+  if (inputId === "signup-email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value("#signup-email"))) return "請輸入正確的 Email";
   if (inputId === "signup-promo" && value("#signup-promo") && !/^[A-Z\d]{4,20}$/.test(value("#signup-promo"))) return "請輸入正確的活動碼";
   if (inputId === "signup-password" && !isValidAuthPassword(value("#signup-password"))) return "8-12位英數混合且不得為連續3碼及特殊符號";
   if (inputId === "signup-confirm-password" && value("#signup-confirm-password") && value("#signup-password") !== value("#signup-confirm-password")) return "密碼不一致";
@@ -1166,15 +1167,18 @@ function updateAuthPrimary() {
     const needsNationality = !document.querySelector("#signup-nationality-field").hidden;
     const name = value("#signup-name");
     const phone = value("#signup-phone");
+    const email = value("#signup-email");
     const promo = value("#signup-promo");
-    signupProfileValid = Boolean(identity && birthday && (!needsNationality || nationality) && name && phone)
+    signupProfileValid = Boolean(identity && birthday && (!needsNationality || nationality) && name && phone && email)
       && isValidMemberId(identity)
       && isAdultBirthday(birthday)
       && isValidSignupName(name)
       && /^09\d{8}$/.test(phone)
+      && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
       && (!promo || /^[A-Z\d]{4,20}$/.test(promo))
       && !registeredMemberIds.has(identity);
-    const hasRequiredValues = Boolean(identity && birthday && (!needsNationality || nationality) && name && phone);
+    const hasRequiredValues = Boolean(identity && birthday && (!needsNationality || nationality) && name && phone && email)
+      && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     ready = signupForm?.dataset.validationAttempted === "true" ? signupProfileValid : hasRequiredValues;
   }
   else if (authActiveView === "signup-2") ready = [...authDialog.querySelectorAll("input[name='declaration']")].every((checkbox) => checkbox.checked) && document.querySelector("#signup-all-declarations").checked;
@@ -1489,7 +1493,7 @@ function submitAuthForm(form) {
     const identity = value("signup-id").toUpperCase();
     form.dataset.validationAttempted = "true";
     syncSignupNationalityField();
-    const signupFieldIds = ["signup-id", ...(signupNationalityRevealed ? ["signup-nationality"] : []), "signup-birthday", "signup-name", "signup-phone", "signup-promo"];
+    const signupFieldIds = ["signup-id", ...(signupNationalityRevealed ? ["signup-nationality"] : []), "signup-birthday", "signup-name", "signup-phone", "signup-email", "signup-promo"];
     signupFieldIds.forEach((inputId) => setAuthFieldError(inputId, signupFieldError(inputId)));
     if (signupFieldIds.some((inputId) => signupFieldError(inputId))) { updateAuthPrimary(); return; }
     authSignupProfile = {
@@ -1498,6 +1502,7 @@ function submitAuthForm(form) {
       nationality: value("signup-nationality"),
       name: value("signup-name"),
       phone: value("signup-phone"),
+      email: value("signup-email"),
       promo: value("signup-promo"),
     };
     authIsVerifying = true;
