@@ -147,7 +147,7 @@ async function buildAdminAnalytics(env,url) {
   const days=Number.isFinite(parsed)&&parsed>=0?Math.min(3650,Math.floor(parsed)):30;
   const cutoff=days?Date.now()-days*86400000:null;
   const sessionsSql=`SELECT id,group_code,started_at,completed_at,abandoned_at,status,abandon_location,age_range,gender,travel_insurance_count,viewport,difficulty,recovery_understanding,progress_confidence FROM sessions ${cutoff===null?"":"WHERE started_at >= ?"} ORDER BY started_at DESC`;
-  const eventsSql=`SELECT session_id,event_name,created_at FROM events ${cutoff===null?"":"WHERE created_at >= ?"} ORDER BY created_at`;
+  const eventsSql=`SELECT session_id,event_name,created_at,meta_json FROM events ${cutoff===null?"":"WHERE created_at >= ?"} ORDER BY created_at`;
   const [sessionResult,eventResult]=await Promise.all([
     cutoff===null?env.DB.prepare(sessionsSql).all():env.DB.prepare(sessionsSql).bind(cutoff).all(),
     cutoff===null?env.DB.prepare(eventsSql).all():env.DB.prepare(eventsSql).bind(cutoff).all()
@@ -200,13 +200,49 @@ async function buildAdminAnalytics(env,url) {
     if(session.started_at){const day=formatTaipeiDay(session.started_at);if(!dailyMap.has(day))dailyMap.set(day,{day,started:0,completed:0});dailyMap.get(day).started+=1;}
     if(session.status==="completed"&&session.completed_at){const day=formatTaipeiDay(session.completed_at);if(!dailyMap.has(day))dailyMap.set(day,{day,started:0,completed:0});dailyMap.get(day).completed+=1;}
   }
-  const taskStarted=new Set(events.filter(event=>event.event_name==="task_start").map(event=>event.session_id));
-  const taskCompleted=new Set([...completed.map(session=>session.id),...events.filter(event=>event.event_name==="task_success").map(event=>event.session_id)]);
+  const includedSessionIds=new Set(sessions.map(session=>session.id));
+  const funnelEvents=events.filter(event=>includedSessionIds.has(event.session_id));
+  const taskStarted=new Set(funnelEvents.filter(event=>event.event_name==="task_start").map(event=>event.session_id));
+  const taskCompleted=new Set([...completed.map(session=>session.id),...funnelEvents.filter(event=>event.event_name==="task_success").map(event=>event.session_id)]);
+  const participants=(predicate)=>new Set(funnelEvents.filter(predicate).map(event=>event.session_id));
+  const eventParticipants=(name,predicate=()=>true)=>participants(event=>event.event_name===name&&predicate(safeParse(event.meta_json)));
+  const groupCounts=(ids)=>Object.fromEntries(["A","B"].map(code=>[code,sessions.filter(session=>session.group_code===code&&ids.has(session.id)).length]));
+  const successIds=new Set(taskCompleted);
+  const feedbackIds=new Set(sessions.filter(session=>session.difficulty!==null&&session.difficulty!==undefined).map(session=>session.id));
+  const authIds=eventParticipants("auth_complete");
+  for(const id of eventParticipants("signup_complete"))authIds.add(id);
+  const funnelSteps=[
+    {key:"registered",label:"完成基本資料",ids:new Set(sessions.map(session=>session.id))},
+    {key:"task_started",label:"開始理賠任務",ids:taskStarted},
+    {key:"auth_completed",label:"完成登入／註冊",ids:authIds},
+    {key:"boarding_pass_uploaded",label:"完成登機證上傳",ids:eventParticipants("boarding_pass_upload_completed")},
+    {key:"boarding_info_confirmed",label:"確認航班資料",ids:eventParticipants("boarding_info_confirmed")},
+    {key:"delay_proof_uploaded",label:"完成延誤證明上傳",ids:eventParticipants("delay_proof_uploaded")},
+    {key:"bank_info_submitted",label:"送出匯款資料",ids:eventParticipants("bank_info_submitted")},
+    {key:"payment_otp_verified",label:"完成匯款 OTP 驗證",ids:eventParticipants("otp_verified",meta=>meta.purpose==="bank_transfer")},
+    {key:"task_completed",label:"完成理賠任務",ids:successIds},
+    {key:"feedback_submitted",label:"提交測後回饋",ids:feedbackIds}
+  ];
+  const branchIds={
+    signup_complete:eventParticipants("signup_complete"),
+    signup_otp_verified:eventParticipants("otp_verified",meta=>meta.purpose==="member_signup"),
+    login_complete:eventParticipants("auth_complete",meta=>String(meta.method||"").startsWith("login")),
+    login_otp_verified:eventParticipants("otp_verified",meta=>meta.purpose==="member_login"),
+    boarding_pass_upload_attempted:eventParticipants("upload_attempt",meta=>meta.document_type==="boarding-pass"),
+    boarding_pass_uploaded:eventParticipants("boarding_pass_upload_completed"),
+    boarding_pass_recognized:eventParticipants("boarding_pass_upload_completed",meta=>meta.recognition==="passed"),
+    boarding_pass_ocr_failed:eventParticipants("ocr_fail"),
+    manual_alternative_used:eventParticipants("recovery_found"),
+    delay_proof_upload_attempted:eventParticipants("upload_attempt",meta=>meta.document_type==="delay-proof"),
+    delay_proof_uploaded:eventParticipants("delay_proof_uploaded")
+  };
+  funnelSteps.splice(3,0,{key:"boarding_pass_upload_attempted",label:"嘗試上傳登機證",ids:branchIds.boarding_pass_upload_attempted});
+  funnelSteps.splice(6,0,{key:"delay_proof_upload_attempted",label:"嘗試上傳延誤證明",ids:branchIds.delay_proof_upload_attempted});
   const abandonCounts=new Map();
   for(const session of abandoned){const label=session.abandon_location||"未記錄";abandonCounts.set(label,(abandonCounts.get(label)||0)+1)}
   return{
     summary:{total:sessions.length,completed:completed.length,abandoned:abandoned.length,in_progress:sessions.filter(session=>session.status==="in_progress").length,completion_rate:sessions.length?Math.round(completed.length*100/sessions.length):0,median_duration_ms:median,avg_duration_ms:durations.length?durations.reduce((sum,value)=>sum+value,0)/durations.length:null,avg_retry:sessions.length?retryTotal/sessions.length:0,retry_total:retryTotal},
-    funnel:{registered:sessions.length,task_started:taskStarted.size,task_completed:taskCompleted.size,feedback_submitted:sessions.filter(session=>session.difficulty!==null&&session.difficulty!==undefined).length},
+    funnel:{registered:sessions.length,task_started:taskStarted.size,task_completed:taskCompleted.size,feedback_submitted:feedbackIds.size,steps:funnelSteps.map(step=>({key:step.key,label:step.label,total:step.ids.size,groups:groupCounts(step.ids)})),branches:Object.fromEntries(Object.entries(branchIds).map(([key,ids])=>[key,{total:ids.size,groups:groupCounts(ids)}]))},
     daily:[...dailyMap.values()].sort((a,b)=>a.day.localeCompare(b.day)),
     events:[...eventStats].map(([event_name,total])=>({event_name,total,participants:(participantEvents.get(event_name)||new Set()).size})).sort((a,b)=>b.total-a.total),
     groups,

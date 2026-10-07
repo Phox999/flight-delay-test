@@ -1412,6 +1412,9 @@ function resendAuthOtp() {
 
 function finishAuthLogin() {
   clearAuthOtpTimers();
+  if (isUsabilityResearch) {
+    window.ResearchTracker?.emit("auth_complete", { method: authActiveView === "login-code" ? "login_otp" : "login_password", group: usabilityGroup }, "member-auth", "會員登入");
+  }
   authDialog.hidden = true;
   authReturnToLogin = false;
   const retry = beginPersonalDataConsent({ appendUser: false });
@@ -1422,6 +1425,7 @@ function finishSignup() {
   registeredMemberIds.add(authSignupProfile.identity.toUpperCase());
   if (isUsabilityResearch) {
     window.ResearchTracker?.emit("signup_complete", { group: usabilityGroup }, "membership-registration", "會員註冊");
+    window.ResearchTracker?.emit("auth_complete", { method: "signup", group: usabilityGroup }, "membership-registration", "會員註冊");
   }
   clearAuthOtpTimers();
   authDialog.hidden = true;
@@ -1552,6 +1556,9 @@ function submitAuthOtp() {
       setAuthOtpError(controls.input.slice(1), controls.error, authOtpAttemptCount >= 5 ? "輸入錯誤達 5 次，請重新發送驗證碼" : authOtpPurpose === "login" ? "驗證碼錯誤，錯誤5次將會失效" : "動態密碼輸入錯誤");
       renderAuthOtpState();
       return;
+    }
+    if (isUsabilityResearch && (authOtpPurpose === "login" || authOtpPurpose === "signup")) {
+      window.ResearchTracker?.emit("otp_verified", { purpose: authOtpPurpose === "signup" ? "member_signup" : "member_login", group: usabilityGroup }, "member-auth", "會員驗證碼");
     }
     if (authOtpPurpose === "login") finishAuthLogin();
     else if (authOtpPurpose === "signup") {
@@ -2091,6 +2098,9 @@ function finishBoardingPassUpload() {
     appendAssistantMessage(content);
     return;
   }
+  if (isUsabilityResearch) {
+    window.ResearchTracker?.emit("boarding_pass_upload_completed", { file_name: selectedBoardingPass.name, recognition: selectedBoardingPass.outcome === "recognition-error" ? "failed" : "passed", group: usabilityGroup }, "boarding-pass-upload", "登機證上傳");
+  }
   if (selectedBoardingPass.outcome === "recognition-error") {
     boardingPassRecognitionFailures += 1;
     closeUploadDialog({ restoreFocus: false, showNoProof: false });
@@ -2160,6 +2170,9 @@ function prepareBoardingInfoSession({ manual = false } = {}) {
 }
 
 function continueAfterBoardingInfo() {
+  if (isUsabilityResearch) {
+    window.ResearchTracker?.emit("boarding_info_confirmed", { source: boardingInfoOriginalSnapshot ? "recognized" : "manual", group: usabilityGroup }, "boarding-info", "確認航班資料");
+  }
   boardingInfoConfirmed = true;
   updateBoardingInfoButton();
   airportComboboxes.forEach((field) => closeAirportCombobox(field));
@@ -2168,6 +2181,9 @@ function continueAfterBoardingInfo() {
 }
 
 function continueToBankInfo() {
+  if (isUsabilityResearch) {
+    window.ResearchTracker?.emit("boarding_info_confirmed", { source: boardingInfoOriginalSnapshot ? "recognized" : "manual", group: usabilityGroup }, "boarding-info", "確認航班資料");
+  }
   boardingInfoConfirmed = true;
   updateBoardingInfoButton();
   airportComboboxes.forEach((field) => closeAirportCombobox(field));
@@ -2331,6 +2347,9 @@ function finishDelayProofUpload() {
   closeUploadDialog({ restoreFocus: false, showNoProof: false });
   appendUserMessage("上傳班機延誤證明");
   const finalOutcome = outcome === "network-error" ? "success" : outcome;
+  if (isUsabilityResearch && finalOutcome === "success") {
+    window.ResearchTracker?.emit("delay_proof_uploaded", { file_count: selectedDelayProofFiles.filter((file) => !file.error).length, group: usabilityGroup }, "delay-proof-upload", "延誤證明上傳");
+  }
   appendDelayProofOutcome(finalOutcome);
   if (finalOutcome === "success") openBankInfoDialog();
 }
@@ -2957,6 +2976,9 @@ function resendOtp() {
 
 function finishOtpVerification() {
   stopOtpTimers();
+  if (isUsabilityResearch) {
+    window.ResearchTracker?.emit("otp_verified", { purpose: "bank_transfer", group: usabilityGroup }, "bank-transfer-otp", "匯款動態密碼驗證");
+  }
   otpIsVerifying = false;
   otpInput.disabled = false;
   otpNext.textContent = "下一步";
@@ -3682,6 +3704,9 @@ bankInfoForm.addEventListener("change", updateBankInfoButton);
 bankInfoForm.addEventListener("submit", (event) => {
   event.preventDefault();
   if (confirmBankInfoButton.disabled) return;
+  if (isUsabilityResearch) {
+    window.ResearchTracker?.emit("bank_info_submitted", { group: usabilityGroup }, "bank-info", "送出匯款資料");
+  }
   closeBankInfoDialog({ restoreFocus: false, showPrompt: false });
   appendUserMessage("確認送出");
   openOtpDialog({ resetSession: true });
@@ -3951,6 +3976,9 @@ chatScreen.addEventListener("click", (event) => {
       break;
     case "manual-boarding-info":
       disableChatActions(button);
+      if (isUsabilityResearch && usabilityGroup === "B" && boardingPassRecognitionFailures > 0) {
+        window.ResearchTracker?.recoveryFound({ source: "electronic-boarding-pass-ocr-failure", method: "manual-entry", group: usabilityGroup });
+      }
       appendUserMessage("手動輸入");
       prepareBoardingInfoSession({ manual: true });
       boardingInfoDialog.hidden = false;
