@@ -54,14 +54,12 @@
     .page[data-page="2"] .grid{gap:16px}
     .page[data-page="2"] .grid + .field,
     .page[data-page="2"] .field + .grid{margin-top:16px}
-    .surveyGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 24px}
+    .surveyGrid{display:grid;grid-template-columns:1fr;gap:20px}
     .surveyQuestion{min-width:0;margin:0;padding:0;border:0}
     .surveyQuestion legend{margin-bottom:9px;font-weight:700;font-size:15px;line-height:1.55}
     .surveyQuestion legend .questionNumber{color:var(--brand);margin-right:5px}
-    .surveyOptions{display:flex;flex-wrap:wrap;gap:8px}
-    .surveyQuestion--stacked .surveyOptions{display:grid;grid-template-columns:1fr}
-    .surveyQuestion--stacked .surveyOptions label{width:100%}
-    .surveyOptions label{display:inline-flex;align-items:center;gap:7px;margin:0;padding:9px 12px;border:1px solid var(--line);border-radius:12px;background:#fff;font-size:14px;font-weight:500;line-height:1.35;cursor:pointer}
+    .surveyOptions{display:grid;grid-template-columns:1fr;gap:8px}
+    .surveyOptions label{display:flex;width:100%;align-items:center;gap:10px;margin:0;padding:11px 14px;border:1px solid var(--line);border-radius:12px;background:#fff;font-size:14px;font-weight:500;line-height:1.45;cursor:pointer}
     .surveyOptions input{width:auto;margin:0;accent-color:var(--brand)}
     .surveyQuestion--wide{grid-column:1/-1}
     .surveyConditional[hidden]{display:none}
@@ -207,7 +205,7 @@
     <div class="card">
       <h2>操作前｜基本資料</h2>
       <div class="surveyGrid">
-        <fieldset class="surveyQuestion">
+        <fieldset class="surveyQuestion surveyQuestion--wide">
           <legend><span class="questionNumber">1.</span>過去 1 年，你搭乘飛機的次數？</legend>
           <div class="surveyOptions">
             <label><input name="flightFrequency" type="radio" value="0 次">0 次</label>
@@ -216,7 +214,7 @@
             <label><input name="flightFrequency" type="radio" value="6 次以上">6 次以上</label>
           </div>
         </fieldset>
-        <fieldset class="surveyQuestion">
+        <fieldset class="surveyQuestion surveyQuestion--wide">
           <legend><span class="questionNumber">2.</span>過去 1 年，你購買旅遊險的次數？</legend>
           <div class="surveyOptions">
             <label><input name="insuranceFrequency" type="radio" value="0 次">0 次</label>
@@ -225,7 +223,7 @@
             <label><input name="insuranceFrequency" type="radio" value="6 次以上">6 次以上</label>
           </div>
         </fieldset>
-        <fieldset class="surveyQuestion">
+        <fieldset class="surveyQuestion surveyQuestion--wide">
           <legend><span class="questionNumber">3.</span>過去 1 年是否曾遇過班機延誤？</legend>
           <div class="surveyOptions">
             <label><input name="flightDelayExperience" type="radio" value="沒有">沒有</label>
@@ -304,7 +302,7 @@
       <h2>本次任務資料</h2>
       <div class="taskDataToolbar">
         <button class="taskDetailsToggle" id="personalDataToggle" type="button" aria-expanded="false" aria-controls="personalDataContent">查看詳細個人資料</button>
-        <button class="secondary" id="autofillApplicationBtn" type="button">一鍵代入申請資料</button>
+        <button class="secondary" id="autofillApplicationBtn" type="button" title="只代入目前開啟的表單；進入下一頁後請再次點擊">一鍵代入申請資料</button>
       </div>
       <p class="applicationFillStatus" id="applicationFillStatus" role="status" aria-live="polite"></p>
       <div id="personalDataContent" hidden>
@@ -364,25 +362,63 @@
     <div class="card">
       <h2>聊聊剛才的體驗</h2>
       <div class="field">
-        <label>1. 剛才操作理賠流程，感覺有多容易？</label>
-        <div class="scale" id="difficultyScale"></div>
-        <div class="muted" style="margin-top:8px">1 非常困難　—　7 非常容易</div>
+        <label>1. 整體而言，我覺得剛才的理賠申請流程容易完成。</label>
+        <div class="scale" id="easeAgreementScale"></div>
+        <div class="muted" style="margin-top:8px">1 非常不同意　—　7 非常同意</div>
       </div>
       <div class="field">
-        <label>2. 剛才哪裡讓你最不確定？</label>
-        <textarea id="uncertainty" placeholder="選填"></textarea>
+        <label>2. 完成剛才的操作後，你有多確定理賠申請已成功送出？</label>
+        <div class="scale" id="submissionConfidenceScale"></div>
+        <div class="muted" style="margin-top:8px">1 非常不確定　—　7 非常確定</div>
+      </div>
+      <div class="field">
+        <label for="completionEvidence">3. 你是看到什麼訊息或畫面，判斷剛才的理賠申請已經完成？</label>
+        <textarea id="completionEvidence" placeholder="請描述你看到的訊息或畫面"></textarea>
       </div>
       <div id="groupBQuestions" class="hidden">
         <div class="field">
-          <label>3. 登機證沒辦法辨識時，我知道接下來可以怎麼申請。</label>
-          <div class="scale" id="recoveryScale"></div>
-          <div class="muted" style="margin-top:8px">1 非常不同意　—　7 非常同意</div>
+          <label>4. 第一次看到「登機證無法辨識」時，你當下認為最可能發生了什麼？</label>
+          <div class="surveyOptions">
+            <label><input type="radio" name="failureCause" value="我上傳的登機證／操作方式有問題">我上傳的登機證／操作方式有問題</label>
+            <label><input type="radio" name="failureCause" value="電子登機證或 QR Code 無法被系統辨識">電子登機證或 QR Code 無法被系統辨識</label>
+            <label><input type="radio" name="failureCause" value="系統暫時發生問題">系統暫時發生問題</label>
+            <label><input type="radio" name="failureCause" value="我提供的資料可能不符合申請條件">我提供的資料可能不符合申請條件</label>
+            <label><input type="radio" name="failureCause" value="不確定發生了什麼">不確定發生了什麼</label>
+            <label><input type="radio" name="failureCause" value="其他">其他</label>
+          </div>
+          <div class="surveyOtherWrap" id="failureCauseOtherWrap" hidden>
+            <label for="failureCauseOther">請補充其他原因</label>
+            <input id="failureCauseOther" type="text" maxlength="200" placeholder="請簡單描述" />
+          </div>
         </div>
         <div class="field">
-          <label>4. 即使辨識失敗，我也相信剛才填的資料和進度都有保留。</label>
-          <div class="scale" id="confidenceScale"></div>
-          <div class="muted" style="margin-top:8px">1 非常不同意　—　7 非常同意</div>
+          <label>5. 第一次看到登機證辨識失敗時，你有多清楚接下來該怎麼做？</label>
+          <div class="scale" id="nextStepClarityScale"></div>
+          <div class="muted" style="margin-top:8px">1 完全不清楚　—　7 非常清楚</div>
         </div>
+        <div class="field">
+          <label for="delayProofPlan">6. 如果當下手上沒有班機延誤證明，你會怎麼取得？</label>
+          <textarea id="delayProofPlan" placeholder="請描述你會如何取得"></textarea>
+        </div>
+      </div>
+      <div class="field">
+        <label>7. 下列哪些情況可以透過阿發申請班機延誤理賠？（可複選）</label>
+        <div class="surveyOptions">
+          <label><input type="checkbox" name="eligibilityScenarios" value="我自己投保，且要保人和被保險人都是我">我自己投保，且要保人和被保險人都是我</label>
+          <label><input type="checkbox" name="eligibilityScenarios" value="我和家人一起投保">我和家人一起投保</label>
+          <label><input type="checkbox" name="eligibilityScenarios" value="班機延誤後，我最後仍搭乘原班機">班機延誤後，我最後仍搭乘原班機</label>
+          <label><input type="checkbox" name="eligibilityScenarios" value="班機延誤後，我最後沒有搭乘原班機">班機延誤後，我最後沒有搭乘原班機</label>
+          <label><input type="checkbox" name="eligibilityScenarios" value="我想同時申請班機延誤和其他旅平險理賠">我想同時申請班機延誤和其他旅平險理賠</label>
+        </div>
+      </div>
+      <div class="field">
+        <label>8. 如果未來再次遇到班機延誤，我有信心能透過阿發獨立完成理賠申請。</label>
+        <div class="scale" id="independentConfidenceScale"></div>
+        <div class="muted" style="margin-top:8px">1 非常不同意　—　7 非常同意</div>
+      </div>
+      <div class="field">
+        <label for="hesitationFeedback">9. 剛才有沒有讓你猶豫或不確定的地方？如果有，請說明。</label>
+        <textarea id="hesitationFeedback" placeholder="選填"></textarea>
       </div>
       <div class="actions"><button class="primary" id="finishBtn">送出回饋</button></div>
     </div>
@@ -443,7 +479,15 @@ function scale(id,name){
   const el=document.getElementById(id);
   el.innerHTML=[1,2,3,4,5,6,7].map(n=>`<label><input type="radio" name="${name}" value="${n}">${n}</label>`).join("");
 }
-scale("difficultyScale","difficulty"); scale("recoveryScale","recovery"); scale("confidenceScale","confidence");
+scale("easeAgreementScale","easeAgreement");
+scale("submissionConfidenceScale","submissionConfidence");
+scale("nextStepClarityScale","nextStepClarity");
+scale("independentConfidenceScale","independentConfidence");
+document.querySelectorAll('input[name="failureCause"]').forEach(input=>input.addEventListener("change",()=>{
+  const isOther=selected("failureCause")==="其他";
+  document.getElementById("failureCauseOtherWrap").hidden=!isOther;
+  if(!isOther) document.getElementById("failureCauseOther").value="";
+}));
 
 async function api(path, opts={}){
   if(LOCAL_PREVIEW){
@@ -471,25 +515,38 @@ function sendPendingAutofill(){
 }
 
 document.getElementById("autofillApplicationBtn").onclick=()=>{
-  const getValue=label=>{
-    const button=document.querySelector(`#applicationData [data-copy-label="${label}"]`);
+  const getValue=(container,label)=>{
+    const button=document.querySelector(`${container} [data-copy-label="${label}"]`);
     const item=button?.closest(".applicationItem");
-    return item&&!item.hidden&&!item.classList.contains("hidden")?button.dataset.copyValue||"":"";
+    const source=document.querySelector(container);
+    return item&&source&&!source.hidden&&!item.hidden&&!item.classList.contains("hidden")?button.dataset.copyValue||"":"";
   };
+  const route=getValue("#flightData","航線"),routeCodes=[...route.matchAll(/[（(]([A-Z]{3})[）)]/g)].map(match=>match[1]);
+  const flightTime=getValue("#flightData","起飛時間");
+  const [flightDate="",flightHour=""]=flightTime.split(" ");
+  const [flightYear="",flightMonth="",flightDay=""]=flightDate.split("/");
   pendingAutofillData={
-    identity:getValue("身分證"),
-    loginPassword:getValue("登入密碼"),
-    otp:getValue("驗證碼/動態密碼"),
-    bankCode:getValue("匯款銀行").slice(0,3),
-    branch:getValue("分行別"),
-    bankAccount:getValue("匯款帳號"),
-    signupName:getValue("姓名"),
-    signupBirthday:getValue("生日"),
-    signupPhone:getValue("手機號碼"),
-    signupPassword:getValue("註冊密碼")
+    identity:getValue("#applicationData","身分證"),
+    loginPassword:getValue("#applicationData","登入密碼"),
+    otp:getValue("#applicationData","驗證碼/動態密碼"),
+    bankCode:getValue("#applicationData","匯款銀行").slice(0,3),
+    branch:getValue("#applicationData","分行別"),
+    bankAccount:getValue("#applicationData","匯款帳號"),
+    signupName:getValue("#signupData","姓名"),
+    signupBirthday:getValue("#signupData","生日"),
+    signupPhone:getValue("#signupData","手機號碼"),
+    signupPassword:getValue("#signupData","註冊密碼"),
+    passenger:getValue("#flightData","乘客姓名"),
+    flight:getValue("#flightData","航班編號"),
+    origin:routeCodes[0]||"",
+    destination:routeCodes[1]||"",
+    year:flightYear,
+    date:flightMonth&&flightDay?`${flightMonth}/${flightDay}`:"",
+    scheduledDate:flightDate,
+    scheduledHour:flightHour
   };
   const status=document.getElementById("applicationFillStatus");
-  if(!flowFrameReady){status.textContent="智能助理阿發畫面載入中，載入完成後會自動代入。";return;}
+  if(!flowFrameReady){status.textContent="智能助理阿發畫面載入中，載入完成後會代入目前頁面的資料。";return;}
   sendPendingAutofill();
   status.textContent="資料代入中…";
 };
@@ -632,7 +689,9 @@ window.addEventListener("message", async (ev)=>{
     return;
   }
   if(d.type==="flight-delay-autofill-complete"){
-    document.getElementById("applicationFillStatus").textContent="已將畫面提供的虛構資料帶入智能助理阿發，請檢查欄位後繼續操作。";
+    document.getElementById("applicationFillStatus").textContent=d.filled
+      ? `已將「${d.screen||"本頁"}」的虛構資料帶入，請檢查欄位後繼續操作。`
+      : "目前畫面沒有可代入的欄位。請先開啟需要填寫的表單，再點選一次。";
     return;
   }
   if(d.type!=="flight-delay-research") return;
@@ -649,15 +708,41 @@ document.getElementById("giveUpBtn").onclick=async()=>{
 };
 
 document.getElementById("finishBtn").onclick=async()=>{
-  const difficulty=selected("difficulty");
-  if(!difficulty) return alert("請先選第 1 題的分數喔。");
+  const easeAgreement=selected("easeAgreement"),submissionConfidence=selected("submissionConfidence");
+  const completionEvidence=document.getElementById("completionEvidence").value.trim();
+  const isGroupB=session.group_code==="B";
+  const failureCause=isGroupB?selected("failureCause"):"";
+  const failureCauseOther=isGroupB?document.getElementById("failureCauseOther").value.trim():"";
+  const nextStepClarity=isGroupB?selected("nextStepClarity"):"";
+  const delayProofPlan=isGroupB?document.getElementById("delayProofPlan").value.trim():"";
+  const eligibilityScenarios=[...document.querySelectorAll('input[name="eligibilityScenarios"]:checked')].map(input=>input.value);
+  const independentConfidence=selected("independentConfidence");
+  const hesitationFeedback=document.getElementById("hesitationFeedback").value.trim();
+  if(!easeAgreement) return alert("請先完成第 1 題。");
+  if(!submissionConfidence) return alert("請先完成第 2 題。");
+  if(!completionEvidence) return alert("請填寫第 3 題。");
+  if(isGroupB&&!failureCause) return alert("請先完成第 4 題。");
+  if(isGroupB&&failureCause==="其他"&&!failureCauseOther) return alert("請補充第 4 題的其他原因。");
+  if(isGroupB&&!nextStepClarity) return alert("請先完成第 5 題。");
+  if(isGroupB&&!delayProofPlan) return alert("請填寫第 6 題。");
+  if(!eligibilityScenarios.length) return alert("請至少選擇一個第 7 題的情況。");
+  if(!independentConfidence) return alert("請先完成第 8 題。");
   const payload={
-    difficulty:+difficulty,
-    uncertainty_text:document.getElementById("uncertainty").value.trim(),
-    recovery_understanding: session.group_code==="B" ? +(selected("recovery")||0) : null,
-    progress_confidence: session.group_code==="B" ? +(selected("confidence")||0) : null
+    ease_agreement:+easeAgreement,
+    submission_confidence:+submissionConfidence,
+    completion_evidence:completionEvidence,
+    failure_cause:failureCause||null,
+    failure_cause_other:failureCauseOther,
+    next_step_clarity:isGroupB?+nextStepClarity:null,
+    delay_proof_plan:delayProofPlan||null,
+    eligibility_scenarios:eligibilityScenarios,
+    independent_confidence:+independentConfidence,
+    hesitation_feedback:hesitationFeedback
   };
-  if(session.group_code==="B" && (!payload.recovery_understanding||!payload.progress_confidence)) return alert("請把分數都選完喔。");
+  payload.difficulty=payload.ease_agreement;
+  payload.uncertainty_text=payload.hesitation_feedback;
+  payload.recovery_understanding=payload.next_step_clarity;
+  payload.progress_confidence=payload.independent_confidence;
   await api(`/api/sessions/${session.id}/answers`,{method:"POST",body:JSON.stringify(payload)});
   if(LOCAL_PREVIEW) document.getElementById("finishMessage").textContent="本機預覽結束囉，操作資料沒有送出。";
   go(6);

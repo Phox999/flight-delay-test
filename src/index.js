@@ -76,7 +76,21 @@ async function handleApi(request, env, url) {
     const b=await body(request);
     await env.DB.prepare(`
       UPDATE sessions SET difficulty=?, uncertainty_text=?, recovery_understanding=?, progress_confidence=? WHERE id=?
-    `).bind(b.difficulty??null,b.uncertainty_text||"",b.recovery_understanding??null,b.progress_confidence??null,mm[1]).run();
+    `).bind(b.ease_agreement??b.difficulty??null,b.hesitation_feedback??b.uncertainty_text??"",b.next_step_clarity??b.recovery_understanding??null,b.independent_confidence??b.progress_confidence??null,mm[1]).run();
+    await env.DB.prepare(`
+      INSERT INTO events (session_id,event_name,created_at,meta_json) VALUES (?, 'post_task_feedback', ?, ?)
+    `).bind(mm[1],Date.now(),JSON.stringify({
+      ease_agreement:b.ease_agreement??null,
+      submission_confidence:b.submission_confidence??null,
+      completion_evidence:b.completion_evidence||"",
+      failure_cause:b.failure_cause||null,
+      failure_cause_other:b.failure_cause_other||"",
+      next_step_clarity:b.next_step_clarity??null,
+      delay_proof_plan:b.delay_proof_plan||"",
+      eligibility_scenarios:Array.isArray(b.eligibility_scenarios)?b.eligibility_scenarios:[],
+      independent_confidence:b.independent_confidence??null,
+      hesitation_feedback:b.hesitation_feedback||""
+    })).run();
     return json({ok:true});
   }
 
@@ -114,7 +128,8 @@ async function handleApi(request, env, url) {
         (SELECT COUNT(*) FROM events e WHERE e.session_id=s.id AND e.event_name='ai_edit') ai_edit_count,
         (SELECT COUNT(*) FROM events e WHERE e.session_id=s.id AND e.event_name='recovery_found') recovery_found_count,
         (SELECT GROUP_CONCAT(COALESCE(e.page_name,e.page_id),' → ') FROM events e WHERE e.session_id=s.id AND e.event_name='page_view') operation_path,
-        (SELECT e.meta_json FROM events e WHERE e.session_id=s.id AND e.event_name='pre_task_profile' ORDER BY e.created_at DESC LIMIT 1) pre_task_profile_json
+        (SELECT e.meta_json FROM events e WHERE e.session_id=s.id AND e.event_name='pre_task_profile' ORDER BY e.created_at DESC LIMIT 1) pre_task_profile_json,
+        (SELECT e.meta_json FROM events e WHERE e.session_id=s.id AND e.event_name='post_task_feedback' ORDER BY e.created_at DESC LIMIT 1) post_task_feedback_json
       FROM sessions s ORDER BY s.started_at DESC LIMIT 500
     `).all()).results;
     return json({sessions:rows});
@@ -154,12 +169,13 @@ async function buildAdminAnalytics(env,url) {
     cutoff===null?env.DB.prepare(eventsSql).all():env.DB.prepare(eventsSql).bind(cutoff).all()
   ]);
   const sessions=sessionResult.results||[],events=eventResult.results||[];
-  const eventStats=new Map(),participantEvents=new Map(),bySession=new Map(),profilesBySession=new Map();
+  const eventStats=new Map(),participantEvents=new Map(),bySession=new Map(),profilesBySession=new Map(),feedbackBySession=new Map();
   for(const event of events){
     if(event.event_name==="pre_task_profile"){
       profilesBySession.set(event.session_id,safeParse(event.meta_json));
       continue;
     }
+    if(event.event_name==="post_task_feedback")feedbackBySession.set(event.session_id,safeParse(event.meta_json));
     const total=eventStats.get(event.event_name)||0;
     eventStats.set(event.event_name,total+1);
     if(!participantEvents.has(event.event_name))participantEvents.set(event.event_name,new Set());
@@ -177,14 +193,14 @@ async function buildAdminAnalytics(env,url) {
   const retryTotal=sessions.reduce((sum,session)=>sum+sessionStats(session).retry,0);
   const grouped={A:[],B:[]};
   for(const session of sessions)if(grouped[session.group_code])grouped[session.group_code].push(session);
-  const average=(rows,key)=>{const values=rows.map(row=>row[key]).filter(value=>value!==null&&value!==undefined&&Number.isFinite(Number(value))).map(Number);return{value:values.length?values.reduce((sum,value)=>sum+value,0)/values.length:null,count:values.length}};
+  const averageFeedback=(rows,key)=>{const values=rows.map(row=>feedbackBySession.get(row.id)?.[key]).filter(value=>value!==null&&value!==undefined&&Number.isFinite(Number(value))).map(Number);return{value:values.length?values.reduce((sum,value)=>sum+value,0)/values.length:null,count:values.length}};
   const groups=Object.entries(grouped).filter(([,rows])=>rows.length).map(([group_code,rows])=>{
     const done=rows.filter(session=>session.status==="completed"||sessionStats(session).names.has("task_success"));
     const groupDurations=done.map(session=>session.completed_at&&session.started_at?Math.max(0,session.completed_at-session.started_at):null).filter(value=>value!==null).sort((a,b)=>a-b);
     const groupMedian=groupDurations.length?(groupDurations.length%2?groupDurations[(groupDurations.length-1)/2]:(groupDurations[groupDurations.length/2-1]+groupDurations[groupDurations.length/2])/2):null;
     const retry=rows.reduce((sum,session)=>sum+sessionStats(session).retry,0);
-    const difficulty=average(rows,"difficulty"),recovery=average(rows,"recovery_understanding"),confidence=average(rows,"progress_confidence");
-    return{group_code,total:rows.length,completed:done.length,completion_rate:rows.length?Math.round(done.length*100/rows.length):0,median_duration_ms:groupMedian,avg_retry:rows.length?retry/rows.length:0,ocr_fail_users:rows.filter(session=>sessionStats(session).ocr_fail>0).length,recovery_users:rows.filter(session=>sessionStats(session).recovery_found>0).length,avg_difficulty:difficulty.value,difficulty_responses:difficulty.count,avg_recovery_understanding:recovery.value,recovery_responses:recovery.count,avg_progress_confidence:confidence.value,confidence_responses:confidence.count};
+    const difficulty=averageFeedback(rows,"ease_agreement"),submission=averageFeedback(rows,"submission_confidence"),recovery=averageFeedback(rows,"next_step_clarity"),confidence=averageFeedback(rows,"independent_confidence");
+    return{group_code,total:rows.length,completed:done.length,completion_rate:rows.length?Math.round(done.length*100/rows.length):0,median_duration_ms:groupMedian,avg_retry:rows.length?retry/rows.length:0,ocr_fail_users:rows.filter(session=>sessionStats(session).ocr_fail>0).length,recovery_users:rows.filter(session=>sessionStats(session).recovery_found>0).length,avg_difficulty:difficulty.value,difficulty_responses:difficulty.count,avg_submission_confidence:submission.value,submission_confidence_responses:submission.count,avg_recovery_understanding:recovery.value,recovery_responses:recovery.count,avg_progress_confidence:confidence.value,confidence_responses:confidence.count};
   });
   const distribution=(key,labelFor=value=>String(value||"未填"))=>{
     const counts=new Map();
@@ -221,7 +237,10 @@ async function buildAdminAnalytics(env,url) {
   const eventParticipants=(name,predicate=()=>true)=>participants(event=>event.event_name===name&&predicate(safeParse(event.meta_json)));
   const groupCounts=(ids)=>Object.fromEntries(["A","B"].map(code=>[code,sessions.filter(session=>session.group_code===code&&ids.has(session.id)).length]));
   const successIds=new Set(taskCompleted);
-  const feedbackIds=new Set(sessions.filter(session=>session.difficulty!==null&&session.difficulty!==undefined).map(session=>session.id));
+  const feedbackIds=new Set([
+    ...feedbackBySession.keys(),
+    ...sessions.filter(session=>session.difficulty!==null&&session.difficulty!==undefined).map(session=>session.id)
+  ]);
   const authIds=eventParticipants("auth_complete");
   for(const id of eventParticipants("signup_complete"))authIds.add(id);
   const funnelSteps=[

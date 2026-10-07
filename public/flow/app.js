@@ -4060,33 +4060,81 @@ airportComboboxes.forEach((field) => {
 
 function setResearchAutofillValue(selector, value) {
   const input = document.querySelector(selector);
-  if (!input || value == null || value === "") return;
+  if (!input || value == null || value === "") return false;
   input.value = String(value);
   input.dispatchEvent(new Event("input", { bubbles: true }));
   input.dispatchEvent(new Event("change", { bubbles: true }));
+  return true;
 }
 
-function autofillResearchApplicationData(data = {}) {
-  ["#signup-id", "#login-id", "#login-code-id"].forEach((selector) => setResearchAutofillValue(selector, data.identity));
-  setResearchAutofillValue("#login-password", data.loginPassword);
-  setResearchAutofillValue("#signup-name", data.signupName);
-  setResearchAutofillValue("#signup-birthday", data.signupBirthday);
-  setResearchAutofillValue("#signup-phone", data.signupPhone);
-  setResearchAutofillValue("#signup-password", data.signupPassword);
-  setResearchAutofillValue("#signup-confirm-password", data.signupPassword);
-  ["#login-otp-input", "#signup-otp-input", "#otp-input"].forEach((selector) => setResearchAutofillValue(selector, data.otp));
+function autofillResearchCurrentPage(data = {}) {
+  if (!boardingInfoDialog.hidden) {
+    const fields = { passenger: data.passenger, flight: data.flight, origin: data.origin, destination: data.destination, year: data.year, date: data.date };
+    let filled = 0;
+    for (const [name, value] of Object.entries(fields)) {
+      const field = boardingInfoForm.elements[name];
+      if (setResearchAutofillValue(`#boarding-info-form [name="${name}"]`, value)) {
+        filled += 1;
+        if (field?.matches(".airport-input")) {
+          field.dataset.selectedValue = field.value.trim();
+          field.setCustomValidity("");
+        }
+      }
+    }
+    updateBoardingInfoButton();
+    return { filled: filled > 0, screen: "登機證資料確認" };
+  }
 
-  if (data.bankCode) setBankSelection(data.bankCode);
-  if (data.bankCode || data.branch) updateBankBranches(data.branch || "");
-  setResearchAutofillValue("#bank-info-form [name='account']", data.bankAccount);
-  validateBankAccount();
-  updateBankInfoButton();
+  if (!scheduledTimeDialog.hidden) {
+    const filled = setResearchAutofillValue("#scheduled-date", data.scheduledDate)
+      | setResearchAutofillValue("#scheduled-hour", data.scheduledHour);
+    updateScheduledTimeForm();
+    return { filled: Boolean(filled), screen: "原定班機時間" };
+  }
+
+  if (!authDialog.hidden) {
+    const activeView = authDialog.querySelector(".auth-view:not([hidden])");
+    const values = {
+      "signup-id": data.identity,
+      "signup-birthday": data.signupBirthday,
+      "signup-name": data.signupName,
+      "signup-phone": data.signupPhone,
+      "signup-otp-input": data.otp,
+      "signup-password": data.signupPassword,
+      "signup-confirm-password": data.signupPassword,
+      "login-id": data.identity,
+      "login-password": data.loginPassword,
+      "login-code-id": data.identity,
+      "login-otp-input": data.otp,
+    };
+    let filled = 0;
+    activeView?.querySelectorAll("input[id],select[id],textarea[id]").forEach((field) => {
+      if (setResearchAutofillValue(`#${field.id}`, values[field.id])) filled += 1;
+    });
+    return { filled: filled > 0, screen: "會員登入／註冊" };
+  }
+
+  if (!otpDialog.hidden) {
+    const filled = setResearchAutofillValue("#otp-input", data.otp);
+    return { filled, screen: "驗證碼" };
+  }
+
+  if (!bankInfoDialog.hidden) {
+    if (data.bankCode) setBankSelection(data.bankCode);
+    if (data.bankCode || data.branch) updateBankBranches(data.branch || "");
+    const filled = setResearchAutofillValue("#bank-info-form [name='account']", data.bankAccount);
+    validateBankAccount();
+    updateBankInfoButton();
+    return { filled: Boolean(filled || data.bankCode || data.branch), screen: "匯款資料" };
+  }
+
+  return { filled: false, screen: "" };
 }
 
 window.addEventListener("message", (event) => {
   if (event.source !== window.parent || event.data?.type !== "flight-delay-autofill" || !isUsabilityResearch) return;
-  autofillResearchApplicationData(event.data.data || {});
-  window.parent.postMessage({ type: "flight-delay-autofill-complete" }, "*");
+  const result = autofillResearchCurrentPage(event.data.data || {});
+  window.parent.postMessage({ type: "flight-delay-autofill-complete", ...result }, "*");
 });
 
 if (window.parent !== window && isUsabilityResearch) {
