@@ -97,7 +97,9 @@ async function openDetail(id){
     const answerValue=(key)=>Array.isArray(profile[key])?(profile[key].join("、")||"未填"):profile[key]||"未填";
     const paperAnswer=!preference?"未填":["紙本登機證","兩種都會使用"].includes(preference)?answerValue("paper_boarding_pass_sources"):"不適用";
     const electronicAnswer=!preference?"未填":["電子登機證／QR Code","兩種都會使用"].includes(preference)?answerValue("electronic_boarding_pass_sources"):"不適用";
-    const surveyAnswers=[["過去 1 年搭乘飛機次數",answerValue("flight_frequency")],["過去 1 年購買旅遊險次數",answerValue("travel_insurance_frequency")],["過去 1 年遇過班機延誤",answerValue("flight_delay_experience")],["平常使用的登機證",answerValue("boarding_pass_preference")],["紙本登機證取得方式",paperAnswer],["電子登機證取得／保存方式",electronicAnswer],["旅程結束後保留登機證",answerValue("boarding_pass_retention")]];
+    const paperOtherAnswer=!preference?"未填":["紙本登機證","兩種都會使用"].includes(preference)?(profile.paper_boarding_pass_sources||[]).includes("其他")?answerValue("paper_boarding_pass_sources_other"):"—":"不適用";
+    const electronicOtherAnswer=!preference?"未填":["電子登機證／QR Code","兩種都會使用"].includes(preference)?(profile.electronic_boarding_pass_sources||[]).includes("其他")?answerValue("electronic_boarding_pass_sources_other"):"—":"不適用";
+    const surveyAnswers=[["過去 1 年搭乘飛機次數",answerValue("flight_frequency")],["過去 1 年購買旅遊險次數",answerValue("travel_insurance_frequency")],["過去 1 年遇過班機延誤",answerValue("flight_delay_experience")],["平常使用的登機證",answerValue("boarding_pass_preference")],["紙本登機證取得方式",paperAnswer],["紙本登機證其他方式補充",paperOtherAnswer],["電子登機證取得／保存方式",electronicAnswer],["電子登機證其他方式補充",electronicOtherAnswer],["旅程結束後保留登機證",answerValue("boarding_pass_retention")]];
     const feedbackAnswers=[["任務難易度",s.difficulty==null?"未填":s.difficulty+" / 7"],["最不確定的地方",s.uncertainty_text||"未填"],["替代方式理解",s.recovery_understanding==null?"未填":s.recovery_understanding+" / 7"],["流程進度信心",s.progress_confidence==null?"未填":s.progress_confidence+" / 7"]];
     const path=String((state.sessions.find(session=>session.id===id)||{}).operation_path||"");
     const detailStats=stats.map(item=>'<div class="detail-stat"><span>'+item[0]+'</span><b>'+item[1]+"</b></div>").join("");
@@ -109,11 +111,13 @@ async function openDetail(id){
   }catch(error){showMessage(error.message||"無法載入受測者明細。");}
 }
 function exportCsv(){
-  const rows=filteredSessions(),columns=[["受測者 ID","id"],["組別","group_code"],["狀態","status"],["開始時間","started_at"],["任務時間（毫秒）","duration_ms"],["過去 1 年搭機次數","survey:flight_frequency"],["過去 1 年購買旅遊險次數","survey:travel_insurance_frequency"],["過去 1 年遇過班機延誤","survey:flight_delay_experience"],["平常使用的登機證","survey:boarding_pass_preference"],["紙本登機證取得方式","survey:paper_boarding_pass_sources"],["電子登機證取得／保存方式","survey:electronic_boarding_pass_sources"],["旅程結束後保留登機證","survey:boarding_pass_retention"],["難易度","difficulty"],["返回次數","back_count"],["重試次數","retry_count"],["辨識失敗次數","ocr_fail_count"],["AI 修改次數","ai_edit_count"],["替代流程發現次數","recovery_found_count"],["放棄位置","abandon_location"],["操作路徑","operation_path"]];
+  const rows=filteredSessions(),columns=[["受測者 ID","id"],["組別","group_code"],["狀態","status"],["開始時間","started_at"],["任務時間（毫秒）","duration_ms"],["過去 1 年搭機次數","survey:flight_frequency"],["過去 1 年購買旅遊險次數","survey:travel_insurance_frequency"],["過去 1 年遇過班機延誤","survey:flight_delay_experience"],["平常使用的登機證","survey:boarding_pass_preference"],["紙本登機證取得方式","survey:paper_boarding_pass_sources"],["紙本登機證其他方式補充","survey:paper_boarding_pass_sources_other"],["電子登機證取得／保存方式","survey:electronic_boarding_pass_sources"],["電子登機證其他方式補充","survey:electronic_boarding_pass_sources_other"],["旅程結束後保留登機證","survey:boarding_pass_retention"],["難易度","difficulty"],["返回次數","back_count"],["重試次數","retry_count"],["辨識失敗次數","ocr_fail_count"],["AI 修改次數","ai_edit_count"],["替代流程發現次數","recovery_found_count"],["放棄位置","abandon_location"],["操作路徑","operation_path"]];
   const surveyValue=(profile,key)=>{
     if(!profile.boarding_pass_preference)return"";
     if(key==="paper_boarding_pass_sources"&&!["紙本登機證","兩種都會使用"].includes(profile.boarding_pass_preference))return"不適用";
     if(key==="electronic_boarding_pass_sources"&&!["電子登機證／QR Code","兩種都會使用"].includes(profile.boarding_pass_preference))return"不適用";
+    if(key==="paper_boarding_pass_sources_other")return["紙本登機證","兩種都會使用"].includes(profile.boarding_pass_preference)?(profile.paper_boarding_pass_sources||[]).includes("其他")?profile[key]||"":"":"不適用";
+    if(key==="electronic_boarding_pass_sources_other")return["電子登機證／QR Code","兩種都會使用"].includes(profile.boarding_pass_preference)?(profile.electronic_boarding_pass_sources||[]).includes("其他")?profile[key]||"":"":"不適用";
     const value=profile[key];return Array.isArray(value)?value.join("、"):value??"";
   };
   const csv=[columns.map(column=>column[0]),...rows.map(session=>{

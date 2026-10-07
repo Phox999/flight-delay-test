@@ -54,16 +54,21 @@
     .page[data-page="2"] .grid{gap:16px}
     .page[data-page="2"] .grid + .field,
     .page[data-page="2"] .field + .grid{margin-top:16px}
-    .surveyIntro{margin:-6px 0 20px;color:var(--muted);font-size:14px}
     .surveyGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 24px}
     .surveyQuestion{min-width:0;margin:0;padding:0;border:0}
     .surveyQuestion legend{margin-bottom:9px;font-weight:700;font-size:15px;line-height:1.55}
     .surveyQuestion legend .questionNumber{color:var(--brand);margin-right:5px}
     .surveyOptions{display:flex;flex-wrap:wrap;gap:8px}
+    .surveyQuestion--stacked .surveyOptions{display:grid;grid-template-columns:1fr}
+    .surveyQuestion--stacked .surveyOptions label{width:100%}
     .surveyOptions label{display:inline-flex;align-items:center;gap:7px;margin:0;padding:9px 12px;border:1px solid var(--line);border-radius:12px;background:#fff;font-size:14px;font-weight:500;line-height:1.35;cursor:pointer}
     .surveyOptions input{width:auto;margin:0;accent-color:var(--brand)}
     .surveyQuestion--wide{grid-column:1/-1}
     .surveyConditional[hidden]{display:none}
+    .surveyOtherWrap{margin-top:10px;max-width:440px}
+    .surveyOtherWrap label{display:block;margin-bottom:6px;font-size:13px;color:var(--muted)}
+    .surveyOtherWrap input{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);font:inherit}
+    .surveyOtherWrap input:focus{outline:2px solid #9fc3ff;border-color:var(--brand)}
     .applicationGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 16px;margin-top:12px}
     .applicationItem{display:flex;gap:8px;align-items:baseline;min-width:0}
     .applicationItem b{font-weight:500;overflow-wrap:anywhere}
@@ -77,6 +82,14 @@
     .signupData{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
     .signupDataTitle{display:block;margin-bottom:8px}
     .signupDataNote{margin:8px 0 0;font-size:12px;color:var(--muted)}
+    .taskDataToolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:16px 0 8px}
+    .taskDetailsToggle{display:inline-flex;align-items:center;padding:6px 0;border:0;background:transparent;color:var(--brand);font:inherit;font-weight:700;cursor:pointer}
+    .taskDetailsToggle::before{content:"›";display:inline-block;margin-right:8px;font-size:22px;line-height:1;transition:transform .18s ease}
+    .taskDetailsToggle[aria-expanded="true"]::before{transform:rotate(90deg)}
+    .taskDataToolbar>#autofillApplicationBtn{flex:none;border-radius:999px;padding:9px 14px;font-size:13px;white-space:nowrap}
+    .taskDetailsToggle:focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:5px}
+    #personalDataContent[hidden]{display:none}
+    #applicationFillStatus:empty{display:none}
     .srOnly{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
     .scenarioCard{max-width:700px;margin:0 auto;border-radius:32px}
     .scenarioEyebrow{display:inline-flex;margin-bottom:10px;color:var(--brand);font-size:13px;font-weight:800;letter-spacing:.04em}
@@ -147,7 +160,7 @@
       .applicationGrid{column-gap:10px}
       .applicationItem{gap:4px;font-size:14px}
     }
-    @media(max-width:560px){.taskActions{gap:8px;padding-left:12px;padding-right:12px}.taskNavActions{gap:6px}.taskActions button{padding:9px 10px;font-size:12px}}
+    @media(max-width:560px){.taskActions{gap:8px;padding-left:12px;padding-right:12px}.taskNavActions{gap:6px}.taskActions button{padding:9px 10px;font-size:12px}.taskDataToolbar{align-items:flex-start;gap:8px}.taskDetailsToggle{font-size:13px}.taskDataToolbar>#autofillApplicationBtn{padding:8px 10px;font-size:12px}}
   </style>
   <script src="config.js"></script>
 </head>
@@ -181,7 +194,7 @@
         <ol class="welcomeSteps">
           <li><span>1</span>填寫基本資料</li>
           <li><span>2</span>閱讀測試情境</li>
-          <li><span>3</span>操作阿發理賠流程</li>
+          <li><span>3</span>操作智能助理阿發理賠流程</li>
           <li><span>4</span>分享使用感受</li>
         </ol>
         <p class="consentNote">先填寫基本資料，再閱讀情境並開始操作</p>
@@ -193,7 +206,6 @@
   <section class="page" data-page="2">
     <div class="card">
       <h2>操作前｜基本資料</h2>
-      <p class="surveyIntro">請依照過去一年的實際經驗作答；第 5、6 題會依你選擇的登機證類型出現。</p>
       <div class="surveyGrid">
         <fieldset class="surveyQuestion">
           <legend><span class="questionNumber">1.</span>過去 1 年，你搭乘飛機的次數？</legend>
@@ -221,7 +233,7 @@
             <label><input name="flightDelayExperience" type="radio" value="有，2 次以上">有，2 次以上</label>
           </div>
         </fieldset>
-        <fieldset class="surveyQuestion">
+        <fieldset class="surveyQuestion surveyQuestion--stacked">
           <legend><span class="questionNumber">4.</span>搭乘飛機時，你平常較常使用哪種登機證？</legend>
           <div class="surveyOptions">
             <label><input name="boardingPassPreference" type="radio" value="紙本登機證">紙本登機證</label>
@@ -238,6 +250,10 @@
             <label><input name="paperBoardingPassSources" type="checkbox" value="報到／托運行李時由櫃檯列印">報到／托運行李時由櫃檯列印</label>
             <label><input name="paperBoardingPassSources" type="checkbox" value="其他">其他</label>
           </div>
+          <div class="surveyOtherWrap" id="paperOtherWrap" hidden>
+            <label for="paperBoardingPassOther">請補充其他取得方式</label>
+            <input id="paperBoardingPassOther" type="text" maxlength="120" placeholder="請填寫其他方式" />
+          </div>
         </fieldset>
         <fieldset class="surveyQuestion surveyQuestion--wide surveyConditional" id="electronicSourcesField" hidden>
           <legend><span class="questionNumber">6.</span>如果使用電子登機證，你通常從哪裡取得或保存？（複選）</legend>
@@ -247,6 +263,10 @@
             <label><input name="electronicBoardingPassSources" type="checkbox" value="Email">Email</label>
             <label><input name="electronicBoardingPassSources" type="checkbox" value="截圖／儲存在相簿">截圖／儲存在相簿</label>
             <label><input name="electronicBoardingPassSources" type="checkbox" value="其他">其他</label>
+          </div>
+          <div class="surveyOtherWrap" id="electronicOtherWrap" hidden>
+            <label for="electronicBoardingPassOther">請補充其他取得或保存方式</label>
+            <input id="electronicBoardingPassOther" type="text" maxlength="120" placeholder="請填寫其他方式" />
           </div>
         </fieldset>
         <fieldset class="surveyQuestion surveyQuestion--wide">
@@ -269,9 +289,9 @@
   <section class="page" data-page="3">
     <div class="card scenarioCard">
       <span class="scenarioEyebrow">任務情境</span>
-      <h1>請用阿發申請班機延誤理賠</h1>
+      <h1>請用智能助理阿發申請班機延誤理賠</h1>
       <div id="scenarioCopy"></div>
-      <div class="scenarioPrompt">請依照情境操作阿發模擬流程。當你認為任務已完成時，請點擊下方「我已完成」按鈕。</div>
+      <div class="scenarioPrompt">請依照情境操作智能助理阿發模擬流程。當你認為任務已完成時，請點擊下方「我已完成」按鈕。</div>
       <div class="actions">
         <button class="ghost" id="backScenarioBtn">上一步</button>
         <button class="primary" id="beginTaskBtn">開始測試</button>
@@ -282,9 +302,14 @@
   <section class="page" data-page="4">
     <div class="card taskBriefCard">
       <h2>本次任務資料</h2>
+      <div class="taskDataToolbar">
+        <button class="taskDetailsToggle" id="personalDataToggle" type="button" aria-expanded="false" aria-controls="personalDataContent">查看詳細個人資料</button>
+        <button class="secondary" id="autofillApplicationBtn" type="button">一鍵代入申請資料</button>
+      </div>
+      <p class="applicationFillStatus" id="applicationFillStatus" role="status" aria-live="polite"></p>
+      <div id="personalDataContent" hidden>
       <div class="notice" id="applicationData">
-        <div class="noticeHeader"><b>申請資料</b><button class="secondary" id="autofillApplicationBtn" type="button">一鍵代入申請資料</button></div>
-        <p class="applicationFillStatus" id="applicationFillStatus" role="status" aria-live="polite"></p>
+        <div class="noticeHeader"><b>申請資料</b></div>
         <div class="applicationGrid">
           <div class="applicationItem"><span>匯款銀行：</span><b>013 國泰世華商業銀行</b><button class="copyButton" type="button" data-copy-value="013 國泰世華商業銀行" data-copy-label="匯款銀行" aria-label="複製匯款銀行" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
           <div class="applicationItem"><span>分行別：</span><b>新竹分行</b><button class="copyButton" type="button" data-copy-value="新竹分行" data-copy-label="分行別" aria-label="複製分行別" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
@@ -314,6 +339,7 @@
         </div>
         <span id="applicationCopyStatus" class="srOnly" role="status" aria-live="polite"></span>
       </div>
+      </div>
       <details class="taskBackground">
         <summary>查看情境背景</summary>
         <div id="taskCopy"></div>
@@ -321,14 +347,14 @@
     </div>
     <div class="card flowCard">
       <div class="phoneWrap">
-        <div class="phone"><iframe id="flowFrame" title="阿發班機延誤流程"></iframe></div>
+        <div class="phone"><iframe id="flowFrame" title="智能助理阿發班機延誤流程"></iframe></div>
       </div>
     </div>
     <div class="taskActions">
       <div class="statusPill" id="taskStatus">進行中</div>
       <div class="taskNavActions">
         <button class="ghost" id="backTaskBtn">返回上一步</button>
-        <button class="ghost" id="retryTaskBtn" type="button" title="重新開始阿發流程並記錄一次重試" aria-label="重新開始阿發流程並記錄一次重試">重試 <span id="retryCount" class="retryCount" hidden>0 次</span></button>
+        <button class="ghost" id="retryTaskBtn" type="button" title="重新開始智能助理阿發流程並記錄一次重試" aria-label="重新開始智能助理阿發流程並記錄一次重試">重試 <span id="retryCount" class="retryCount" hidden>0 次</span></button>
         <button class="primary" id="giveUpBtn">我已完成</button>
       </div>
     </div>
@@ -387,6 +413,14 @@ if (LOCAL_PREVIEW && localPreviewNotice) localPreviewNotice.classList.remove("hi
 
 function selected(name){ return document.querySelector(`input[name="${name}"]:checked`)?.value || ""; }
 function selectedMany(name){ return [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(input=>input.value); }
+function updateOtherSourceQuestions(){
+  const paperOther=selectedMany("paperBoardingPassSources").includes("其他");
+  const electronicOther=selectedMany("electronicBoardingPassSources").includes("其他");
+  document.getElementById("paperOtherWrap").hidden=!paperOther;
+  document.getElementById("electronicOtherWrap").hidden=!electronicOther;
+  if(!paperOther) document.getElementById("paperBoardingPassOther").value="";
+  if(!electronicOther) document.getElementById("electronicBoardingPassOther").value="";
+}
 function updateBoardingSourceQuestions(){
   const preference=selected("boardingPassPreference");
   const showPaper=["紙本登機證","兩種都會使用"].includes(preference);
@@ -395,6 +429,7 @@ function updateBoardingSourceQuestions(){
   document.getElementById("electronicSourcesField").hidden=!showElectronic;
   if(!showPaper) document.querySelectorAll('input[name="paperBoardingPassSources"]').forEach(input=>input.checked=false);
   if(!showElectronic) document.querySelectorAll('input[name="electronicBoardingPassSources"]').forEach(input=>input.checked=false);
+  updateOtherSourceQuestions();
 }
 function go(n){
   currentPage = n;
@@ -436,7 +471,11 @@ function sendPendingAutofill(){
 }
 
 document.getElementById("autofillApplicationBtn").onclick=()=>{
-  const getValue=label=>document.querySelector(`#applicationData [data-copy-label="${label}"]`)?.dataset.copyValue||"";
+  const getValue=label=>{
+    const button=document.querySelector(`#applicationData [data-copy-label="${label}"]`);
+    const item=button?.closest(".applicationItem");
+    return item&&!item.hidden&&!item.classList.contains("hidden")?button.dataset.copyValue||"":"";
+  };
   pendingAutofillData={
     identity:getValue("身分證"),
     loginPassword:getValue("登入密碼"),
@@ -450,12 +489,19 @@ document.getElementById("autofillApplicationBtn").onclick=()=>{
     signupPassword:getValue("註冊密碼")
   };
   const status=document.getElementById("applicationFillStatus");
-  if(!flowFrameReady){status.textContent="阿發畫面載入中，載入完成後會自動代入。";return;}
+  if(!flowFrameReady){status.textContent="智能助理阿發畫面載入中，載入完成後會自動代入。";return;}
   sendPendingAutofill();
   status.textContent="資料代入中…";
 };
 
 document.querySelectorAll('input[name="boardingPassPreference"]').forEach(input=>input.addEventListener("change",updateBoardingSourceQuestions));
+document.querySelectorAll('input[name="paperBoardingPassSources"],input[name="electronicBoardingPassSources"]').forEach(input=>input.addEventListener("change",updateOtherSourceQuestions));
+document.getElementById("personalDataToggle").addEventListener("click",(event)=>{
+  const button=event.currentTarget;
+  const expanded=button.getAttribute("aria-expanded")==="true";
+  button.setAttribute("aria-expanded",String(!expanded));
+  document.getElementById("personalDataContent").hidden=expanded;
+});
 
 document.getElementById("profileBtn").onclick=async()=>{
   const preference=selected("boardingPassPreference");
@@ -465,7 +511,9 @@ document.getElementById("profileBtn").onclick=async()=>{
     flight_delay_experience:selected("flightDelayExperience"),
     boarding_pass_preference:preference,
     paper_boarding_pass_sources:selectedMany("paperBoardingPassSources"),
+    paper_boarding_pass_sources_other:document.getElementById("paperBoardingPassOther").value.trim(),
     electronic_boarding_pass_sources:selectedMany("electronicBoardingPassSources"),
+    electronic_boarding_pass_sources_other:document.getElementById("electronicBoardingPassOther").value.trim(),
     boarding_pass_retention:selected("boardingPassRetention")
   };
   const hasPaperQuestion=["紙本登機證","兩種都會使用"].includes(preference);
@@ -473,6 +521,8 @@ document.getElementById("profileBtn").onclick=async()=>{
   if(!profile.flight_frequency||!profile.travel_insurance_frequency||!profile.flight_delay_experience||!preference||!profile.boarding_pass_retention) return alert("請先完成第 1、2、3、4、7 題。");
   if(hasPaperQuestion&&!profile.paper_boarding_pass_sources.length) return alert("請完成第 5 題。");
   if(hasElectronicQuestion&&!profile.electronic_boarding_pass_sources.length) return alert("請完成第 6 題。");
+  if(profile.paper_boarding_pass_sources.includes("其他")&&!profile.paper_boarding_pass_sources_other) return alert("請補充第 5 題的其他取得方式。");
+  if(profile.electronic_boarding_pass_sources.includes("其他")&&!profile.electronic_boarding_pass_sources_other) return alert("請補充第 6 題的其他取得或保存方式。");
   session = await api("/api/sessions",{method:"POST",body:JSON.stringify({
     viewport:`${innerWidth}x${innerHeight}`, user_agent:navigator.userAgent
   })});
@@ -489,7 +539,7 @@ document.getElementById("profileBtn").onclick=async()=>{
   document.getElementById("retryCount").hidden = true;
   document.getElementById("retryCount").textContent = "0 次";
   document.getElementById("retryTaskBtn").disabled = false;
-  document.getElementById("retryTaskBtn").setAttribute("aria-label", "重新開始阿發流程並記錄一次重試");
+  document.getElementById("retryTaskBtn").setAttribute("aria-label", "重新開始智能助理阿發流程並記錄一次重試");
   setupTask();
   go(3);
 };
@@ -504,8 +554,8 @@ function setupTask(){
     item.classList.toggle("hidden",!showForGroupB);
   });
   const scenario = group==="A"
-   ? `<p>你剛結束日本旅遊並返回台北。回程航班日期為 <b>2026/09/30</b>，當天班機延誤約 <b>5 小時</b> 後才順利返台。</p><p>你已購買國泰產險的旅遊平安險，手上仍保留<b>紙本登機證</b>，但目前還不是國泰產險會員。請先使用下一頁提供的<b>虛構測試資料完成會員註冊</b>，再透過阿發申請班機延誤理賠，依照畫面完成你認為需要的操作。</p>`
-   : `<p>你剛結束日本旅遊並返回台北。回程航班日期為 <b>2026/09/30</b>，當天班機延誤約 <b>5 小時</b> 後才順利返台。</p><p>你已購買國泰產險的旅遊平安險，手上保留的是航空公司 App／手機錢包中的<b>電子登機證 QR Code</b>，但目前還不是國泰產險會員。請先使用下一頁提供的<b>虛構測試資料完成會員註冊</b>，再透過阿發申請班機延誤理賠，依照畫面完成你認為需要的操作。</p>`;
+   ? `<p>你剛結束日本旅遊並返回台北。回程航班日期為 <b>2026/09/30</b>，當天班機延誤約 <b>5 小時</b> 後才順利返台。</p><p>你已購買國泰產險的旅遊平安險，手上仍保留<b>紙本登機證</b>，但目前還不是國泰產險會員。請先使用下一頁提供的<b>虛構測試資料完成會員註冊</b>，再透過智能助理阿發申請班機延誤理賠，依照畫面完成你認為需要的操作。</p>`
+   : `<p>你剛結束日本旅遊並返回台北。回程航班日期為 <b>2026/09/30</b>，當天班機延誤約 <b>5 小時</b> 後才順利返台。</p><p>你已購買國泰產險的旅遊平安險，手上保留的是航空公司 App／手機錢包中的<b>電子登機證 QR Code</b>，但目前還不是國泰產險會員。請先使用下一頁提供的<b>虛構測試資料完成會員註冊</b>，再透過智能助理阿發申請班機延誤理賠，依照畫面完成你認為需要的操作。</p>`;
   document.getElementById("scenarioCopy").innerHTML = scenario;
   document.getElementById("taskCopy").innerHTML = scenario;
   document.getElementById("groupBQuestions").classList.toggle("hidden",group!=="B");
@@ -537,7 +587,7 @@ document.getElementById("retryTaskBtn").onclick=async(event)=>{
     const count=document.getElementById("retryCount");
     count.textContent=`${taskRetryCount} 次`;
     count.hidden=false;
-    button.setAttribute("aria-label",`已記錄 ${taskRetryCount} 次重試；按下會重新開始阿發流程`);
+    button.setAttribute("aria-label",`已記錄 ${taskRetryCount} 次重試；按下會重新開始智能助理阿發流程`);
     const url=new URL(FLOW_URL);
     url.searchParams.set("research","1");
     url.searchParams.set("group",session.group_code);
@@ -582,7 +632,7 @@ window.addEventListener("message", async (ev)=>{
     return;
   }
   if(d.type==="flight-delay-autofill-complete"){
-    document.getElementById("applicationFillStatus").textContent="已將虛構申請資料帶入阿發畫面，請檢查欄位後繼續操作。";
+    document.getElementById("applicationFillStatus").textContent="已將畫面提供的虛構資料帶入智能助理阿發，請檢查欄位後繼續操作。";
     return;
   }
   if(d.type!=="flight-delay-research") return;
