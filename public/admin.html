@@ -103,7 +103,7 @@ function renderSessions(){const all=filteredSessions(),pages=Math.max(1,Math.cei
 async function openDetail(id){
   try{
     const d=await api("/api/admin/session/"+encodeURIComponent(id));
-    const s=d.session||{},events=d.events||[],profile=events.find(event=>event.event_name==="pre_task_profile")?.meta||{},postFeedback=events.find(event=>event.event_name==="post_task_feedback")?.meta||null;
+    const s=d.session||{},events=d.events||[],latestEvent=eventName=>[...events].reverse().find(event=>event.event_name===eventName),profile=latestEvent("pre_task_profile")?.meta||{},feedbackEvents=events.filter(event=>event.event_name==="post_task_feedback"&&Object.prototype.hasOwnProperty.call(event.meta||{},"submission_confidence")&&Object.prototype.hasOwnProperty.call(event.meta||{},"completion_evidence")),postFeedback=feedbackEvents.at(-1)?.meta||null;
     const dwell=Object.entries(d.page_dwell_ms||{}).sort((a,b)=>num(b[1])-num(a[1]));
     const maxDwell=Math.max(1,...dwell.map(item=>num(item[1]))),device=s.viewport||"—";
     const stats=[["受測者代碼",escapeHtml((state.sessions.find(session=>session.id===id)||{}).participant_code||"—")],["研究組別",escapeHtml(s.group_code||"—")+" 組 · "+(s.group_code==="A"?"紙本登機證＋會員註冊":"電子登機證")],["任務狀態",statusBadge(s.status)],["任務時間",formatDuration(s.completed_at&&s.started_at?s.completed_at-s.started_at:s.abandoned_at&&s.started_at?s.abandoned_at-s.started_at:null)],["開始時間",formatDate(s.started_at,true)],["測試裝置",escapeHtml(device)]];
@@ -122,12 +122,7 @@ async function openDetail(id){
       ["7. 認為可申請的情況",Array.isArray(postFeedback.eligibility_scenarios)&&postFeedback.eligibility_scenarios.length?postFeedback.eligibility_scenarios.join("、"):"未填"],
       ["8. 未來獨立完成理賠申請的信心",postFeedback.independent_confidence==null?"未填":postFeedback.independent_confidence+" / 7"],
       ["9. 猶豫或不確定的地方",postFeedback.hesitation_feedback||"未填"]
-    ]:[
-      ["舊版回饋｜任務難易度",s.difficulty==null?"未填":s.difficulty+" / 7"],
-      ["舊版回饋｜最不確定的地方",s.uncertainty_text||"未填"],
-      ["舊版回饋｜替代方式理解",s.recovery_understanding==null?"未填":s.recovery_understanding+" / 7"],
-      ["舊版回饋｜流程進度信心",s.progress_confidence==null?"未填":s.progress_confidence+" / 7"]
-    ];
+    ]:[["新版測後回饋","尚無新版問卷答案"]];
     const path=String((state.sessions.find(session=>session.id===id)||{}).operation_path||"");
     const detailStats=stats.map(item=>'<div class="detail-stat"><span>'+item[0]+'</span><b>'+item[1]+"</b></div>").join("");
     const makeAnswers=rows=>rows.map(item=>"<div><b>"+escapeHtml(item[0])+"：</b>"+escapeHtml(item[1])+"</div>").join("");
