@@ -46,6 +46,9 @@
     p{line-height:1.8;color:#3b4658}
     .muted{color:var(--muted)}
     .notice{background:#f7f9fc;border:1px solid var(--line);padding:18px 20px;border-radius:14px;margin:22px 0}
+    .noticeHeader{display:flex;justify-content:space-between;align-items:center;gap:12px}
+    .noticeHeader button{flex:none;border-radius:999px;padding:8px 13px;font-size:13px;white-space:nowrap}
+    .applicationFillStatus{margin:8px 0 0;font-size:12px;color:var(--muted)}
     .consentNote{font-size:14px;margin:20px 0 0;color:var(--muted)}
     .page[data-page="2"] .field{margin:0}
     .page[data-page="2"] .grid{gap:16px}
@@ -268,7 +271,7 @@
       <span class="scenarioEyebrow">任務情境</span>
       <h1>請用阿發申請班機延誤理賠</h1>
       <div id="scenarioCopy"></div>
-      <div class="scenarioPrompt">請依照情境操作阿發模擬畫面，完成你認為需要的步驟。遇到不確定的地方，可以照平常的方式判斷。</div>
+      <div class="scenarioPrompt">請依照情境操作阿發模擬流程。當你認為任務已完成時，請點擊下方「我已完成」按鈕。</div>
       <div class="actions">
         <button class="ghost" id="backScenarioBtn">上一步</button>
         <button class="primary" id="beginTaskBtn">開始測試</button>
@@ -279,12 +282,13 @@
   <section class="page" data-page="4">
     <div class="card taskBriefCard">
       <h2>本次任務資料</h2>
-      <div class="notice">
-        <b>申請資料</b>
+      <div class="notice" id="applicationData">
+        <div class="noticeHeader"><b>申請資料</b><button class="secondary" id="autofillApplicationBtn" type="button">一鍵代入申請資料</button></div>
+        <p class="applicationFillStatus" id="applicationFillStatus" role="status" aria-live="polite"></p>
         <div class="applicationGrid">
-          <div class="applicationItem"><span>銀行：</span><b>國泰世華銀行</b><button class="copyButton" type="button" data-copy-value="國泰世華銀行" data-copy-label="銀行名稱" aria-label="複製銀行名稱" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
-          <div class="applicationItem"><span>分行：</span><b>三重分行</b><button class="copyButton" type="button" data-copy-value="三重分行" data-copy-label="分行" aria-label="複製分行" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
-          <div class="applicationItem"><span>銀行帳號：</span><b>12345678</b><button class="copyButton" type="button" data-copy-value="12345678" data-copy-label="銀行帳號" aria-label="複製銀行帳號" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
+          <div class="applicationItem"><span>匯款銀行：</span><b>013 國泰世華商業銀行</b><button class="copyButton" type="button" data-copy-value="013 國泰世華商業銀行" data-copy-label="匯款銀行" aria-label="複製匯款銀行" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
+          <div class="applicationItem"><span>分行別：</span><b>新竹分行</b><button class="copyButton" type="button" data-copy-value="新竹分行" data-copy-label="分行別" aria-label="複製分行別" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
+          <div class="applicationItem"><span>匯款帳號：</span><b>0001907088923</b><button class="copyButton" type="button" data-copy-value="0001907088923" data-copy-label="匯款帳號" aria-label="複製匯款帳號" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
           <div class="applicationItem"><span>身分證：</span><b>A123456789</b><button class="copyButton" type="button" data-copy-value="A123456789" data-copy-label="身分證" aria-label="複製身分證" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
           <div class="applicationItem hidden" data-login-only hidden><span>登入密碼：</span><b>Test1234</b><button class="copyButton" type="button" data-copy-value="Test1234" data-copy-label="登入密碼" aria-label="複製登入密碼" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
           <div class="applicationItem applicationItem--verification"><span>驗證碼/動態密碼：</span><b>123123</b><button class="copyButton" type="button" data-copy-value="123123" data-copy-label="驗證碼/動態密碼" aria-label="複製驗證碼/動態密碼" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
@@ -295,11 +299,11 @@
             <div class="applicationItem"><span>乘客姓名：</span><b>TARO TEST</b><button class="copyButton" type="button" data-copy-value="TARO TEST" data-copy-label="乘客姓名" aria-label="複製乘客姓名" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
             <div class="applicationItem"><span>航班編號：</span><b>TEST-001</b><button class="copyButton" type="button" data-copy-value="TEST-001" data-copy-label="航班編號" aria-label="複製航班編號" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
             <div class="applicationItem"><span>航線：</span><b>大阪關西（KIX）→桃園（TPE）</b><button class="copyButton" type="button" data-copy-value="大阪關西（KIX）→桃園（TPE）" data-copy-label="航線" aria-label="複製航線" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
-            <div class="applicationItem"><span>起飛時間：</span><b>2026/8/24 12:00</b><button class="copyButton" type="button" data-copy-value="2026/8/24 12:00" data-copy-label="起飛時間" aria-label="複製起飛時間" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
+            <div class="applicationItem"><span>起飛時間：</span><b>2026/09/30 12:00</b><button class="copyButton" type="button" data-copy-value="2026/09/30 12:00" data-copy-label="起飛時間" aria-label="複製起飛時間" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
           </div>
         </div>
         <div class="signupData" id="signupData" hidden>
-          <b class="signupDataTitle">會員註冊測試資料（A 組）</b>
+          <b class="signupDataTitle">會員註冊測試資料</b>
           <div class="applicationGrid">
             <div class="applicationItem"><span>姓名：</span><b>王小明</b><button class="copyButton" type="button" data-copy-value="王小明" data-copy-label="姓名" aria-label="複製姓名" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
             <div class="applicationItem"><span>生日：</span><b>1990/01/01</b><button class="copyButton" type="button" data-copy-value="1990/01/01" data-copy-label="生日" aria-label="複製生日" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
@@ -324,7 +328,7 @@
       <div class="statusPill" id="taskStatus">進行中</div>
       <div class="taskNavActions">
         <button class="ghost" id="backTaskBtn">返回上一步</button>
-        <button class="ghost" id="retryTaskBtn" type="button" title="每次受測者實際重試或重新上傳後，點擊一次" aria-label="記錄一次重試">重試 <span id="retryCount" class="retryCount" hidden>0 次</span></button>
+        <button class="ghost" id="retryTaskBtn" type="button" title="重新開始阿發流程並記錄一次重試" aria-label="重新開始阿發流程並記錄一次重試">重試 <span id="retryCount" class="retryCount" hidden>0 次</span></button>
         <button class="primary" id="giveUpBtn">我已完成</button>
       </div>
     </div>
@@ -374,10 +378,11 @@ const LOCAL_PREVIEW = location.protocol === "file:";
 const FLOW_URL = (window.APP_CONFIG && APP_CONFIG.FLOW_URL) || (LOCAL_PREVIEW
   ? new URL("./flow/index.html", location.href).href
   : new URL("/flow/", location.origin).href);
-let currentPage = 1, session = null, taskCompletionInProgress = false, taskRetryCount = 0, taskStarted = false;
+let currentPage = 1, session = null, taskCompletionInProgress = false, taskRetryCount = 0, taskStarted = false, flowFrameReady = false, pendingAutofillData = null;
 const TOTAL_STEPS = 5;
 
 const localPreviewNotice = document.getElementById("localPreviewNotice");
+const flowFrame = document.getElementById("flowFrame");
 if (LOCAL_PREVIEW && localPreviewNotice) localPreviewNotice.classList.remove("hidden");
 
 function selected(name){ return document.querySelector(`input[name="${name}"]:checked`)?.value || ""; }
@@ -424,6 +429,32 @@ document.getElementById("startBtn").onclick=()=>{
   go(2);
 };
 
+function sendPendingAutofill(){
+  if(!flowFrameReady||!pendingAutofillData||!flowFrame.contentWindow) return;
+  flowFrame.contentWindow.postMessage({type:"flight-delay-autofill",data:pendingAutofillData},"*");
+  pendingAutofillData=null;
+}
+
+document.getElementById("autofillApplicationBtn").onclick=()=>{
+  const getValue=label=>document.querySelector(`#applicationData [data-copy-label="${label}"]`)?.dataset.copyValue||"";
+  pendingAutofillData={
+    identity:getValue("身分證"),
+    loginPassword:getValue("登入密碼"),
+    otp:getValue("驗證碼/動態密碼"),
+    bankCode:getValue("匯款銀行").slice(0,3),
+    branch:getValue("分行別"),
+    bankAccount:getValue("匯款帳號"),
+    signupName:getValue("姓名"),
+    signupBirthday:getValue("生日"),
+    signupPhone:getValue("手機號碼"),
+    signupPassword:getValue("註冊密碼")
+  };
+  const status=document.getElementById("applicationFillStatus");
+  if(!flowFrameReady){status.textContent="阿發畫面載入中，載入完成後會自動代入。";return;}
+  sendPendingAutofill();
+  status.textContent="資料代入中…";
+};
+
 document.querySelectorAll('input[name="boardingPassPreference"]').forEach(input=>input.addEventListener("change",updateBoardingSourceQuestions));
 
 document.getElementById("profileBtn").onclick=async()=>{
@@ -450,20 +481,22 @@ document.getElementById("profileBtn").onclick=async()=>{
   taskRetryCount = 0;
   taskStarted = false;
   taskCompletionInProgress = false;
-  document.getElementById("flowFrame").src="about:blank";
+  flowFrameReady=false;
+  pendingAutofillData=null;
+  flowFrame.src="about:blank";
   document.getElementById("taskStatus").textContent="進行中";
   document.getElementById("beginTaskBtn").textContent="開始測試";
   document.getElementById("retryCount").hidden = true;
   document.getElementById("retryCount").textContent = "0 次";
   document.getElementById("retryTaskBtn").disabled = false;
-  document.getElementById("retryTaskBtn").setAttribute("aria-label", "記錄一次重試");
+  document.getElementById("retryTaskBtn").setAttribute("aria-label", "重新開始阿發流程並記錄一次重試");
   setupTask();
   go(3);
 };
 
 function setupTask(){
   const group=session.group_code;
-  document.getElementById("signupData").hidden=group!=="A";
+  document.getElementById("signupData").hidden=false;
   document.getElementById("flightData").hidden=group!=="B";
   document.querySelectorAll("[data-login-only]").forEach((item)=>{
     const showForGroupB=group==="B";
@@ -471,8 +504,8 @@ function setupTask(){
     item.classList.toggle("hidden",!showForGroupB);
   });
   const scenario = group==="A"
-   ? `<p>你剛從日本回到台北。回程班機在 <b>2026/8/24 中午 12:00</b> 起飛，當天雖然延誤，你最後還是搭上原班機。</p><p>你有買國泰產險的旅遊平安險，手邊也留著<b>紙本登機證</b>，而且還不是國泰產險會員。請先用下一頁提供的虛構測試資料完成會員註冊，再用阿發申請班機延誤理賠，照畫面一步步操作，完成你覺得需要的步驟。</p>`
-   : `<p>你剛從日本回到台北。回程班機在 <b>2026/8/24 中午 12:00</b> 起飛，當天雖然延誤，你最後還是搭上原班機。</p><p>你有買國泰產險的旅遊平安險，手邊只有航空公司 App 或手機錢包裡的<b>電子登機證 QR Code</b>。請用阿發申請班機延誤理賠，照畫面一步步操作，完成你覺得需要的步驟。若登機證辨識失敗，可用下一頁提供的航班範例資料手動輸入。</p><p><b>B 組航班範例測試資料</b>：乘客姓名 TARO TEST、航班編號 TEST-001、航線 大阪關西（KIX）→桃園（TPE）、起飛日期與時間 2026/8/24 12:00。</p>`;
+   ? `<p>你剛結束日本旅遊並返回台北。回程航班日期為 <b>2026/09/30</b>，當天班機延誤約 <b>5 小時</b> 後才順利返台。</p><p>你已購買國泰產險的旅遊平安險，手上仍保留<b>紙本登機證</b>，但目前還不是國泰產險會員。請先使用下一頁提供的<b>虛構測試資料完成會員註冊</b>，再透過阿發申請班機延誤理賠，依照畫面完成你認為需要的操作。</p>`
+   : `<p>你剛結束日本旅遊並返回台北。回程航班日期為 <b>2026/09/30</b>，當天班機延誤約 <b>5 小時</b> 後才順利返台。</p><p>你已購買國泰產險的旅遊平安險，手上保留的是航空公司 App／手機錢包中的<b>電子登機證 QR Code</b>，但目前還不是國泰產險會員。請先使用下一頁提供的<b>虛構測試資料完成會員註冊</b>，再透過阿發申請班機延誤理賠，依照畫面完成你認為需要的操作。</p>`;
   document.getElementById("scenarioCopy").innerHTML = scenario;
   document.getElementById("taskCopy").innerHTML = scenario;
   document.getElementById("groupBQuestions").classList.toggle("hidden",group!=="B");
@@ -482,10 +515,11 @@ function startTask(){
   if(taskStarted) return;
   taskStarted=true;
   document.getElementById("beginTaskBtn").textContent="繼續測試";
+  flowFrameReady=false;
   const group=session.group_code;
   const url = new URL(FLOW_URL);
   url.searchParams.set("research","1"); url.searchParams.set("group",group); url.searchParams.set("session",session.id);
-  document.getElementById("flowFrame").src=url.toString();
+  flowFrame.src=url.toString();
   sendEvent("task_start",{group});
 }
 
@@ -503,7 +537,17 @@ document.getElementById("retryTaskBtn").onclick=async(event)=>{
     const count=document.getElementById("retryCount");
     count.textContent=`${taskRetryCount} 次`;
     count.hidden=false;
-    button.setAttribute("aria-label",`已記錄 ${taskRetryCount} 次重試，再按一次可繼續記錄`);
+    button.setAttribute("aria-label",`已記錄 ${taskRetryCount} 次重試；按下會重新開始阿發流程`);
+    const url=new URL(FLOW_URL);
+    url.searchParams.set("research","1");
+    url.searchParams.set("group",session.group_code);
+    url.searchParams.set("session",session.id);
+    url.searchParams.set("retry",String(taskRetryCount));
+    flowFrameReady=false;
+    pendingAutofillData=null;
+    flowFrame.src=url.toString();
+    document.getElementById("taskStatus").textContent="進行中";
+    document.getElementById("beginTaskBtn").textContent="繼續測試";
   }else{
     alert("重試紀錄沒有成功送出，請確認網路後再試。");
   }
@@ -530,8 +574,17 @@ async function completeTask(source, event={}){
 
 window.addEventListener("message", async (ev)=>{
   const allowed = new URL(FLOW_URL).origin;
-  if(ev.origin!==allowed) return;
+  if(ev.source!==flowFrame.contentWindow||ev.origin!==allowed) return;
   const d=ev.data||{};
+  if(d.type==="flight-delay-flow-ready"){
+    flowFrameReady=true;
+    sendPendingAutofill();
+    return;
+  }
+  if(d.type==="flight-delay-autofill-complete"){
+    document.getElementById("applicationFillStatus").textContent="已將虛構申請資料帶入阿發畫面，請檢查欄位後繼續操作。";
+    return;
+  }
   if(d.type!=="flight-delay-research") return;
   if(d.event==="task_success"){
     await completeTask("flow",d);

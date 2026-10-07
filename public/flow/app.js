@@ -4057,3 +4057,38 @@ airportComboboxes.forEach((field) => {
   options.append(otherOption);
   results.prepend(options);
 });
+
+function setResearchAutofillValue(selector, value) {
+  const input = document.querySelector(selector);
+  if (!input || value == null || value === "") return;
+  input.value = String(value);
+  input.dispatchEvent(new Event("input", { bubbles: true }));
+  input.dispatchEvent(new Event("change", { bubbles: true }));
+}
+
+function autofillResearchApplicationData(data = {}) {
+  ["#signup-id", "#login-id", "#login-code-id"].forEach((selector) => setResearchAutofillValue(selector, data.identity));
+  setResearchAutofillValue("#login-password", data.loginPassword);
+  setResearchAutofillValue("#signup-name", data.signupName);
+  setResearchAutofillValue("#signup-birthday", data.signupBirthday);
+  setResearchAutofillValue("#signup-phone", data.signupPhone);
+  setResearchAutofillValue("#signup-password", data.signupPassword);
+  setResearchAutofillValue("#signup-confirm-password", data.signupPassword);
+  ["#login-otp-input", "#signup-otp-input", "#otp-input"].forEach((selector) => setResearchAutofillValue(selector, data.otp));
+
+  if (data.bankCode) setBankSelection(data.bankCode);
+  if (data.bankCode || data.branch) updateBankBranches(data.branch || "");
+  setResearchAutofillValue("#bank-info-form [name='account']", data.bankAccount);
+  validateBankAccount();
+  updateBankInfoButton();
+}
+
+window.addEventListener("message", (event) => {
+  if (event.source !== window.parent || event.data?.type !== "flight-delay-autofill" || !isUsabilityResearch) return;
+  autofillResearchApplicationData(event.data.data || {});
+  window.parent.postMessage({ type: "flight-delay-autofill-complete" }, "*");
+});
+
+if (window.parent !== window && isUsabilityResearch) {
+  window.parent.postMessage({ type: "flight-delay-flow-ready" }, "*");
+}
