@@ -59,11 +59,13 @@
     .surveyQuestion legend{margin-bottom:9px;font-weight:700;font-size:15px;line-height:1.55}
     .surveyQuestion legend .questionNumber{color:var(--brand);margin-right:5px}
     .surveyOptions{display:grid;grid-template-columns:1fr;gap:8px}
-    .surveyOptions label{display:flex;width:100%;align-items:center;gap:10px;margin:0;padding:11px 14px;border:1px solid var(--line);border-radius:12px;background:#fff;font-size:14px;font-weight:500;line-height:1.45;cursor:pointer}
+    .surveyOptions>label,.surveyOptionWithDetails>label{display:flex;width:100%;align-items:center;gap:10px;margin:0;padding:11px 14px;border:1px solid var(--line);border-radius:12px;background:#fff;font-size:14px;font-weight:500;line-height:1.45;cursor:pointer}
+    .surveyOptionWithDetails{display:grid;gap:8px}
     .surveyOptions input{width:auto;margin:0;accent-color:var(--brand)}
     .surveyQuestion--wide{grid-column:1/-1}
     .surveyConditional[hidden]{display:none}
     .surveyOtherWrap{margin-top:10px;max-width:440px}
+    .surveyOptionWithDetails .surveyOtherWrap{margin:0 0 0 28px}
     .surveyOtherWrap label{display:block;margin-bottom:6px;font-size:13px;color:var(--muted)}
     .surveyOtherWrap input{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);font:inherit}
     .surveyOtherWrap input:focus{outline:2px solid #9fc3ff;border-color:var(--brand)}
@@ -400,14 +402,16 @@
         <div class="field">
           <label>4. 剛才看到「登機證無法辨識」的畫面時，這個畫面有告訴你原因嗎？</label>
           <div class="surveyOptions">
-            <label><input type="radio" name="failureCause" value="有，畫面說明了原因">有，畫面說明了原因（請簡述）</label>
+            <div class="surveyOptionWithDetails">
+              <label><input type="radio" name="failureCause" value="有，畫面說明了原因">有，畫面說明了原因（請簡述）</label>
+              <div class="surveyOtherWrap" id="failureCauseOtherWrap" hidden>
+                <label for="failureCauseOther">請簡述畫面說明的原因</label>
+                <input id="failureCauseOther" type="text" maxlength="200" placeholder="請簡單描述畫面上的說明" />
+              </div>
+            </div>
             <label><input type="radio" name="failureCause" value="畫面有提到可能的原因，但不夠明確">畫面有提到可能的原因，但不夠明確</label>
             <label><input type="radio" name="failureCause" value="畫面沒有說明原因">畫面沒有說明原因</label>
             <label><input type="radio" name="failureCause" value="我沒有仔細看畫面">我沒有仔細看畫面</label>
-          </div>
-          <div class="surveyOtherWrap" id="failureCauseOtherWrap" hidden>
-            <label for="failureCauseOther">請簡述畫面說明的原因</label>
-            <input id="failureCauseOther" type="text" maxlength="200" placeholder="請簡單描述畫面上的說明" />
           </div>
         </div>
         <div class="field">
