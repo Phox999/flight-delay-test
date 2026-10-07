@@ -56,7 +56,7 @@ dialog{width:min(850px,calc(100% - 28px));max-height:88vh;padding:0;border:1px s
 <script>
 const $=selector=>document.querySelector(selector);
 const state={analytics:null,sessions:[],days:30,page:1,pageSize:15};
-const eventLabels={task_start:"開始理賠任務",task_success:"任務完成",signup_complete:"會員註冊完成",auth_complete:"會員登入／註冊完成",otp_verified:"動態密碼驗證成功",boarding_pass_upload_completed:"登機證上傳完成",boarding_info_confirmed:"確認航班資料",delay_proof_uploaded:"延誤證明上傳完成",bank_info_submitted:"送出匯款資料",task_abandon:"主動放棄",page_view:"流程頁面瀏覽",back:"返回上一步",retry:"重新嘗試",upload_attempt:"嘗試上傳文件",upload_fail:"文件上傳失敗",ocr_fail:"登機證辨識失敗",ai_edit:"修改 AI 辨識欄位",recovery_found:"使用手動輸入替代流程",page_exit:"離開測試頁"};
+const eventLabels={task_start:"開始理賠任務",task_success:"任務完成",signup_complete:"會員註冊完成",auth_complete:"會員登入／註冊完成",otp_verified:"動態密碼驗證成功",boarding_pass_upload_completed:"登機證上傳完成",boarding_info_confirmed:"確認航班資料",delay_proof_uploaded:"延誤證明上傳完成",bank_info_submitted:"送出匯款資料",task_abandon:"主動放棄",page_view:"流程頁面瀏覽",back:"返回上一步",retry:"重新嘗試",upload_source_selected:"選擇上傳來源",upload_attempt:"嘗試上傳文件",upload_fail:"文件上傳失敗",ocr_fail:"登機證辨識失敗",ai_edit:"修改 AI 辨識欄位",recovery_found:"使用手動輸入替代流程",page_exit:"離開測試頁"};
 const escapeHtml=value=>String(value??"").replace(/[&<>\"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
 const num=value=>Number.isFinite(Number(value))?Number(value):0;
 const percent=(value,total)=>total?Math.round(100*num(value)/num(total)):0;

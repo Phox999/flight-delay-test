@@ -3480,20 +3480,14 @@ uploadSourceMenu.querySelectorAll("[data-upload-source]").forEach((button) => {
       hideUploadSourceMenu();
       return;
     }
-    if (source === "files") {
-      showFilePicker();
-      return;
-    }
-    uploadSourceMenu.hidden = true;
-    uploadFileInput.multiple = uploadMode === "delay-proof" && source !== "camera";
-    uploadFileInput.accept = source === "photos"
-      ? "image/*"
-      : uploadMode === "delay-proof"
-        ? ".jpg,.jpeg,.png,.heic,.pdf,image/*,application/pdf"
-        : "image/*";
-    if (source === "camera") uploadFileInput.setAttribute("capture", "environment");
-    else uploadFileInput.removeAttribute("capture");
-    uploadFileInput.click();
+    const sourceLabels = { photos: "照片圖庫", camera: "拍照", files: "選擇檔案" };
+    window.ResearchTracker?.emit("upload_source_selected", {
+      source,
+      source_label: sourceLabels[source] || source,
+      document_type: uploadMode,
+      group: usabilityGroup
+    });
+    showFilePicker();
   });
 });
 filePickerScreen.querySelector("[data-close-picker]").addEventListener("click", hideFilePicker);
