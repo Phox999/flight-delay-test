@@ -2881,20 +2881,30 @@ function positionOtpTooltip(note, trigger, sheet) {
 
   const iconRect = icon.getBoundingClientRect();
   const sheetRect = sheet.getBoundingClientRect();
-  const noteRect = note.getBoundingClientRect();
-  const iconCenterX = iconRect.left + iconRect.width / 2;
+  // The usability-test embed scales the 393 x 852 preview stage. Convert
+  // viewport measurements back to the sheet's CSS-pixel coordinate space
+  // before assigning absolute `left` and `top` values.
+  const scaleX = sheet.offsetWidth ? sheetRect.width / sheet.offsetWidth : 1;
+  const scaleY = sheet.offsetHeight ? sheetRect.height / sheet.offsetHeight : 1;
+  const sheetWidth = sheet.clientWidth;
+  const sheetHeight = sheet.clientHeight;
+  const noteWidth = note.offsetWidth;
+  const noteHeight = note.offsetHeight;
+  const iconCenterX = (iconRect.left + iconRect.width / 2 - sheetRect.left) / scaleX;
+  const iconTop = (iconRect.top - sheetRect.top) / scaleY;
+  const iconBottom = (iconRect.bottom - sheetRect.top) / scaleY;
   const arrowCenter = 20;
-  const desiredLeft = iconCenterX - sheetRect.left - arrowCenter;
-  const left = Math.max(12, Math.min(desiredLeft, sheetRect.width - noteRect.width - 12));
-  const availableAbove = iconRect.top - sheetRect.top;
-  const availableBelow = sheetRect.bottom - iconRect.bottom;
-  const openAbove = availableAbove >= noteRect.height + 12 || availableAbove >= availableBelow;
+  const desiredLeft = iconCenterX - arrowCenter;
+  const left = Math.max(12, Math.min(desiredLeft, sheetWidth - noteWidth - 12));
+  const availableAbove = iconTop;
+  const availableBelow = sheetHeight - iconBottom;
+  const openAbove = availableAbove >= noteHeight + 12 || availableAbove >= availableBelow;
   const placement = openAbove ? "above" : "below";
   const desiredTop = openAbove
-    ? iconRect.top - sheetRect.top - noteRect.height - 12
-    : iconRect.bottom - sheetRect.top + 12;
-  const top = Math.max(8, Math.min(desiredTop, sheetRect.height - noteRect.height - 8));
-  const arrowX = iconCenterX - sheetRect.left - left;
+    ? iconTop - noteHeight - 12
+    : iconBottom + 12;
+  const top = Math.max(8, Math.min(desiredTop, sheetHeight - noteHeight - 8));
+  const arrowX = iconCenterX - left;
 
   note.dataset.placement = placement;
   note.style.left = `${left}px`;
