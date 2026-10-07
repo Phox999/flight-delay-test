@@ -4126,73 +4126,66 @@ function setResearchAutofillValue(selector, value) {
   return true;
 }
 
-function autofillResearchCurrentPage(data = {}) {
-  if (!boardingInfoDialog.hidden) {
-    const fields = { passenger: data.passenger, flight: data.flight, origin: data.origin, destination: data.destination, year: data.year, date: data.date };
-    let filled = 0;
-    for (const [name, value] of Object.entries(fields)) {
-      const field = boardingInfoForm.elements[name];
-      if (setResearchAutofillValue(`#boarding-info-form [name="${name}"]`, value)) {
-        filled += 1;
-        if (field?.matches(".airport-input")) {
-          field.dataset.selectedValue = field.value.trim();
-          field.setCustomValidity("");
-        }
+function autofillResearchCurrentPage(data = {}, scope = "") {
+  if (scope === "otp") {
+    if (!authDialog.hidden) {
+      const activeView = authDialog.querySelector(".auth-view:not([hidden])");
+      const otpField = activeView?.querySelector("input[id$='otp-input']");
+      if (otpField) {
+        const filled = setResearchAutofillValue(`#${otpField.id}`, data.otp);
+        return { filled, screen: activeView.id.includes("signup") ? "會員註冊 OTP" : "會員驗證碼" };
       }
     }
-    updateBoardingInfoButton();
-    return { filled: filled > 0, screen: "登機證資料確認" };
+    if (!otpDialog.hidden) {
+      const filled = setResearchAutofillValue("#otp-input", data.otp);
+      return { filled, screen: "匯款 OTP 驗證" };
+    }
+    return { filled: false, message: "請先開啟 OTP 欄位，再代入 OTP。" };
   }
 
-  if (!scheduledTimeDialog.hidden) {
-    const filled = setResearchAutofillValue("#scheduled-date", data.scheduledDate)
-      | setResearchAutofillValue("#scheduled-hour", data.scheduledHour);
-    updateScheduledTimeForm();
-    return { filled: Boolean(filled), screen: "原定班機時間" };
+  if (scope === "flight") {
+    if (!boardingInfoDialog.hidden) {
+      const fields = { passenger: data.passenger, flight: data.flight, origin: data.origin, destination: data.destination, year: data.year, date: data.date };
+      let filled = 0;
+      for (const [name, value] of Object.entries(fields)) {
+        const field = boardingInfoForm.elements[name];
+        if (setResearchAutofillValue(`#boarding-info-form [name="${name}"]`, value)) {
+          filled += 1;
+          if (field?.matches(".airport-input")) {
+            field.dataset.selectedValue = field.value.trim();
+            field.setCustomValidity("");
+          }
+        }
+      }
+      updateBoardingInfoButton();
+      return { filled: filled > 0, screen: "登機證資料確認", message: "請先開啟登機證資料表單，再代入班機資訊。" };
+    }
+
+    if (!scheduledTimeDialog.hidden) {
+      const filled = setResearchAutofillValue("#scheduled-date", data.scheduledDate)
+        | setResearchAutofillValue("#scheduled-hour", data.scheduledHour);
+      updateScheduledTimeForm();
+      return { filled: Boolean(filled), screen: "原定班機時間", message: "請先開啟原定班機時間表單，再代入班機資訊。" };
+    }
+    return { filled: false, message: "請先開啟班機資料表單，再代入班機資訊。" };
   }
 
-  if (!authDialog.hidden) {
-    const activeView = authDialog.querySelector(".auth-view:not([hidden])");
-    const values = {
-      "signup-id": data.identity,
-      "signup-birthday": data.signupBirthday,
-      "signup-name": data.signupName,
-      "signup-phone": data.signupPhone,
-      "signup-otp-input": data.otp,
-      "signup-password": data.signupPassword,
-      "signup-confirm-password": data.signupPassword,
-      "login-id": data.identity,
-      "login-password": data.loginPassword,
-      "login-code-id": data.identity,
-      "login-otp-input": data.otp,
-    };
-    let filled = 0;
-    activeView?.querySelectorAll("input[id],select[id],textarea[id]").forEach((field) => {
-      if (setResearchAutofillValue(`#${field.id}`, values[field.id])) filled += 1;
-    });
-    return { filled: filled > 0, screen: "會員登入／註冊" };
-  }
-
-  if (!otpDialog.hidden) {
-    const filled = setResearchAutofillValue("#otp-input", data.otp);
-    return { filled, screen: "驗證碼" };
-  }
-
-  if (!bankInfoDialog.hidden) {
+  if (scope === "bank" && !bankInfoDialog.hidden) {
     if (data.bankCode) setBankSelection(data.bankCode);
     if (data.bankCode || data.branch) updateBankBranches(data.branch || "");
     const filled = setResearchAutofillValue("#bank-info-form [name='account']", data.bankAccount);
     validateBankAccount();
     updateBankInfoButton();
-    return { filled: Boolean(filled || data.bankCode || data.branch), screen: "匯款資料" };
+    return { filled: Boolean(filled || data.bankCode || data.branch), screen: "匯款資料", message: "請先開啟匯款資料表單，再帶入銀行資訊。" };
   }
 
-  return { filled: false, screen: "" };
+  if (scope === "bank") return { filled: false, message: "請先開啟匯款資料表單，再帶入銀行資訊。" };
+  return { filled: false, message: "請選擇 OTP、班機或銀行資料的代入按鈕。" };
 }
 
 window.addEventListener("message", (event) => {
   if (event.source !== window.parent || event.data?.type !== "flight-delay-autofill" || !isUsabilityResearch) return;
-  const result = autofillResearchCurrentPage(event.data.data || {});
+  const result = autofillResearchCurrentPage(event.data.data || {}, event.data.scope || "");
   window.parent.postMessage({ type: "flight-delay-autofill-complete", ...result }, "*");
 });
 

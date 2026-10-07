@@ -82,11 +82,12 @@
     .signupData{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
     .signupDataTitle{display:block;margin-bottom:8px}
     .signupDataNote{margin:8px 0 0;font-size:12px;color:var(--muted)}
-    .taskDataToolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:16px 0 8px}
+    .taskDataToolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:16px 0 8px}
     .taskDetailsToggle{display:inline-flex;align-items:center;padding:6px 0;border:0;background:transparent;color:var(--brand);font:inherit;font-weight:700;cursor:pointer}
     .taskDetailsToggle::before{content:"›";display:inline-block;margin-right:8px;font-size:22px;line-height:1;transition:transform .18s ease}
     .taskDetailsToggle[aria-expanded="true"]::before{transform:rotate(90deg)}
-    .taskDataToolbar>#autofillApplicationBtn{flex:none;border-radius:999px;padding:9px 14px;font-size:13px;white-space:nowrap}
+    .autofillActions{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:8px}
+    .autofillActions>button{flex:none;border-radius:999px;padding:9px 14px;font-size:13px;white-space:nowrap}
     .taskDetailsToggle:focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:5px}
     #personalDataContent[hidden]{display:none}
     #applicationFillStatus:empty{display:none}
@@ -168,7 +169,7 @@
       .applicationGrid{column-gap:10px}
       .applicationItem{gap:4px;font-size:14px}
     }
-    @media(max-width:560px){.taskActions{gap:8px;padding-left:12px;padding-right:12px}.taskNavActions{gap:6px}.taskActions button{padding:9px 10px;font-size:12px}.taskDataToolbar{align-items:flex-start;gap:8px}.taskDetailsToggle{font-size:13px}.taskDataToolbar>#autofillApplicationBtn{padding:8px 10px;font-size:12px}}
+    @media(max-width:560px){.taskActions{gap:8px;padding-left:12px;padding-right:12px}.taskNavActions{gap:6px}.taskActions button{padding:9px 10px;font-size:12px}.taskDataToolbar{align-items:flex-start;gap:8px}.taskDetailsToggle{font-size:13px}.autofillActions{width:100%;justify-content:flex-start;gap:6px}.autofillActions>button{padding:8px 10px;font-size:12px}}
   </style>
   <script src="config.js"></script>
 </head>
@@ -319,7 +320,11 @@
       <h2>本次任務資料</h2>
       <div class="taskDataToolbar">
         <button class="taskDetailsToggle" id="personalDataToggle" type="button" aria-expanded="false" aria-controls="personalDataContent">查看詳細個人資料</button>
-        <button class="secondary" id="autofillApplicationBtn" type="button" title="只代入目前開啟的表單；進入下一頁後請再次點擊">一鍵代入申請資料</button>
+        <div class="autofillActions" role="group" aria-label="測試資料代入">
+          <button class="secondary" type="button" data-autofill-scope="otp" title="只代入目前開啟的 OTP 欄位">代入 OTP</button>
+          <button class="secondary" type="button" data-autofill-scope="flight" title="只代入目前開啟的班機資料表單">代入班機資訊</button>
+          <button class="secondary" type="button" data-autofill-scope="bank" title="只代入目前開啟的銀行資料表單">帶入銀行資訊</button>
+        </div>
       </div>
       <p class="applicationFillStatus" id="applicationFillStatus" role="status" aria-live="polite"></p>
       <div id="personalDataContent" hidden>
@@ -334,7 +339,7 @@
           <div class="applicationItem applicationItem--verification"><span>驗證碼/動態密碼：</span><b>123123</b><button class="copyButton" type="button" data-copy-value="123123" data-copy-label="驗證碼/動態密碼" aria-label="複製驗證碼/動態密碼" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
         </div>
         <div class="signupData" id="flightData" hidden>
-          <b class="signupDataTitle">航班範例資料（B 組）</b>
+          <b class="signupDataTitle">航班範例資料</b>
           <div class="applicationGrid">
             <div class="applicationItem"><span>乘客姓名：</span><b>TARO TEST</b><button class="copyButton" type="button" data-copy-value="TARO TEST" data-copy-label="乘客姓名" aria-label="複製乘客姓名" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
             <div class="applicationItem"><span>航班編號：</span><b>TEST-001</b><button class="copyButton" type="button" data-copy-value="TEST-001" data-copy-label="航班編號" aria-label="複製航班編號" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
@@ -537,46 +542,34 @@ document.getElementById("startBtn").onclick=()=>{
 
 function sendPendingAutofill(){
   if(!flowFrameReady||!pendingAutofillData||!flowFrame.contentWindow) return;
-  flowFrame.contentWindow.postMessage({type:"flight-delay-autofill",data:pendingAutofillData},"*");
+  flowFrame.contentWindow.postMessage({type:"flight-delay-autofill",...pendingAutofillData},"*");
   pendingAutofillData=null;
 }
 
-document.getElementById("autofillApplicationBtn").onclick=()=>{
+document.querySelectorAll("[data-autofill-scope]").forEach(button=>button.addEventListener("click",()=>{
+  const scope=button.dataset.autofillScope;
   const getValue=(container,label)=>{
     const button=document.querySelector(`${container} [data-copy-label="${label}"]`);
     const item=button?.closest(".applicationItem");
     const source=document.querySelector(container);
     return item&&source&&!source.hidden&&!item.hidden&&!item.classList.contains("hidden")?button.dataset.copyValue||"":"";
   };
-  const route=getValue("#flightData","航線"),routeCodes=[...route.matchAll(/[（(]([A-Z]{3})[）)]/g)].map(match=>match[1]);
-  const flightTime=getValue("#flightData","起飛時間");
-  const [flightDate="",flightHour=""]=flightTime.split(" ");
-  const [flightYear="",flightMonth="",flightDay=""]=flightDate.split("/");
-  pendingAutofillData={
-    identity:getValue("#applicationData","身分證"),
-    loginPassword:getValue("#applicationData","登入密碼"),
-    otp:getValue("#applicationData","驗證碼/動態密碼"),
-    bankCode:getValue("#applicationData","匯款銀行").slice(0,3),
-    branch:getValue("#applicationData","分行別"),
-    bankAccount:getValue("#applicationData","匯款帳號"),
-    signupName:getValue("#signupData","姓名"),
-    signupBirthday:getValue("#signupData","生日"),
-    signupPhone:getValue("#signupData","手機號碼"),
-    signupPassword:getValue("#signupData","註冊密碼"),
-    passenger:getValue("#flightData","乘客姓名"),
-    flight:getValue("#flightData","航班編號"),
-    origin:routeCodes[0]||"",
-    destination:routeCodes[1]||"",
-    year:flightYear,
-    date:flightMonth&&flightDay?`${flightMonth}/${flightDay}`:"",
-    scheduledDate:flightDate,
-    scheduledHour:flightHour
-  };
+  let data={};
+  if(scope==="otp") data={otp:getValue("#applicationData","驗證碼/動態密碼")};
+  if(scope==="bank") data={bankCode:getValue("#applicationData","匯款銀行").slice(0,3),branch:getValue("#applicationData","分行別"),bankAccount:getValue("#applicationData","匯款帳號")};
+  if(scope==="flight"){
+    const route=getValue("#flightData","航線"),routeCodes=[...route.matchAll(/[（(]([A-Z]{3})[）)]/g)].map(match=>match[1]);
+    const flightTime=getValue("#flightData","起飛時間");
+    const [flightDate="",flightHour=""]=flightTime.split(" ");
+    const [flightYear="",flightMonth="",flightDay=""]=flightDate.split("/");
+    data={passenger:getValue("#flightData","乘客姓名"),flight:getValue("#flightData","航班編號"),origin:routeCodes[0]||"",destination:routeCodes[1]||"",year:flightYear,date:flightMonth&&flightDay?`${flightMonth}/${flightDay}`:"",scheduledDate:flightDate,scheduledHour:flightHour};
+  }
+  pendingAutofillData={scope,data};
   const status=document.getElementById("applicationFillStatus");
-  if(!flowFrameReady){status.textContent="智能助理阿發畫面載入中，載入完成後會代入目前頁面的資料。";return;}
+  if(!flowFrameReady){status.textContent="智能助理阿發畫面載入中，載入完成後會代入對應資料。";return;}
   sendPendingAutofill();
   status.textContent="資料代入中…";
-};
+}));
 
 document.querySelectorAll('input[name="boardingPassPreference"]').forEach(input=>input.addEventListener("change",updateBoardingSourceQuestions));
 document.querySelectorAll('input[name="paperBoardingPassSources"],input[name="electronicBoardingPassSources"]').forEach(input=>input.addEventListener("change",updateOtherSourceQuestions));
@@ -630,7 +623,7 @@ document.getElementById("profileBtn").onclick=async()=>{
 function setupTask(){
   const group=session.group_code;
   document.getElementById("signupData").hidden=false;
-  document.getElementById("flightData").hidden=group!=="B";
+  document.getElementById("flightData").hidden=false;
   document.querySelectorAll("[data-login-only]").forEach((item)=>{
     const showForGroupB=group==="B";
     item.hidden=!showForGroupB;
@@ -640,7 +633,7 @@ function setupTask(){
    ? `<p>你已購買國泰產險的旅遊平安險，手上仍保留 <b>紙本登機證</b>，但目前還不是國泰產險會員。</p>`
    : `<p>你已購買國泰產險的旅遊平安險，手上保留的是航空公司 App／手機錢包中的 <b>電子登機證 QR Code</b>，但目前還不是國泰產險會員。</p>`);
   const task = `<p>請先完成 <b>國泰產險會員註冊</b>，再透過阿發申請 <b>班機延誤理賠</b>，依照畫面完成你認為需要的操作。</p>`;
-  const operationTip = `<section class="scenarioSection"><h2>操作提示</h2><p>測試過程中如遇到需要填寫資料的欄位，可直接使用系統提供的 <b>測試資料一鍵帶入</b>，不需要輸入自己的真實資料。</p><p>當你認為任務已完成時，請點擊下方「我已完成」。</p></section>`;
+  const operationTip = `<section class="scenarioSection"><h2>操作提示</h2><p>測試過程中的 <b>OTP、銀行帳號與班機資訊</b>，皆可使用「<b>測試資料一鍵帶入</b>」。會員註冊時也不需要輸入真實個人資料，請使用任意相同格式的資料填寫即可。</p><p>當你認為任務已完成時，請點擊下方「<b>我已完成</b>」。</p></section>`;
   document.getElementById("scenarioCopy").innerHTML = `<section class="scenarioSection"><h2>情境</h2>${situation}</section><section class="scenarioSection"><h2>任務</h2>${task}</section>${operationTip}`;
   document.getElementById("taskCopy").innerHTML = `<section class="scenarioSection"><h2>情境</h2>${situation}</section>`;
   document.getElementById("groupBQuestions").classList.toggle("hidden",group!=="B");
@@ -715,7 +708,7 @@ window.addEventListener("message", async (ev)=>{
   if(d.type==="flight-delay-autofill-complete"){
     document.getElementById("applicationFillStatus").textContent=d.filled
       ? `已將「${d.screen||"本頁"}」的虛構資料帶入，請檢查欄位後繼續操作。`
-      : "目前畫面沒有可代入的欄位。請先開啟需要填寫的表單，再點選一次。";
+      : d.message||"目前畫面沒有可代入的欄位。請先開啟對應表單，再點選一次。";
     return;
   }
   if(d.type!=="flight-delay-research") return;
