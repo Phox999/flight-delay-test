@@ -107,6 +107,8 @@
     .scale input{display:none}.scale label:has(input:checked){border:2px solid var(--brand);background:#eef3ff;color:var(--brand)}
     .hidden{display:none!important}
     .statusPill{display:inline-flex;padding:7px 10px;border-radius:999px;background:#f1f5f9;color:#475569;font-size:13px;font-weight:800}
+    .taskActions button:disabled{opacity:.55;cursor:wait}
+    .retryCount{font-variant-numeric:tabular-nums}
     @media(max-width:850px){
       .taskLayout{grid-template-columns:1fr}.taskBrief{position:static}.phone{width:100%;height:auto;aspect-ratio:393/852}.taskActions{width:100%;margin-top:16px;padding:12px 24px calc(12px + env(safe-area-inset-bottom))}
       .grid{grid-template-columns:1fr}.card{padding:22px}.flowCard{padding:0}.top{padding:14px 16px}h1{font-size:27px}
@@ -124,6 +126,7 @@
       .applicationGrid{column-gap:10px}
       .applicationItem{gap:4px;font-size:14px}
     }
+    @media(max-width:560px){.taskActions{gap:8px;padding-left:12px;padding-right:12px}.taskNavActions{gap:6px}.taskActions button{padding:9px 10px;font-size:12px}}
   </style>
   <script src="config.js"></script>
 </head>
@@ -245,6 +248,7 @@
       <div class="statusPill" id="taskStatus">進行中</div>
       <div class="taskNavActions">
         <button class="ghost" id="backTaskBtn">返回上一步</button>
+        <button class="ghost" id="retryTaskBtn" type="button" title="每次受測者實際重試或重新上傳後，點擊一次" aria-label="記錄一次重試">重試 <span id="retryCount" class="retryCount" hidden>0 次</span></button>
         <button class="primary" id="giveUpBtn">我已完成</button>
       </div>
     </div>
@@ -294,7 +298,7 @@ const LOCAL_PREVIEW = location.protocol === "file:";
 const FLOW_URL = (window.APP_CONFIG && APP_CONFIG.FLOW_URL) || (LOCAL_PREVIEW
   ? new URL("./flow/index.html", location.href).href
   : new URL("/flow/", location.origin).href);
-let currentPage = 1, session = null, taskCompletionInProgress = false;
+let currentPage = 1, session = null, taskCompletionInProgress = false, taskRetryCount = 0;
 
 const localPreviewNotice = document.getElementById("localPreviewNotice");
 if (LOCAL_PREVIEW && localPreviewNotice) localPreviewNotice.classList.remove("hidden");
@@ -343,6 +347,11 @@ document.getElementById("profileBtn").onclick=async()=>{
     travel_claimed:travelClaim==="是", any_claimed:anyClaim==="是",
     viewport:`${innerWidth}x${innerHeight}`, user_agent:navigator.userAgent
   })});
+  taskRetryCount = 0;
+  document.getElementById("retryCount").hidden = true;
+  document.getElementById("retryCount").textContent = "0 次";
+  document.getElementById("retryTaskBtn").disabled = false;
+  document.getElementById("retryTaskBtn").setAttribute("aria-label", "記錄一次重試");
   setupTask();
   go(3);
   startTask();
@@ -371,10 +380,30 @@ function startTask(){
 }
 
 document.getElementById("backTaskBtn").onclick=()=>go(2);
+document.getElementById("retryTaskBtn").onclick=async(event)=>{
+  const button=event.currentTarget;
+  if(!session || taskCompletionInProgress || button.disabled) return;
+  button.disabled=true;
+  const nextCount=taskRetryCount+1;
+  const recorded=await sendEvent("retry",{source:"task-footer",attempt:nextCount});
+  if(recorded){
+    taskRetryCount=nextCount;
+    const count=document.getElementById("retryCount");
+    count.textContent=`${taskRetryCount} 次`;
+    count.hidden=false;
+    button.setAttribute("aria-label",`已記錄 ${taskRetryCount} 次重試，再按一次可繼續記錄`);
+  }else{
+    alert("重試紀錄沒有成功送出，請確認網路後再試。");
+  }
+  button.disabled=taskCompletionInProgress;
+};
 
 async function sendEvent(event_name, meta={}, page_id=null, page_name=null){
-  if(!session) return;
-  try{ await api("/api/events",{method:"POST",body:JSON.stringify({session_id:session.id,event_name,page_id,page_name,meta})}); }catch(e){}
+  if(!session) return false;
+  try{
+    await api("/api/events",{method:"POST",body:JSON.stringify({session_id:session.id,event_name,page_id,page_name,meta})});
+    return true;
+  }catch(e){ return false; }
 }
 
 async function completeTask(source, event={}){
