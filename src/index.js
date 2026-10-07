@@ -130,8 +130,15 @@ async function handleApi(request, env, url) {
         (SELECT GROUP_CONCAT(COALESCE(e.page_name,e.page_id),' → ') FROM events e WHERE e.session_id=s.id AND e.event_name='page_view') operation_path,
         (SELECT e.meta_json FROM events e WHERE e.session_id=s.id AND e.event_name='pre_task_profile' ORDER BY e.created_at DESC LIMIT 1) pre_task_profile_json,
         (SELECT e.meta_json FROM events e WHERE e.session_id=s.id AND e.event_name='post_task_feedback' ORDER BY e.created_at DESC LIMIT 1) post_task_feedback_json
-      FROM sessions s ORDER BY s.started_at DESC LIMIT 500
-    `).all()).results;
+      FROM (
+        SELECT sessions.*,
+          ROW_NUMBER() OVER (PARTITION BY group_code ORDER BY started_at ASC, rowid ASC) AS group_sequence
+        FROM sessions
+      ) s ORDER BY s.started_at DESC LIMIT 500
+    `).all()).results.map(session=>({
+      ...session,
+      participant_code:`${session.group_code}${String(session.group_sequence).padStart(3,"0")}`
+    }));
     return json({sessions:rows});
   }
 
