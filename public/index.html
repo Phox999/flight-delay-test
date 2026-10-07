@@ -69,17 +69,10 @@
     .surveyOtherWrap label{display:block;margin-bottom:6px;font-size:13px;color:var(--muted)}
     .surveyOtherWrap input{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);font:inherit}
     .surveyOtherWrap input:focus{outline:2px solid #9fc3ff;border-color:var(--brand)}
-    .applicationGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 16px;margin-top:12px}
-    .applicationItem{display:flex;gap:8px;align-items:baseline;min-width:0}
+    .applicationGrid{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+    .applicationItem{display:flex;gap:8px;align-items:baseline;min-width:0;line-height:1.55}
     .applicationItem>span{flex:none;white-space:nowrap}
-    .applicationItem b{font-weight:500;overflow-wrap:anywhere}
-    .applicationItem .copyButton{display:inline-flex;flex:none;align-items:center;justify-content:center;width:32px;height:32px;margin:-3px 0 -3px auto;padding:3px;border:0;border-radius:8px;background:transparent;color:var(--muted);cursor:pointer}
-    .applicationItem .copyButton:hover{background:#eef3ff;color:var(--brand)}
-    .applicationItem .copyButton:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
-    .applicationItem .copyButton[data-copied="true"]{color:#16803c}
-    .applicationItem .copyButton svg{width:22px;height:22px;display:block}
-    .applicationItem--verification{gap:4px}
-    .applicationItem--verification>span{white-space:nowrap;font-size:12px;letter-spacing:-.03em}
+    .applicationItem b{min-width:0;font-weight:700;overflow-wrap:anywhere}
     .sampleData{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
     .sampleDataTitle{display:block;margin-bottom:8px}
     .taskDataToolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:16px 0 8px}
@@ -166,7 +159,7 @@
       .welcomeContent{padding:28px 24px}
       .welcomeContent h1{font-size:26px}
       .welcomeContent .actions{margin-top:22px}
-      .applicationGrid{grid-template-columns:1fr;column-gap:10px}
+      .applicationGrid{gap:8px}
       .applicationItem{gap:4px;font-size:14px}
     }
     @media(max-width:560px){.taskActions{gap:8px;padding-left:12px;padding-right:12px}.taskNavActions{gap:6px}.taskActions button{padding:9px 10px;font-size:12px}.taskDataToolbar{align-items:flex-start;gap:8px}.taskDetailsToggle{font-size:13px}.autofillActions{width:100%;justify-content:flex-start;gap:6px}.autofillActions>button{padding:8px 10px;font-size:12px}}
@@ -331,23 +324,22 @@
       <div class="notice" id="applicationData">
         <div class="noticeHeader"><b>申請資料</b></div>
         <div class="applicationGrid">
-          <div class="applicationItem"><span>銀行：</span><b>013 國泰世華商業銀行</b><button class="copyButton" type="button" data-copy-value="013 國泰世華商業銀行" data-copy-label="銀行" aria-label="複製銀行" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
-          <div class="applicationItem"><span>分行：</span><b>新竹分行</b><button class="copyButton" type="button" data-copy-value="新竹分行" data-copy-label="分行" aria-label="複製分行" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
-          <div class="applicationItem"><span>帳號：</span><b>0001907088923</b><button class="copyButton" type="button" data-copy-value="0001907088923" data-copy-label="帳號" aria-label="複製帳號" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
-          <div class="applicationItem"><span>身分證：</span><b>A123456789</b><button class="copyButton" type="button" data-copy-value="A123456789" data-copy-label="身分證" aria-label="複製身分證" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
-          <div class="applicationItem hidden" data-login-only hidden><span>登入密碼：</span><b>Test1234</b><button class="copyButton" type="button" data-copy-value="Test1234" data-copy-label="登入密碼" aria-label="複製登入密碼" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
-          <div class="applicationItem applicationItem--verification"><span>OTP：</span><b>123123</b><button class="copyButton" type="button" data-copy-value="123123" data-copy-label="OTP" aria-label="複製 OTP" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
+          <div class="applicationItem" data-fill-label="銀行" data-fill-value="013 國泰世華商業銀行"><span>銀行：</span><b>013 國泰世華商業銀行</b></div>
+          <div class="applicationItem" data-fill-label="分行名稱" data-fill-value="新竹分行"><span>分行名稱：</span><b>新竹分行</b></div>
+          <div class="applicationItem" data-fill-label="匯款帳號" data-fill-value="0001907088923"><span>匯款帳號：</span><b>0001907088923</b></div>
+          <div class="applicationItem" data-fill-label="身分證" data-fill-value="A123456789"><span>身分證：</span><b>A123456789</b></div>
+          <div class="applicationItem hidden" data-login-only hidden data-fill-label="登入密碼" data-fill-value="Test1234"><span>登入密碼：</span><b>Test1234</b></div>
+          <div class="applicationItem" data-fill-label="動態密碼" data-fill-value="123123"><span>動態密碼：</span><b>123123</b></div>
         </div>
         <div class="sampleData" id="flightData" hidden>
           <b class="sampleDataTitle">航班資料範例</b>
           <div class="applicationGrid">
-            <div class="applicationItem"><span>乘客：</span><b>TARO TEST</b><button class="copyButton" type="button" data-copy-value="TARO TEST" data-copy-label="乘客" aria-label="複製乘客" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
-            <div class="applicationItem"><span>航班：</span><b>TEST-001</b><button class="copyButton" type="button" data-copy-value="TEST-001" data-copy-label="航班" aria-label="複製航班" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
-            <div class="applicationItem"><span>航線：</span><b>大阪關西（KIX）→桃園（TPE）</b><button class="copyButton" type="button" data-copy-value="大阪關西（KIX）→桃園（TPE）" data-copy-label="航線" aria-label="複製航線" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
-            <div class="applicationItem"><span>起飛：</span><b>2026/09/30 12:00</b><button class="copyButton" type="button" data-copy-value="2026/09/30 12:00" data-copy-label="起飛時間" aria-label="複製起飛時間" title="複製"><svg class="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>
+            <div class="applicationItem" data-fill-label="乘客姓名" data-fill-value="TARO TEST"><span>乘客姓名：</span><b>TARO TEST</b></div>
+            <div class="applicationItem" data-fill-label="航班編號" data-fill-value="TEST-001"><span>航班編號：</span><b>TEST-001</b></div>
+            <div class="applicationItem" data-fill-label="航線" data-fill-value="大阪關西（KIX）→桃園（TPE）"><span>航線：</span><b>大阪關西（KIX）→桃園（TPE）</b></div>
+            <div class="applicationItem" data-fill-label="起飛日期" data-fill-value="2026/09/30 12:00"><span>起飛日期：</span><b>2026/09/30 12:00</b></div>
           </div>
         </div>
-        <span id="applicationCopyStatus" class="srOnly" role="status" aria-live="polite"></span>
       </div>
       </div>
       <details class="taskBackground">
@@ -539,20 +531,19 @@ function sendPendingAutofill(){
 document.querySelectorAll("[data-autofill-scope]").forEach(button=>button.addEventListener("click",()=>{
   const scope=button.dataset.autofillScope;
   const getValue=(container,label)=>{
-    const button=document.querySelector(`${container} [data-copy-label="${label}"]`);
-    const item=button?.closest(".applicationItem");
+    const item=document.querySelector(`${container} [data-fill-label="${label}"]`);
     const source=document.querySelector(container);
-    return item&&source&&!source.hidden&&!item.hidden&&!item.classList.contains("hidden")?button.dataset.copyValue||"":"";
+    return item&&source&&!source.hidden&&!item.hidden&&!item.classList.contains("hidden")?item.dataset.fillValue||"":"";
   };
   let data={};
-  if(scope==="otp") data={otp:getValue("#applicationData","OTP")};
-  if(scope==="bank") data={bankCode:getValue("#applicationData","銀行").slice(0,3),branch:getValue("#applicationData","分行"),bankAccount:getValue("#applicationData","帳號")};
+  if(scope==="otp") data={otp:getValue("#applicationData","動態密碼")};
+  if(scope==="bank") data={bankCode:getValue("#applicationData","銀行").slice(0,3),branch:getValue("#applicationData","分行名稱"),bankAccount:getValue("#applicationData","匯款帳號")};
   if(scope==="flight"){
     const route=getValue("#flightData","航線"),routeCodes=[...route.matchAll(/[（(]([A-Z]{3})[）)]/g)].map(match=>match[1]);
-    const flightTime=getValue("#flightData","起飛時間");
+    const flightTime=getValue("#flightData","起飛日期");
     const [flightDate="",flightHour=""]=flightTime.split(" ");
     const [flightYear="",flightMonth="",flightDay=""]=flightDate.split("/");
-    data={passenger:getValue("#flightData","乘客"),flight:getValue("#flightData","航班"),origin:routeCodes[0]||"",destination:routeCodes[1]||"",year:flightYear,date:flightMonth&&flightDay?`${flightMonth}/${flightDay}`:"",scheduledDate:flightDate,scheduledHour:flightHour};
+    data={passenger:getValue("#flightData","乘客姓名"),flight:getValue("#flightData","航班編號"),origin:routeCodes[0]||"",destination:routeCodes[1]||"",year:flightYear,date:flightMonth&&flightDay?`${flightMonth}/${flightDay}`:"",scheduledDate:flightDate,scheduledHour:flightHour};
   }
   pendingAutofillData={scope,data};
   const status=document.getElementById("applicationFillStatus");
@@ -760,53 +751,6 @@ addEventListener("beforeunload",()=>{
   }
 });
 
-const applicationCopyStatus=document.getElementById("applicationCopyStatus");
-document.querySelectorAll(".applicationItem .copyButton").forEach(button=>{
-  button.addEventListener("click",async()=>{
-    const value=button.dataset.copyValue;
-    const label=button.dataset.copyLabel;
-    try{
-      if(navigator.clipboard?.writeText){
-        try{await navigator.clipboard.writeText(value)}
-        catch{
-          const copyField=document.createElement("textarea");
-          copyField.value=value;
-          copyField.setAttribute("readonly","");
-          copyField.style.position="fixed";
-          copyField.style.opacity="0";
-          document.body.append(copyField);
-          copyField.select();
-          const copied=document.execCommand("copy");
-          copyField.remove();
-          if(!copied) throw new Error("copy failed");
-        }
-      }else{
-        const copyField=document.createElement("textarea");
-        copyField.value=value;
-        copyField.setAttribute("readonly","");
-        copyField.style.position="fixed";
-        copyField.style.opacity="0";
-        document.body.append(copyField);
-        copyField.select();
-        const copied=document.execCommand("copy");
-        copyField.remove();
-        if(!copied) throw new Error("copy failed");
-      }
-      window.clearTimeout(button.copyResetTimer);
-      button.dataset.copied="true";
-      button.title="已複製";
-      button.setAttribute("aria-label",`已複製${label}`);
-      applicationCopyStatus.textContent=`已複製${label}`;
-      button.copyResetTimer=window.setTimeout(()=>{
-        delete button.dataset.copied;
-        button.title="複製";
-        button.setAttribute("aria-label",`複製${label}`);
-      },1400);
-    }catch{
-      applicationCopyStatus.textContent=`${label}複製失敗，請手動選取文字。`;
-    }
-  });
-});
 </script>
 </body>
 </html>
