@@ -4,14 +4,22 @@
  */
 (function(){
   const TYPE="flight-delay-research";
+  let activePage=null;
   function emit(event, meta={}, page_id=null, page_name=null){
     if(window.parent===window) return;
     window.parent.postMessage({type:TYPE,event,meta,page_id,page_name},"*");
   }
 
+  function page(page_id,page_name,meta={}){
+    const next={page_id:page_id||null,page_name:page_name||page_id||"未知畫面"};
+    if(activePage?.page_id===next.page_id&&activePage?.page_name===next.page_name) return;
+    activePage=next;
+    emit("page_view",meta,next.page_id,next.page_name);
+  }
+
   window.ResearchTracker = {
     emit,
-    page(page_id,page_name,meta={}){ emit("page_view",meta,page_id,page_name); },
+    page,
     back(meta={}){ emit("back",meta); },
     retry(meta={}){ emit("retry",meta); },
     uploadAttempt(meta={}){ emit("upload_attempt",meta); },
@@ -21,6 +29,18 @@
     recoveryFound(meta={}){ emit("recovery_found",meta); },
     success(meta={}){ emit("task_success",meta); }
   };
+
+  page("afah-home","阿發首頁");
+
+  document.addEventListener("click",event=>{
+    const control=event.target.closest("button,a,select,[onclick],[data-chat-action],[role='button'],[role='checkbox'],[role='radio'],[role='tab'],[role='option'],input[type='button'],input[type='submit'],input[type='checkbox'],input[type='radio'],summary");
+    if(!control||control.disabled||control.getAttribute("aria-disabled")==="true") return;
+    emit("screen_click",{},activePage?.page_id||"afah-home",activePage?.page_name||"阿發首頁");
+  },true);
+
+  addEventListener("pagehide",()=>{
+    if(activePage) emit("page_exit",{},activePage.page_id,activePage.page_name);
+  });
 
   addEventListener("popstate",()=>emit("back",{source:"popstate"}));
 })();

@@ -233,16 +233,8 @@
             <label><input name="insuranceFrequency" type="radio" value="6 次以上">6 次以上</label>
           </div>
         </fieldset>
-        <fieldset class="surveyQuestion surveyQuestion--wide">
-          <legend><span class="questionNumber">3.</span>過去 1 年是否曾遇過班機延誤？</legend>
-          <div class="surveyOptions">
-            <label><input name="flightDelayExperience" type="radio" value="沒有">沒有</label>
-            <label><input name="flightDelayExperience" type="radio" value="有，1 次">有，1 次</label>
-            <label><input name="flightDelayExperience" type="radio" value="有，2 次以上">有，2 次以上</label>
-          </div>
-        </fieldset>
         <fieldset class="surveyQuestion surveyQuestion--stacked">
-          <legend><span class="questionNumber">4.</span>搭乘飛機時，你平常較常使用哪種登機證？</legend>
+          <legend><span class="questionNumber">3.</span>搭乘飛機時，你平常較常使用哪種登機證？</legend>
           <div class="surveyOptions">
             <label><input name="boardingPassPreference" type="radio" value="紙本登機證">紙本登機證</label>
             <label><input name="boardingPassPreference" type="radio" value="電子登機證／QR Code">電子登機證／QR Code</label>
@@ -251,7 +243,7 @@
           </div>
         </fieldset>
         <fieldset class="surveyQuestion surveyQuestion--wide surveyConditional" id="paperSourcesField" hidden>
-          <legend><span class="questionNumber">5.</span>如果使用紙本登機證，你通常如何取得？（複選）</legend>
+          <legend><span class="questionNumber">4.</span>如果使用紙本登機證，你通常如何取得？（複選）</legend>
           <div class="surveyOptions">
             <label><input name="paperBoardingPassSources" type="checkbox" value="自己事先列印">自己事先列印</label>
             <label><input name="paperBoardingPassSources" type="checkbox" value="機場自助報到機列印">機場自助報到機列印</label>
@@ -264,7 +256,7 @@
           </div>
         </fieldset>
         <fieldset class="surveyQuestion surveyQuestion--wide surveyConditional" id="electronicSourcesField" hidden>
-          <legend><span class="questionNumber">6.</span>如果使用電子登機證，你通常從哪裡取得或保存？（複選）</legend>
+          <legend><span class="questionNumber">5.</span>如果使用電子登機證，你通常從哪裡取得或保存？（複選）</legend>
           <div class="surveyOptions">
             <label><input name="electronicBoardingPassSources" type="checkbox" value="航空公司 App">航空公司 App</label>
             <label><input name="electronicBoardingPassSources" type="checkbox" value="Apple Wallet／Google Wallet 等手機錢包">Apple Wallet／Google Wallet 等手機錢包</label>
@@ -278,7 +270,7 @@
           </div>
         </fieldset>
         <fieldset class="surveyQuestion surveyQuestion--wide">
-          <legend><span class="questionNumber">7.</span>旅程結束後，你通常會保留登機證嗎？</legend>
+          <legend><span class="questionNumber">6.</span>旅程結束後，你通常會保留登機證嗎？</legend>
           <div class="surveyOptions">
             <label><input name="boardingPassRetention" type="radio" value="會，通常會保留">會，通常會保留</label>
             <label><input name="boardingPassRetention" type="radio" value="有需要時才會保留">有需要時才會保留</label>
@@ -287,7 +279,7 @@
           </div>
         </fieldset>
         <fieldset class="surveyQuestion surveyQuestion--wide">
-          <legend><span class="questionNumber">8.</span>你有申請過旅遊險的理賠嗎？</legend>
+          <legend><span class="questionNumber">7.</span>你有申請過旅遊險的理賠嗎？</legend>
           <div class="surveyOptions">
             <label><input name="travelInsuranceClaimExperience" type="radio" value="沒有">沒有</label>
             <label><input name="travelInsuranceClaimExperience" type="radio" value="有，1 次">有，1 次</label>
@@ -295,7 +287,7 @@
           </div>
         </fieldset>
         <fieldset class="surveyQuestion surveyQuestion--wide">
-          <legend><span class="questionNumber">9.</span>你有申請過其他保險的理賠嗎？</legend>
+          <legend><span class="questionNumber">8.</span>你有申請過其他保險的理賠嗎？</legend>
           <div class="surveyOptions">
             <label><input name="otherInsuranceClaimExperience" type="radio" value="沒有">沒有</label>
             <label><input name="otherInsuranceClaimExperience" type="radio" value="有，1 次">有，1 次</label>
@@ -395,8 +387,8 @@
         <div class="scale" id="submissionConfidenceScale"></div>
       </div>
       <div class="field">
-        <label for="completionEvidence">3. 你是看到什麼訊息或畫面，判斷剛才的理賠申請已經完成？</label>
-        <textarea id="completionEvidence" placeholder="請描述你看到的訊息或畫面"></textarea>
+        <label for="completionEvidence" id="completionEvidenceLabel">3. 依據第 2 題回答</label>
+        <textarea id="completionEvidence" placeholder="請先回答第 2 題"></textarea>
       </div>
       <div id="groupBQuestions" class="hidden">
         <div class="field">
@@ -504,6 +496,20 @@ scale("easeAgreementScale","easeAgreement","非常不同意","非常同意");
 scale("submissionConfidenceScale","submissionConfidence","非常不確定","非常確定");
 scale("nextStepClarityScale","nextStepClarity","完全不清楚","非常清楚");
 scale("independentConfidenceScale","independentConfidence","非常不同意","非常同意");
+let completionEvidenceBranch=null;
+document.querySelectorAll('input[name="submissionConfidence"]').forEach(input=>input.addEventListener("change",()=>{
+  const score=Number(selected("submissionConfidence"));
+  const label=document.getElementById("completionEvidenceLabel");
+  const textarea=document.getElementById("completionEvidence");
+  const branch=score>=5?"certain":"uncertain";
+  if(completionEvidenceBranch&&completionEvidenceBranch!==branch) textarea.value="";
+  completionEvidenceBranch=branch;
+  const prompt=score>=5
+    ? {label:"3. 是看到什麼讓你確定申請已送出？",placeholder:"請描述讓你確定申請已送出的訊息或畫面"}
+    : {label:"3. 是什麼部分讓你難以確定？如果要讓你更確定，畫面還需要出現什麼？",placeholder:"請描述讓你難以確定的部分，以及希望畫面補充的資訊"};
+  label.textContent=prompt.label;
+  textarea.placeholder=prompt.placeholder;
+}));
 document.querySelectorAll('input[name="failureCause"]').forEach(input=>input.addEventListener("change",()=>{
   const needsExplanation=selected("failureCause")==="有，畫面說明了原因";
   document.getElementById("failureCauseOtherWrap").hidden=!needsExplanation;
@@ -586,7 +592,6 @@ document.getElementById("profileBtn").onclick=async()=>{
   const profile={
     flight_frequency:selected("flightFrequency"),
     travel_insurance_frequency:selected("insuranceFrequency"),
-    flight_delay_experience:selected("flightDelayExperience"),
     boarding_pass_preference:preference,
     paper_boarding_pass_sources:selectedMany("paperBoardingPassSources"),
     paper_boarding_pass_sources_other:document.getElementById("paperBoardingPassOther").value.trim(),
@@ -598,11 +603,11 @@ document.getElementById("profileBtn").onclick=async()=>{
   };
   const hasPaperQuestion=["紙本登機證","兩種都會使用"].includes(preference);
   const hasElectronicQuestion=["電子登機證／QR Code","兩種都會使用"].includes(preference);
-  if(!profile.flight_frequency||!profile.travel_insurance_frequency||!profile.flight_delay_experience||!preference||!profile.boarding_pass_retention||!profile.travel_insurance_claim_experience||!profile.other_insurance_claim_experience) return alert("請先完成第 1、2、3、4、7、8、9 題。");
-  if(hasPaperQuestion&&!profile.paper_boarding_pass_sources.length) return alert("請完成第 5 題。");
-  if(hasElectronicQuestion&&!profile.electronic_boarding_pass_sources.length) return alert("請完成第 6 題。");
-  if(profile.paper_boarding_pass_sources.includes("其他")&&!profile.paper_boarding_pass_sources_other) return alert("請補充第 5 題的其他取得方式。");
-  if(profile.electronic_boarding_pass_sources.includes("其他")&&!profile.electronic_boarding_pass_sources_other) return alert("請補充第 6 題的其他取得或保存方式。");
+  if(!profile.flight_frequency||!profile.travel_insurance_frequency||!preference||!profile.boarding_pass_retention||!profile.travel_insurance_claim_experience||!profile.other_insurance_claim_experience) return alert("請先完成第 1、2、3、6、7、8 題。");
+  if(hasPaperQuestion&&!profile.paper_boarding_pass_sources.length) return alert("請完成第 4 題。");
+  if(hasElectronicQuestion&&!profile.electronic_boarding_pass_sources.length) return alert("請完成第 5 題。");
+  if(profile.paper_boarding_pass_sources.includes("其他")&&!profile.paper_boarding_pass_sources_other) return alert("請補充第 4 題的其他取得方式。");
+  if(profile.electronic_boarding_pass_sources.includes("其他")&&!profile.electronic_boarding_pass_sources_other) return alert("請補充第 5 題的其他取得或保存方式。");
   session = await api("/api/sessions",{method:"POST",body:JSON.stringify({
     viewport:`${innerWidth}x${innerHeight}`, user_agent:navigator.userAgent
   })});

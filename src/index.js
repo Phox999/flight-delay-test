@@ -147,7 +147,7 @@ async function handleApi(request, env, url) {
       const e=events[i];
       if(e.event_name!=="page_view") continue;
       const key=e.page_name||e.page_id||"未知頁面";
-      const next=events.slice(i+1).find(x=>x.event_name==="page_view"||x.event_name==="task_success"||x.event_name==="task_abandon");
+      const next=events.slice(i+1).find(x=>x.event_name==="page_view"||x.event_name==="task_success"||x.event_name==="task_abandon"||x.event_name==="page_exit");
       if(next) dwell[key]=(dwell[key]||0)+Math.max(0,next.created_at-e.created_at);
     }
     return json({session,events,page_dwell_ms:dwell});
@@ -163,14 +163,18 @@ async function buildAdminAnalytics(env,url) {
   const days=Number.isFinite(parsed)&&parsed>=0?Math.min(3650,Math.floor(parsed)):30;
   const cutoff=days?Date.now()-days*86400000:null;
   const sessionsSql=`SELECT id,group_code,started_at,completed_at,abandoned_at,status,abandon_location,age_range,gender,travel_insurance_count,viewport,difficulty,recovery_understanding,progress_confidence FROM sessions ${cutoff===null?"":"WHERE started_at >= ?"} ORDER BY started_at DESC`;
-  const eventsSql=`SELECT session_id,event_name,created_at,meta_json FROM events ${cutoff===null?"":"WHERE created_at >= ?"} ORDER BY created_at`;
+  const eventsSql=`SELECT session_id,event_name,page_id,page_name,created_at,meta_json FROM events ${cutoff===null?"":"WHERE created_at >= ?"} ORDER BY created_at`;
   const [sessionResult,eventResult]=await Promise.all([
     cutoff===null?env.DB.prepare(sessionsSql).all():env.DB.prepare(sessionsSql).bind(cutoff).all(),
     cutoff===null?env.DB.prepare(eventsSql).all():env.DB.prepare(eventsSql).bind(cutoff).all()
   ]);
   const sessions=sessionResult.results||[],events=eventResult.results||[];
-  const eventStats=new Map(),participantEvents=new Map(),bySession=new Map(),profilesBySession=new Map(),feedbackBySession=new Map();
+  const eventStats=new Map(),participantEvents=new Map(),bySession=new Map(),profilesBySession=new Map(),feedbackBySession=new Map(),screenEventsBySession=new Map();
   for(const event of events){
+    if(["page_view","screen_click","page_exit","task_success","task_abandon"].includes(event.event_name)){
+      if(!screenEventsBySession.has(event.session_id))screenEventsBySession.set(event.session_id,[]);
+      screenEventsBySession.get(event.session_id).push(event);
+    }
     if(event.event_name==="pre_task_profile"){
       profilesBySession.set(event.session_id,safeParse(event.meta_json));
       continue;
@@ -185,6 +189,49 @@ async function buildAdminAnalytics(env,url) {
     stats.names.add(event.event_name);
     if(Object.hasOwn(stats,event.event_name))stats[event.event_name]+=1;
   }
+  const screenStats=new Map(),screenFor=(event,sessionId)=>{
+    const pageId=event.page_id||null,pageName=event.page_name||pageId||"未知畫面",key=pageId||pageName;
+    if(!screenStats.has(key))screenStats.set(key,{page_id:pageId,page_name:pageName,visits:0,participants:new Set(),dwell_samples:[],click_count:0,click_participants:new Set()});
+    const screen=screenStats.get(key);
+    if(!screen.page_name&&pageName)screen.page_name=pageName;
+    if(sessionId)screen.participants.add(sessionId);
+    return screen;
+  };
+  const screenBoundaries=new Set(["page_view","page_exit","task_success","task_abandon"]);
+  for(const [sessionId,sessionEvents] of screenEventsBySession){
+    let nextBoundary=null;
+    for(let index=sessionEvents.length-1;index>=0;index--){
+      const event=sessionEvents[index];
+      if(event.event_name==="screen_click"){
+        const screen=screenFor(event,sessionId);
+        screen.click_count+=1;
+        screen.click_participants.add(sessionId);
+      }else if(event.event_name==="page_view"){
+        const screen=screenFor(event,sessionId);
+        screen.visits+=1;
+        if(nextBoundary)screen.dwell_samples.push(Math.max(0,nextBoundary.created_at-event.created_at));
+      }
+      if(screenBoundaries.has(event.event_name))nextBoundary=event;
+    }
+  }
+  const medianValue=values=>{
+    const sorted=values.filter(value=>Number.isFinite(value)).sort((a,b)=>a-b);
+    if(!sorted.length)return null;
+    const middle=Math.floor(sorted.length/2);
+    return sorted.length%2?sorted[middle]:(sorted[middle-1]+sorted[middle])/2;
+  };
+  const screenAnalytics=[...screenStats.values()].map(screen=>({
+    page_id:screen.page_id,
+    page_name:screen.page_name,
+    visits:screen.visits,
+    participants:screen.participants.size,
+    timed_visits:screen.dwell_samples.length,
+    median_dwell_ms:medianValue(screen.dwell_samples),
+    avg_dwell_ms:screen.dwell_samples.length?screen.dwell_samples.reduce((sum,value)=>sum+value,0)/screen.dwell_samples.length:null,
+    click_count:screen.click_count,
+    click_participants:screen.click_participants.size,
+    avg_clicks_per_participant:screen.participants.size?screen.click_count/screen.participants.size:0
+  })).sort((a,b)=>(b.median_dwell_ms??-1)-(a.median_dwell_ms??-1)||b.avg_clicks_per_participant-a.avg_clicks_per_participant);
   const sessionStats=session=>bySession.get(session.id)||{retry:0,ocr_fail:0,ai_edit:0,recovery_found:0,back:0,names:new Set()};
   const completed=sessions.filter(session=>session.status==="completed"||sessionStats(session).names.has("task_success"));
   const abandoned=sessions.filter(session=>session.status==="abandoned");
@@ -277,12 +324,12 @@ async function buildAdminAnalytics(env,url) {
     funnel:{registered:sessions.length,task_started:taskStarted.size,task_completed:taskCompleted.size,feedback_submitted:feedbackIds.size,steps:funnelSteps.map(step=>({key:step.key,label:step.label,total:step.ids.size,groups:groupCounts(step.ids)})),branches:Object.fromEntries(Object.entries(branchIds).map(([key,ids])=>[key,{total:ids.size,groups:groupCounts(ids)}]))},
     daily:[...dailyMap.values()].sort((a,b)=>a.day.localeCompare(b.day)),
     events:[...eventStats].map(([event_name,total])=>({event_name,total,participants:(participantEvents.get(event_name)||new Set()).size})).sort((a,b)=>b.total-a.total),
+    screen_analytics:screenAnalytics,
     groups,
     demographics:{age_range:distribution("age_range"),gender:distribution("gender"),device:distribution("viewport",deviceLabel)},
     pre_task_survey:{
       flight_frequency:profileDistribution("flight_frequency"),
       travel_insurance_frequency:profileDistribution("travel_insurance_frequency"),
-      flight_delay_experience:profileDistribution("flight_delay_experience"),
       boarding_pass_preference:profileDistribution("boarding_pass_preference"),
       paper_boarding_pass_sources:profileDistribution("paper_boarding_pass_sources",true),
       electronic_boarding_pass_sources:profileDistribution("electronic_boarding_pass_sources",true),

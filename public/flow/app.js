@@ -654,6 +654,7 @@ function appendDefaultConsultation() {
 function startChat(prompt = "") {
   keepChatHash();
   setScreen(true);
+  if (isUsabilityResearch) window.ResearchTracker?.page("claim-chat", "阿發對話");
   chatScreen.replaceChildren();
   boardingInfoValidationAttempted = false;
   boardingInfoConfirmed = false;
@@ -725,6 +726,7 @@ function appendClaimDetails() {
     { content: details, className: "claim-details-bubble" },
     { content: prep, card: true, className: "info-confirm-card" },
   ]);
+  if (isUsabilityResearch) window.ResearchTracker?.page("claim-details", "理賠申請說明");
 }
 
 function beginPersonalDataConsent({ appendUser = true } = {}) {
@@ -863,6 +865,7 @@ function closeSignupStatement({ restoreFocus = true } = {}) {
   if (signupStatementDialog.hidden) return;
   signupStatementDialog.hidden = true;
   activeSignupStatement = "";
+  if (isUsabilityResearch) window.ResearchTracker?.page(`auth-${authActiveView}`, authTitle.textContent || "會員登入／註冊");
   if (restoreFocus) previousSignupStatementFocus?.focus?.({ preventScroll: true });
   previousSignupStatementFocus = null;
 }
@@ -1122,6 +1125,21 @@ function setAuthView(view, { focus = "" } = {}) {
   else authPrimary.type = "submit";
   authScroll.scrollTop = 0;
   updateAuthPrimary();
+  if (isUsabilityResearch) {
+    const authScreenNames = {
+      "login-password": "會員登入",
+      "login-birthday": "會員登入資料確認",
+      "login-code": "登入動態密碼",
+      "forgot-phone": "忘記密碼－手機驗證",
+      "forgot-code": "忘記密碼－動態密碼",
+      "forgot-password": "設定新密碼",
+      "signup-1": "會員註冊－基本資料",
+      "signup-2": "會員註冊－聲明事項",
+      "signup-3": "會員註冊－動態密碼",
+      "signup-4": "會員註冊－設定密碼",
+    };
+    window.ResearchTracker?.page(`auth-${view}`, authScreenNames[view] || "會員登入／註冊");
+  }
   if (focus) requestAnimationFrame(() => document.querySelector(focus)?.focus({ preventScroll: true }));
 }
 
@@ -1709,6 +1727,7 @@ function showPersonalDataNotice() {
   personalDataAgree.disabled = true;
   scrollToAgree.hidden = false;
   personalDataDialog.hidden = false;
+  if (isUsabilityResearch) window.ResearchTracker?.page("personal-data-notice", "個人資料告知事項");
   personalDataDialog.querySelector(".dialog-x").focus();
   requestAnimationFrame(updatePersonalDataScrollState);
 }
@@ -1831,6 +1850,9 @@ function showUploadDialog(mode = "boarding-pass", returnFocus = document.activeE
   uploadConfirm.textContent = "確認上傳";
   uploadConfirm.disabled = true;
   uploadDialog.hidden = false;
+  if (isUsabilityResearch) {
+    window.ResearchTracker?.page(mode === "delay-proof" ? "delay-proof-upload" : "boarding-pass-upload", mode === "delay-proof" ? "上傳班機延誤證明" : "上傳登機證");
+  }
   uploadDialog.querySelector(".dialog-x").focus();
 }
 
@@ -1843,6 +1865,7 @@ function closeUploadDialog({ restoreFocus = true, showNoProof = true } = {}) {
   uploadSourceMenu.hidden = true;
   filePickerScreen.hidden = true;
   uploadDialog.hidden = true;
+  if (isUsabilityResearch && !shouldShowNoProof) window.ResearchTracker?.page("claim-chat", "阿發對話");
   if (restoreFocus) {
     if (previousUploadFocus?.isConnected && !previousUploadFocus.closest("[hidden]")) previousUploadFocus.focus?.({ preventScroll: true });
     else input.focus({ preventScroll: true });
@@ -1852,11 +1875,15 @@ function closeUploadDialog({ restoreFocus = true, showNoProof = true } = {}) {
 
 function showUploadSourceMenu() {
   uploadSourceMenu.hidden = false;
+  if (isUsabilityResearch) window.ResearchTracker?.page("upload-source", uploadMode === "delay-proof" ? "選擇延誤證明來源" : "選擇登機證來源");
   uploadSourceMenu.querySelector('[data-upload-source="photos"]').focus();
 }
 
 function hideUploadSourceMenu() {
   uploadSourceMenu.hidden = true;
+  if (isUsabilityResearch) {
+    window.ResearchTracker?.page(uploadMode === "delay-proof" ? "delay-proof-upload" : "boarding-pass-upload", uploadMode === "delay-proof" ? "上傳班機延誤證明" : "上傳登機證");
+  }
   uploadDropzone.focus({ preventScroll: true });
 }
 
@@ -1877,11 +1904,18 @@ function showFilePicker(target = "upload") {
       .forEach((group) => { group.hidden = true; });
   }
   filePickerScreen.hidden = false;
+  if (isUsabilityResearch) window.ResearchTracker?.page("file-picker", target === "bankbook" ? "選擇存摺檔案" : "選擇上傳檔案");
   filePickerScreen.querySelector("[data-close-picker]").focus();
 }
 
 function hideFilePicker() {
   filePickerScreen.hidden = true;
+  if (isUsabilityResearch) {
+    const page = filePickerTarget === "bankbook"
+      ? ["bank-info", "填寫匯款資料"]
+      : uploadMode === "delay-proof" ? ["delay-proof-upload", "上傳班機延誤證明"] : ["boarding-pass-upload", "上傳登機證"];
+    window.ResearchTracker?.page(page[0], page[1]);
+  }
   const target = filePickerTarget === "bankbook"
     ? (bankbookSelected.hidden ? bankbookDropzone : bankbookRemove)
     : uploadDropzone;
@@ -2036,6 +2070,7 @@ function openScheduledTimeDialog({ reset = false } = {}) {
   }
   updateScheduledTimeForm();
   scheduledTimeDialog.hidden = false;
+  if (isUsabilityResearch) window.ResearchTracker?.page("scheduled-flight-time", "填寫原定航班時間");
   scheduledTimeDialog.focus({ preventScroll: true });
   updateScheduledTimeForm();
 }
@@ -2054,6 +2089,7 @@ function closeScheduledTimeDialog({ confirmed = false } = {}) {
     boardingInfoForm.elements.date.value = `${month}/${day}`;
     updateBoardingInfoButton();
     boardingInfoDialog.hidden = false;
+    if (isUsabilityResearch) window.ResearchTracker?.page("boarding-info", "確認登機證資訊");
     boardingInfoForm.elements.passenger.focus({ preventScroll: true });
     return;
   }
@@ -2123,6 +2159,7 @@ function finishBoardingPassUpload() {
     const { column } = appendAssistantMessage(message);
     column.append(actions);
     scrollChatToBottom();
+    if (isUsabilityResearch) window.ResearchTracker?.page("boarding-pass-recognition-error", "登機證無法辨識");
     return;
   }
 
@@ -2130,6 +2167,7 @@ function finishBoardingPassUpload() {
   prepareBoardingInfoSession();
   appendUserMessage("上傳成功");
   boardingInfoDialog.hidden = false;
+  if (isUsabilityResearch) window.ResearchTracker?.page("boarding-info", "確認登機證資訊");
   boardingInfoForm.elements.passenger.focus({ preventScroll: true });
 }
 
@@ -2203,10 +2241,12 @@ function appendBankInfoPrompt({ retry = true } = {}) {
   fillBankInfo.dataset.chatAction = "fill-bank-info";
   content.append(message, fillBankInfo);
   appendAssistantMessage(content);
+  if (isUsabilityResearch) window.ResearchTracker?.page("bank-info-prompt", "匯款資料提示");
   return fillBankInfo;
 }
 
 function showBoardingInfoReview(snapshot, { modified = false } = {}) {
+  if (isUsabilityResearch) window.ResearchTracker?.page("boarding-info-review", "確認航班資料");
   const card = document.createElement("div");
   const heading = document.createElement("p");
   heading.className = "boarding-info-card-heading";
@@ -2303,6 +2343,7 @@ function appendNoDelayProofMessage() {
   retry.dataset.chatAction = "retry-delay-proof";
   content.append(message, retry);
   appendAssistantMessage(content);
+  if (isUsabilityResearch) window.ResearchTracker?.page("delay-proof-missing", "尚未上傳延誤證明");
   retry.focus({ preventScroll: true });
 }
 
@@ -2325,6 +2366,7 @@ function appendDelayProofOutcome(outcome) {
     content.append(message);
   }
   appendAssistantMessage(content);
+  if (isUsabilityResearch && outcome !== "success") window.ResearchTracker?.page("delay-proof-upload-error", "延誤證明上傳結果");
 }
 
 function finishDelayProofUpload() {
@@ -2622,6 +2664,7 @@ function moveBranchActiveOption(direction) {
 
 function openBankInfoDialog() {
   bankInfoDialog.hidden = false;
+  if (isUsabilityResearch) window.ResearchTracker?.page("bank-info", "填寫匯款資料");
   requestAnimationFrame(() => bankInfoDialog.focus({ preventScroll: true }));
 }
 
@@ -2939,6 +2982,7 @@ function openOtpDialog({ resetSession = false } = {}) {
     otpHelpTrigger.setAttribute("aria-expanded", "false");
   }
   otpDialog.hidden = false;
+  if (isUsabilityResearch) window.ResearchTracker?.page("bank-transfer-otp", "匯款動態密碼驗證");
   renderOtpState();
   startOtpTimers();
   otpDialog.focus({ preventScroll: true });
@@ -2963,6 +3007,7 @@ function closeOtpDialog() {
   retry.addEventListener("click", () => openOtpDialog());
   content.append(message, retry);
   appendAssistantMessage(content);
+  if (isUsabilityResearch) window.ResearchTracker?.page("bank-transfer-otp-prompt", "尚未完成匯款驗證");
 }
 
 function resendOtp() {
@@ -3134,6 +3179,7 @@ function showOfficialConfirm(description = "您即將離開阿發，前往產險
   confirmCopy.textContent = description;
   confirmGo.href = url;
   confirmDialog.showModal();
+  if (isUsabilityResearch) window.ResearchTracker?.page("official-site-confirm", "確認前往官方網站");
 }
 
 const aiDisclaimerLink = document.querySelector("#ai-disclaimer-link");
@@ -3969,6 +4015,7 @@ chatScreen.addEventListener("click", (event) => {
       break;
     case "return-boarding-info":
       boardingInfoDialog.hidden = false;
+      if (isUsabilityResearch) window.ResearchTracker?.page("boarding-info", "確認登機證資訊");
       boardingInfoForm.elements.passenger.focus({ preventScroll: true });
       break;
     case "return-scheduled-time":
@@ -3986,6 +4033,7 @@ chatScreen.addEventListener("click", (event) => {
       appendUserMessage("手動輸入");
       prepareBoardingInfoSession({ manual: true });
       boardingInfoDialog.hidden = false;
+      if (isUsabilityResearch) window.ResearchTracker?.page("boarding-info", "確認登機證資訊");
       boardingInfoForm.elements.passenger.focus({ preventScroll: true });
       break;
     case "confirm-boarding-info":
@@ -4001,6 +4049,7 @@ chatScreen.addEventListener("click", (event) => {
       boardingInfoConfirmed = false;
       updateBoardingInfoButton();
       boardingInfoDialog.hidden = false;
+      if (isUsabilityResearch) window.ResearchTracker?.page("boarding-info", "確認登機證資訊");
       boardingInfoForm.elements.passenger.focus({ preventScroll: true });
       break;
     case "claim-member":
