@@ -103,7 +103,12 @@
             <h2 class="dialog-title" id="dialog-title">注意事項</h2>
             <button class="dialog-x" type="button" data-close-policy aria-label="關閉">×</button>
           </header>
-          <div class="dialog-copy" id="dialog-copy" tabindex="0"></div>
+          <div class="policy-scroll-region">
+            <div class="dialog-copy" id="dialog-copy" tabindex="0"></div>
+            <div class="policy-scrollbar" id="policy-scrollbar" aria-hidden="true">
+              <span class="policy-scrollbar-thumb" id="policy-scrollbar-thumb"></span>
+            </div>
+          </div>
         </section>
       </div>
 
@@ -561,7 +566,7 @@
                 <label class="auth-field" for="signup-id"><span>帳號</span><input id="signup-id" name="identity" type="text" autocomplete="username" autocapitalize="characters" placeholder="請輸入你的身分證或居留證號" aria-describedby="signup-id-error" /><span class="auth-field-error" id="signup-id-error" data-auth-error-for="signup-id" role="alert" hidden></span></label>
                 <label class="auth-field" for="signup-birthday"><span>生日(需年滿 18 歲)</span><input id="signup-birthday" name="birthday" type="text" inputmode="numeric" maxlength="10" autocomplete="bday" placeholder="YYYY/MM/DD" aria-describedby="signup-birthday-error" /><span class="auth-field-error" id="signup-birthday-error" data-auth-error-for="signup-birthday" role="alert" hidden></span></label>
                 <div class="auth-field auth-nationality-field" id="signup-nationality-field" hidden>
-                  <div class="auth-nationality-heading"><label id="signup-nationality-label" for="signup-nationality-trigger">國籍</label><button class="auth-nationality-help-trigger" id="signup-nationality-help" type="button" aria-expanded="false" aria-controls="signup-nationality-tooltip"><img src="assets/ic-mml-info.svg" alt="" /><span>無法注冊的國籍</span></button></div>
+                  <div class="auth-nationality-heading"><label id="signup-nationality-label" for="signup-nationality-trigger">國籍</label><button class="auth-nationality-help-trigger" id="signup-nationality-help" type="button" aria-expanded="false" aria-controls="signup-nationality-tooltip"><img src="assets/ic-mml-info.svg" alt="" /><span>無法註冊的國籍</span></button></div>
                   <div class="auth-nationality-control">
                     <select class="auth-nationality-native" id="signup-nationality" name="nationality" autocomplete="country-name" aria-describedby="signup-nationality-error" aria-hidden="true" tabindex="-1" required><option value="" selected disabled>輸入國籍</option></select>
                     <div class="auth-nationality-search-wrap" id="signup-nationality-search-wrap" hidden>
@@ -636,7 +641,7 @@
         </div>
         <div class="auth-nationality-tooltip" id="signup-nationality-tooltip" role="tooltip" data-placement="above" hidden>
           <div class="auth-nationality-tooltip-body">
-            <p>南蘇丹、黎巴嫩、剛果民主共和國、蘇丹、伊朗、利比亞及北韓 無法注冊。</p>
+            <p>南蘇丹、黎巴嫩、剛果民主共和國、蘇丹、伊朗、利比亞及北韓 無法註冊。</p>
             <button type="button" id="signup-nationality-help-close" aria-label="關閉提示"><img src="assets/tooltip-close.svg" alt="" /></button>
           </div>
           <img class="auth-nationality-tooltip-tail" src="assets/tooltip-tail.svg" alt="" aria-hidden="true" />

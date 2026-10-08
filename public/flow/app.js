@@ -17,6 +17,8 @@ const defaultMessagePlaceholder = input.placeholder;
 const policyDialog = document.querySelector("#policy-dialog");
 const policyTitle = document.querySelector("#dialog-title");
 const policyCopy = document.querySelector("#dialog-copy");
+const policyScrollbar = document.querySelector("#policy-scrollbar");
+const policyScrollbarThumb = document.querySelector("#policy-scrollbar-thumb");
 const personalDataDialog = document.querySelector("#personal-data-dialog");
 const personalDataCopy = document.querySelector("#personal-data-copy");
 const personalDataAgree = document.querySelector("#personal-data-agree");
@@ -1758,13 +1760,63 @@ function showPolicy(title) {
   policyCopy.append(list);
   policyDialog.hidden = false;
   policyDialog.querySelector(".dialog-x").focus();
+  requestAnimationFrame(updatePolicyScrollbar);
 }
 
 function closePolicy() {
   if (policyDialog.hidden) return;
   policyDialog.hidden = true;
+  policyScrollbarDrag = null;
   previousPolicyFocus?.focus();
 }
+
+let policyScrollbarDrag = null;
+
+function updatePolicyScrollbar() {
+  const trackHeight = policyScrollbar.clientHeight;
+  const thumbHeight = Math.min(136, trackHeight);
+  const maxScroll = Math.max(0, policyCopy.scrollHeight - policyCopy.clientHeight);
+  policyScrollbar.hidden = maxScroll <= 1 || trackHeight <= 0;
+  if (policyScrollbar.hidden) return;
+
+  policyScrollbarThumb.style.height = `${thumbHeight}px`;
+  const maxThumbTop = Math.max(0, trackHeight - thumbHeight);
+  const progress = maxScroll > 0 ? policyCopy.scrollTop / maxScroll : 0;
+  policyScrollbarThumb.style.transform = `translateY(${maxThumbTop * progress}px)`;
+}
+
+function setPolicyScrollFromPointer(event, pointerOffset) {
+  const trackRect = policyScrollbar.getBoundingClientRect();
+  const trackHeight = policyScrollbar.clientHeight;
+  const thumbHeight = policyScrollbarThumb.offsetHeight;
+  const maxThumbTop = Math.max(0, trackHeight - thumbHeight);
+  const maxScroll = Math.max(0, policyCopy.scrollHeight - policyCopy.clientHeight);
+  if (maxThumbTop <= 0 || maxScroll <= 0) return;
+  const thumbTop = Math.min(maxThumbTop, Math.max(0, event.clientY - trackRect.top - pointerOffset));
+  policyCopy.scrollTop = (thumbTop / maxThumbTop) * maxScroll;
+}
+
+policyCopy.addEventListener("scroll", updatePolicyScrollbar, { passive: true });
+policyScrollbar.addEventListener("pointerdown", (event) => {
+  if (policyDialog.hidden || policyCopy.scrollHeight <= policyCopy.clientHeight) return;
+  const thumbRect = policyScrollbarThumb.getBoundingClientRect();
+  const isThumb = policyScrollbarThumb.contains(event.target);
+  const pointerOffset = isThumb ? event.clientY - thumbRect.top : thumbRect.height / 2;
+  policyScrollbarDrag = { pointerId: event.pointerId, pointerOffset };
+  policyScrollbar.setPointerCapture(event.pointerId);
+  if (!isThumb) setPolicyScrollFromPointer(event, pointerOffset);
+  event.preventDefault();
+});
+policyScrollbar.addEventListener("pointermove", (event) => {
+  if (policyScrollbarDrag?.pointerId !== event.pointerId) return;
+  setPolicyScrollFromPointer(event, policyScrollbarDrag.pointerOffset);
+});
+function endPolicyScrollbarDrag(event) {
+  if (policyScrollbarDrag?.pointerId !== event.pointerId) return;
+  policyScrollbarDrag = null;
+}
+policyScrollbar.addEventListener("pointerup", endPolicyScrollbarDrag);
+policyScrollbar.addEventListener("pointercancel", endPolicyScrollbarDrag);
 
 function updatePersonalDataScrollState() {
   const reachedBottom = personalDataCopy.scrollTop + personalDataCopy.clientHeight >= personalDataCopy.scrollHeight - 4;
