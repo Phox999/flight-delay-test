@@ -4219,10 +4219,10 @@ function autofillResearchCurrentPage(data = {}, scope = "") {
     const filled = setResearchAutofillValue("#bank-info-form [name='account']", data.bankAccount);
     validateBankAccount();
     updateBankInfoButton();
-    return { filled: Boolean(filled || data.bankCode || data.branch), screen: "匯款資料", message: "請先開啟匯款資料表單，再帶入銀行資訊。" };
+    return { filled: Boolean(filled || data.bankCode || data.branch), screen: "匯款資料", message: "請先開啟匯款資料表單，再代入銀行資訊。" };
   }
 
-  if (scope === "bank") return { filled: false, message: "請先開啟匯款資料表單，再帶入銀行資訊。" };
+  if (scope === "bank") return { filled: false, message: "請先開啟匯款資料表單，再代入銀行資訊。" };
   return { filled: false, message: "請選擇 OTP、班機或銀行資料的代入按鈕。" };
 }
 
