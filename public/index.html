@@ -396,7 +396,7 @@
             <label><input type="radio" name="failureCause" value="我沒有仔細看畫面">我沒有仔細看畫面</label>
           </div>
         </div>
-        <div class="field">
+        <div class="field surveyConditional" id="nextStepClarityField" hidden>
           <label>5. 第一次看到登機證辨識失敗時，你有多清楚接下來該怎麼做？</label>
           <div class="scale" id="nextStepClarityScale"></div>
         </div>
@@ -532,9 +532,13 @@ document.querySelectorAll('input[name="submissionConfidence"]').forEach(input=>i
   textarea.placeholder=prompt.placeholder;
 }));
 document.querySelectorAll('input[name="failureCause"]').forEach(input=>input.addEventListener("change",()=>{
-  const needsExplanation=selected("failureCause")==="有，畫面說明了原因";
+  const failureCause=selected("failureCause");
+  const needsExplanation=failureCause==="有，畫面說明了原因";
+  const needsClarity=["有，畫面說明了原因","畫面有提到可能的原因，但不夠明確"].includes(failureCause);
   document.getElementById("failureCauseOtherWrap").hidden=!needsExplanation;
   if(!needsExplanation) document.getElementById("failureCauseOther").value="";
+  document.getElementById("nextStepClarityField").hidden=!needsClarity;
+  if(!needsClarity) document.querySelectorAll('input[name="nextStepClarity"]').forEach(input=>input.checked=false);
 }));
 
 async function api(path, opts={}){
@@ -745,7 +749,8 @@ document.getElementById("finishBtn").onclick=async()=>{
   const isGroupB=session.group_code==="B";
   const failureCause=isGroupB?selected("failureCause"):"";
   const failureCauseOther=isGroupB?document.getElementById("failureCauseOther").value.trim():"";
-  const nextStepClarity=isGroupB?selected("nextStepClarity"):"";
+  const asksNextStepClarity=isGroupB&&["有，畫面說明了原因","畫面有提到可能的原因，但不夠明確"].includes(failureCause);
+  const nextStepClarity=asksNextStepClarity?selected("nextStepClarity"):"";
   const delayProofPlan=isGroupB?document.getElementById("delayProofPlan").value.trim():"";
   const eligibilityScenarios=[...document.querySelectorAll('input[name="eligibilityScenarios"]:checked')].map(input=>input.value);
   const independentConfidence=selected("independentConfidence");
@@ -755,7 +760,7 @@ document.getElementById("finishBtn").onclick=async()=>{
   if(!completionEvidence) return alert("請填寫第 3 題。");
   if(isGroupB&&!failureCause) return alert("請先完成第 4 題。");
   if(isGroupB&&failureCause==="有，畫面說明了原因"&&!failureCauseOther) return alert("請簡述畫面說明的原因。");
-  if(isGroupB&&!nextStepClarity) return alert("請先完成第 5 題。");
+  if(asksNextStepClarity&&!nextStepClarity) return alert("請先完成第 5 題。");
   if(isGroupB&&!delayProofPlan) return alert("請填寫第 6 題。");
   if(!eligibilityScenarios.length) return alert("請至少選擇一個第 7 題的情況。");
   if(!independentConfidence) return alert("請先完成第 8 題。");
@@ -765,7 +770,7 @@ document.getElementById("finishBtn").onclick=async()=>{
     completion_evidence:completionEvidence,
     failure_cause:failureCause||null,
     failure_cause_other:failureCauseOther,
-    next_step_clarity:isGroupB?+nextStepClarity:null,
+    next_step_clarity:asksNextStepClarity?+nextStepClarity:null,
     delay_proof_plan:delayProofPlan||null,
     eligibility_scenarios:eligibilityScenarios,
     independent_confidence:+independentConfidence,
