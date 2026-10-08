@@ -166,6 +166,7 @@ const simulatedOtpCode = "123123";
 const simulatedOtpApiErrorCode = "999999";
 const memberCenterUrl = "https://www.cathay-ins.com.tw/INSOCWeb/";
 const confirmDialog = document.querySelector("#confirm-dialog");
+const confirmTitle = document.querySelector("#confirm-title");
 const confirmCopy = document.querySelector("#confirm-copy");
 const confirmGo = document.querySelector("#confirm-go");
 const officialClaimUrl = "https://www.cathay-ins.com.tw/cathayins/personal/claim/travel/";
@@ -3218,7 +3219,8 @@ function completeExperienceFeedback(card) {
   card.replaceChildren(check, message);
 }
 
-function showOfficialConfirm(description = "您即將離開阿發，前往產險服務條款頁。", url = officialClaimUrl) {
+function showOfficialConfirm(description = "您即將離開阿發，前往產險服務條款頁。", url = officialClaimUrl, title = "即將前往國泰產險官網") {
+  confirmTitle.textContent = title;
   confirmCopy.textContent = description;
   confirmGo.href = url;
   confirmDialog.showModal();
@@ -3229,6 +3231,11 @@ const aiDisclaimerLink = document.querySelector("#ai-disclaimer-link");
 aiDisclaimerLink.addEventListener("click", (event) => {
   event.preventDefault();
   showOfficialConfirm("你即將離開阿發，前往 AI 告知聲明頁。", aiDisclaimerLink.href);
+});
+const forgotPasswordLink = document.querySelector("#auth-forgot-password-link");
+forgotPasswordLink.addEventListener("click", (event) => {
+  event.preventDefault();
+  showOfficialConfirm("你將前往國泰產險會員中心", forgotPasswordLink.href, "重設密碼");
 });
 confirmGo.addEventListener("click", () => confirmDialog.close());
 
