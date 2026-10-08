@@ -569,6 +569,16 @@ function scrollChatToBottom() {
   requestAnimationFrame(() => { chatScreen.scrollTop = chatScreen.scrollHeight; });
 }
 
+function scrollChatToBubbleTop(bubble) {
+  if (isOpeningChat || !bubble) return;
+  requestAnimationFrame(() => {
+    const chatRect = chatScreen.getBoundingClientRect();
+    const scaleY = chatScreen.offsetHeight ? chatRect.height / chatScreen.offsetHeight : 1;
+    const scrollDelta = (bubble.getBoundingClientRect().top - chatRect.top) / scaleY;
+    chatScreen.scrollTo({ top: chatScreen.scrollTop + scrollDelta, behavior: "smooth" });
+  });
+}
+
 function scrollChatToStart() {
   requestAnimationFrame(() => {
     chatScreen.scrollTop = 0;
@@ -596,12 +606,13 @@ function appendUserMessage(message) {
   scrollChatToBottom();
 }
 
-function appendAssistantSequence(items) {
+function appendAssistantSequence(items, { alignFirstBubbleToTop = false } = {}) {
   const row = document.createElement("div");
   row.className = "assistant-row";
   const column = document.createElement("div");
   column.className = "assistant-content";
 
+  let firstBubble = null;
   let lastBubble = null;
   items.forEach(({ content, card = false, className = "" }) => {
     const bubble = document.createElement("div");
@@ -614,6 +625,7 @@ function appendAssistantSequence(items) {
       bubble.append(content);
     }
     column.append(bubble);
+    if (!firstBubble) firstBubble = bubble;
     lastBubble = bubble;
   });
 
@@ -626,7 +638,8 @@ function appendAssistantSequence(items) {
   column.append(meta);
   row.append(makeAvatar(), column);
   chatScreen.append(row);
-  scrollChatToBottom();
+  if (alignFirstBubbleToTop) scrollChatToBubbleTop(firstBubble);
+  else scrollChatToBottom();
   return { row, column, lastBubble };
 }
 
@@ -888,13 +901,19 @@ function parseAuthBirthday(value) {
   return date;
 }
 
-function isAdultBirthday(value) {
+function signupBirthdayError(value) {
   const birthday = parseAuthBirthday(value);
-  if (!birthday) return false;
+  if (!birthday) return "請輸入正確的生日";
   const today = new Date();
   let age = today.getFullYear() - birthday.getFullYear();
   if (today.getMonth() < birthday.getMonth() || (today.getMonth() === birthday.getMonth() && today.getDate() < birthday.getDate())) age -= 1;
-  return age >= 18 && birthday <= today;
+  if (birthday > today) return "請輸入正確的生日";
+  if (age < 18) return "需年滿18歲才可以註冊";
+  return "";
+}
+
+function isAdultBirthday(value) {
+  return !signupBirthdayError(value);
 }
 
 const signupStatementLabels = {
@@ -956,7 +975,7 @@ function signupFieldError(inputId) {
     if (registeredMemberIds.has(identity)) return "身分證或居留證號已被註冊";
   }
   if (inputId === "signup-nationality" && !document.querySelector("#signup-nationality-field").hidden && !value("#signup-nationality")) return "請輸入國籍";
-  if (inputId === "signup-birthday" && !isAdultBirthday(value("#signup-birthday"))) return "請輸入正確的生日";
+  if (inputId === "signup-birthday") return signupBirthdayError(value("#signup-birthday"));
   if (inputId === "signup-name" && !isValidSignupName(value("#signup-name"))) return "請輸入正確的姓名";
   if (inputId === "signup-phone" && !/^09\d{8}$/.test(value("#signup-phone"))) return "請輸入正確的手機號碼";
   if (inputId === "signup-email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value("#signup-email"))) return "請輸入正確的 Email";
@@ -2436,7 +2455,7 @@ function showBoardingInfoReview(snapshot, { modified = false } = {}) {
   appendAssistantSequence([
     { content: modified ? "請確認下列修改後的資訊是否正確？" : "已收到你上傳的登機證，請確認下列資訊是否正確?" },
     { content: card, card: true, className: "info-confirm-card boarding-info-card" },
-  ]);
+  ], { alignFirstBubbleToTop: true });
 }
 
 function addDelayProofFiles(files) {
@@ -3184,7 +3203,7 @@ function finishOtpVerification() {
   setComposerFlowLock(false);
   const result = document.createElement("div");
   const message = document.createElement("p");
-  message.textContent = "已收到你的匯款資料，案件編號 00910-HAC，可以隨時在會員中心查看理賠進度。";
+  message.textContent = "已收到你的匯款資料，案件編號 00910-HAC，可以隨時在會員中心查看理賠進度。請確認手機號碼及電子郵件是否正確。可能因電信或系統繁忙而延遲送達，若透過電子郵件收取，請一併查看垃圾郵件匣。";
   const memberLink = document.createElement("a");
   memberLink.className = "otp-member-link";
   memberLink.href = memberCenterUrl;
@@ -4130,6 +4149,14 @@ boardingInfoForm.addEventListener("input", () => {
 });
 boardingInfoForm.elements.year.addEventListener("input", (event) => {
   const year = event.currentTarget;
+  const rawValue = year.value;
+  const caret = year.selectionStart ?? rawValue.length;
+  const valueBeforeCaret = rawValue.slice(0, caret).replace(/\D/g, "").length;
+  const normalized = rawValue.replace(/\D/g, "").slice(0, 4);
+  if (normalized !== rawValue) {
+    year.value = normalized;
+    year.setSelectionRange(valueBeforeCaret, valueBeforeCaret);
+  }
   const value = year.value.trim();
   if (/^\d{4}$/.test(value)) setBoardingFieldError(year, boardingYearError(value));
   else if (!boardingInfoValidationAttempted) setBoardingFieldError(year, "");
@@ -4205,7 +4232,7 @@ chatScreen.addEventListener("click", (event) => {
       updateBoardingInfoButton();
       boardingInfoDialog.hidden = false;
       if (isUsabilityResearch) window.ResearchTracker?.page("boarding-info", "確認登機證資訊");
-      boardingInfoForm.elements.passenger.focus({ preventScroll: true });
+      boardingInfoDialog.querySelector(".dialog-x").focus({ preventScroll: true });
       break;
     case "claim-member":
       showOfficialConfirm("你即將離開阿發，前往國泰產險會員中心。", memberCenterUrl);
