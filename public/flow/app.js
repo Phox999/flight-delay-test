@@ -768,6 +768,31 @@ function setAuthFieldError(inputId, message) {
   if (invalid) error.textContent = message;
 }
 
+function scrollAuthFieldIntoView(inputId) {
+  const field = document.getElementById(inputId)?.closest(".auth-field");
+  if (!field) return;
+
+  requestAnimationFrame(() => {
+    const scrollRect = authScroll.getBoundingClientRect();
+    const fieldRect = field.getBoundingClientRect();
+    const scaleY = scrollRect.height / authScroll.clientHeight || 1;
+    const inset = 12 * scaleY;
+    const visibleTop = scrollRect.top + inset;
+    const visibleBottom = scrollRect.bottom - inset;
+    let delta = 0;
+
+    if (fieldRect.top < visibleTop) delta = (fieldRect.top - visibleTop) / scaleY;
+    else if (fieldRect.bottom > visibleBottom) delta = (fieldRect.bottom - visibleBottom) / scaleY;
+    if (Math.abs(delta) < 1) return;
+
+    const maxScroll = Math.max(0, authScroll.scrollHeight - authScroll.clientHeight);
+    authScroll.scrollTo({
+      top: Math.min(maxScroll, Math.max(0, authScroll.scrollTop + delta)),
+      behavior: "smooth",
+    });
+  });
+}
+
 function setAuthOtpError(inputId, errorId, message) {
   const inputElement = document.getElementById(inputId);
   const error = document.getElementById(errorId);
@@ -1541,8 +1566,14 @@ function submitAuthForm(form) {
     form.dataset.validationAttempted = "true";
     syncSignupNationalityField();
     const signupFieldIds = ["signup-id", ...(signupNationalityRevealed ? ["signup-nationality"] : []), "signup-birthday", "signup-name", "signup-phone", "signup-email", "signup-promo"];
-    signupFieldIds.forEach((inputId) => setAuthFieldError(inputId, signupFieldError(inputId)));
-    if (signupFieldIds.some((inputId) => signupFieldError(inputId))) { updateAuthPrimary(); return; }
+    const signupErrors = signupFieldIds.map((inputId) => ({ inputId, message: signupFieldError(inputId) }));
+    signupErrors.forEach(({ inputId, message }) => setAuthFieldError(inputId, message));
+    const firstInvalidField = signupErrors.find(({ message }) => message)?.inputId;
+    if (firstInvalidField) {
+      scrollAuthFieldIntoView(firstInvalidField);
+      updateAuthPrimary();
+      return;
+    }
     authSignupProfile = {
       identity,
       birthday: value("signup-birthday"),
@@ -1561,6 +1592,7 @@ function submitAuthForm(form) {
       form.querySelectorAll("input, select").forEach((inputElement) => { inputElement.disabled = false; });
       if (registeredMemberIds.has(identity)) {
         setAuthFieldError("signup-id", signupFieldError("signup-id"));
+        scrollAuthFieldIntoView("signup-id");
         updateAuthPrimary();
         return;
       }
@@ -3443,10 +3475,16 @@ authDialog.addEventListener("keydown", (event) => {
 authDialog.addEventListener("focusout", (event) => {
   const inputId = event.target.id;
   if (inputId.startsWith("signup-") && document.querySelector("#signup-basic-form").dataset.validationAttempted === "true") {
-    setAuthFieldError(inputId, signupFieldError(inputId));
+    const message = signupFieldError(inputId);
+    setAuthFieldError(inputId, message);
+    if (message) scrollAuthFieldIntoView(inputId);
   } else if (inputId === "signup-password" || inputId === "signup-confirm-password") {
     const inputValue = document.getElementById(inputId).value;
-    if (inputValue) setAuthFieldError(inputId, signupFieldError(inputId));
+    if (inputValue) {
+      const message = signupFieldError(inputId);
+      setAuthFieldError(inputId, message);
+      if (message) scrollAuthFieldIntoView(inputId);
+    }
   }
   updateAuthPrimary();
 });
