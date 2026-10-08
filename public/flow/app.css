@@ -435,6 +435,7 @@ a.inline-link { text-decoration: underline; }
 
 .assistant-bubble p { margin: 0; }
 .assistant-bubble > p { white-space: pre-line; }
+.assistant-bubble .otp-result-followup { margin-top: 22px; }
 .assistant-bubble ol { margin: 0; padding-left: 24px; }
 .assistant-content .chat-time { width: 83px; }
 

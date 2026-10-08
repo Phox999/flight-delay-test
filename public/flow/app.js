@@ -3203,7 +3203,10 @@ function finishOtpVerification() {
   setComposerFlowLock(false);
   const result = document.createElement("div");
   const message = document.createElement("p");
-  message.textContent = "已收到你的匯款資料，案件編號 00910-HAC，可以隨時在會員中心查看理賠進度。請確認手機號碼及電子郵件是否正確。可能因電信或系統繁忙而延遲送達，若透過電子郵件收取，請一併查看垃圾郵件匣。";
+  message.textContent = "已收到你的匯款資料，案件號碼 00910-HAC，可以隨時在會員中心查看理賠進度。";
+  const followup = document.createElement("p");
+  followup.className = "otp-result-followup";
+  followup.textContent = "如果還要繼續諮詢班機延誤問題，阿發可以繼續為您解答喔~";
   const memberLink = document.createElement("a");
   memberLink.className = "otp-member-link";
   memberLink.href = memberCenterUrl;
@@ -3218,7 +3221,7 @@ function finishOtpVerification() {
     event.preventDefault();
     showOfficialConfirm("你即將離開阿發，前往國泰產險會員中心。", memberCenterUrl);
   });
-  result.append(message, memberLink);
+  result.append(message, followup, memberLink);
 
   const feedback = createExperienceFeedback();
   appendAssistantSequence([
