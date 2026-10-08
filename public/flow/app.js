@@ -1735,6 +1735,7 @@ function showPolicy(title) {
   previousPolicyFocus = document.activeElement;
   policyTitle.textContent = title;
   policyCopy.replaceChildren();
+  policyCopy.scrollTop = 0;
   const list = document.createElement("ol");
   list.className = "policy-list";
   policyParagraphs.forEach((text) => {
