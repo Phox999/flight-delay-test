@@ -99,7 +99,7 @@
     .scenarioCountdown{min-height:22px;margin:18px 0 -14px;color:var(--brand);font-size:14px;font-weight:700;text-align:right}
     .scenarioCard #beginTaskBtn:disabled{background:#e7ebf2;color:#8590a2;opacity:1;cursor:not-allowed}
     .scenarioCard p{font-size:16px;line-height:1.9}
-    .taskBackground{margin-top:16px;border-top:1px solid var(--line);padding-top:14px}
+    .taskBackground{margin:0 0 12px;border-bottom:1px solid var(--line);padding-bottom:14px}
     .taskBackground summary{cursor:pointer;color:var(--brand);font-weight:700}
     .taskBackground[open] summary{margin-bottom:10px}
     .taskBriefCard{width:100%;max-width:560px;margin:0 auto 16px;border-radius:32px}
@@ -329,6 +329,10 @@
     </div>
     <div class="card taskBriefCard">
       <h2>本次任務資料</h2>
+      <details class="taskBackground">
+        <summary>查看情境背景</summary>
+        <div id="taskCopy"></div>
+      </details>
       <div class="taskDataToolbar">
         <button class="taskDetailsToggle" id="personalDataToggle" type="button" aria-expanded="false" aria-controls="personalDataContent">查看詳細個人資料</button>
         <div class="autofillActions" role="group" aria-label="測試資料代入">
@@ -360,10 +364,6 @@
         </div>
       </div>
       </div>
-      <details class="taskBackground">
-        <summary>查看情境背景</summary>
-        <div id="taskCopy"></div>
-      </details>
     </div>
     <div class="card flowCard">
       <div class="phoneWrap">
@@ -659,7 +659,7 @@ function setupTask(){
    ? `<p>你已購買國泰產險的旅遊平安險，手上仍保留 <b>紙本登機證</b>，但目前還不是國泰產險會員。</p>`
    : `<p>你已購買國泰產險的旅遊平安險，手上保留的是航空公司 App／手機錢包中的 <b>電子登機證 QR Code</b>，但目前還不是國泰產險會員。</p>`);
   const task = `<p>請先完成 <b>國泰產險會員註冊</b>，再透過阿發申請 <b>班機延誤理賠</b>，依照畫面完成你認為需要的操作。</p>`;
-  const operationTip = `<section class="scenarioSection"><h2>操作提示</h2><p>測試過程中的 <b>OTP、銀行帳號與班機資訊</b>，皆可使用「<b>測試資料一鍵帶入</b>」。<b>會員註冊時也不需要輸入真實個人資料，請使用任意相同格式的資料填寫即可。</b></p><p class="operationTipCompletion">當你認為任務已完成時，請點擊上方「<b>我已完成</b>」。</p></section>`;
+  const operationTip = `<section class="scenarioSection"><h2>操作提示</h2><p>測試過程中的 <b>OTP 是 123123</b>；銀行帳號與班機資訊皆可使用「<b>測試資料一鍵帶入</b>」。<b>會員註冊時也不需要輸入真實個人資料，請使用任意相同格式的資料填寫即可。</b></p><p class="operationTipCompletion">當你認為任務已完成時，請點擊上方「<b>我已完成</b>」。</p></section>`;
   document.getElementById("scenarioCopy").innerHTML = `<section class="scenarioSection"><h2>情境</h2>${situation}</section><section class="scenarioSection"><h2>任務</h2>${task}</section>${operationTip}`;
   document.getElementById("taskCopy").innerHTML = `<section class="scenarioSection"><h2>情境</h2>${situation}</section><section class="scenarioSection"><h2>任務</h2>${task}</section>${operationTip}`;
   document.getElementById("groupBQuestions").classList.toggle("hidden",group!=="B");
