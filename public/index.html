@@ -38,7 +38,7 @@
     .welcomeSteps{list-style:none;padding:0;margin:24px 0 0;display:grid;gap:12px}
     .welcomeSteps li{display:flex;align-items:center;gap:12px;color:#344256;font-weight:600}
     .welcomeSteps span{width:30px;height:30px;flex:none;display:grid;place-items:center;border-radius:50%;background:#eef3ff;color:var(--brand);font-size:13px;font-weight:800}
-    .welcomeNotices{list-style:none;margin:16px 0 0;padding:11px 14px;display:grid;gap:7px;border-radius:12px;background:#f4f7ff;color:#667386;font-size:12px;line-height:1.6}
+    .welcomeNotices{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:5px;color:#667386;font-size:12px;line-height:1.6}
     .welcomeNotices li{position:relative;padding-left:14px}
     .welcomeNotices li:before{content:"•";position:absolute;left:0;color:var(--brand);font-weight:800}
     .welcomeContent .consentNote{margin:16px 0 0;font-size:13px}
@@ -209,7 +209,6 @@
           <li>過程中會匿名記錄你的操作（例如停留時間、點擊位置），僅用於改善產品</li>
           <li>測試中的個人資料皆為虛構，請勿填寫真實資料</li>
         </ul>
-        <p class="consentNote">先填寫基本資料，再閱讀情境並開始操作</p>
         <div class="actions"><button class="primary" id="startBtn">開始測試</button></div>
       </div>
     </div>
@@ -660,7 +659,7 @@ function setupTask(){
    ? `<p>你已購買國泰產險的旅遊平安險，手上仍保留 <b>紙本登機證</b>，但目前還不是國泰產險會員。</p>`
    : `<p>你已購買國泰產險的旅遊平安險，手上保留的是航空公司 App／手機錢包中的 <b>電子登機證 QR Code</b>，但目前還不是國泰產險會員。</p>`);
   const task = `<p>請先完成 <b>國泰產險會員註冊</b>，再透過阿發申請 <b>班機延誤理賠</b>，依照畫面完成你認為需要的操作。</p>`;
-  const operationTip = `<section class="scenarioSection"><h2>操作提示</h2><p>測試過程中的 <b>OTP、銀行帳號與班機資訊</b>，皆可使用「<b>測試資料一鍵帶入</b>」。會員註冊時也不需要輸入真實個人資料，請使用任意相同格式的資料填寫即可。</p><p class="operationTipCompletion">當你認為任務已完成時，請點擊上方「<b>我已完成</b>」。</p></section>`;
+  const operationTip = `<section class="scenarioSection"><h2>操作提示</h2><p>測試過程中的 <b>OTP、銀行帳號與班機資訊</b>，皆可使用「<b>測試資料一鍵帶入</b>」。<b>會員註冊時也不需要輸入真實個人資料，請使用任意相同格式的資料填寫即可。</b></p><p class="operationTipCompletion">當你認為任務已完成時，請點擊上方「<b>我已完成</b>」。</p></section>`;
   document.getElementById("scenarioCopy").innerHTML = `<section class="scenarioSection"><h2>情境</h2>${situation}</section><section class="scenarioSection"><h2>任務</h2>${task}</section>${operationTip}`;
   document.getElementById("taskCopy").innerHTML = `<section class="scenarioSection"><h2>情境</h2>${situation}</section><section class="scenarioSection"><h2>任務</h2>${task}</section>${operationTip}`;
   document.getElementById("groupBQuestions").classList.toggle("hidden",group!=="B");
