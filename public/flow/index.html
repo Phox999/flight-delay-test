@@ -448,6 +448,7 @@
             <section class="auth-view" id="auth-view-login-password" data-auth-view="login-password" role="tabpanel" aria-labelledby="auth-password-tab">
               <form class="auth-form" id="auth-password-form" data-auth-form="login-password" novalidate>
                 <p class="auth-status" id="auth-status" role="status" hidden></p>
+                <p class="auth-status is-error" data-login-error role="alert" hidden></p>
                 <div class="auth-field">
                   <label for="login-id">帳號</label>
                   <span class="auth-input-action">
@@ -482,6 +483,7 @@
 
             <section class="auth-view" id="auth-view-login-birthday" data-auth-view="login-birthday" role="tabpanel" aria-labelledby="auth-code-tab" hidden>
               <form class="auth-form" id="auth-birthday-form" data-auth-form="login-birthday" novalidate>
+                <p class="auth-status is-error" data-login-error role="alert" hidden></p>
                 <div class="auth-field">
                   <label for="login-code-id">帳號</label>
                   <span class="auth-input-action">
@@ -503,6 +505,7 @@
 
             <section class="auth-view" id="auth-view-login-code" data-auth-view="login-code" role="tabpanel" aria-labelledby="auth-code-tab" hidden>
               <form class="auth-form" id="login-code-form" data-auth-form="login-code" novalidate>
+                <p class="auth-status is-error" data-login-error role="alert" hidden></p>
                 <div class="login-otp-message">
                   <p class="auth-otp-sent">驗證碼已發送至：<br /><span id="login-otp-phone">0963-****30</span><br /><span id="login-otp-email">Cathay***@***il.com</span></p>
                   <p class="auth-otp-expiry">驗證碼將在 5 分鐘後失效</p>

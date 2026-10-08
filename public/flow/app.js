@@ -129,6 +129,7 @@ let authSignupProfile = {};
 let signupNationalityRevealed = false;
 let authPasswordAttempts = 0;
 let authPasswordLocked = false;
+const LOCK_MEMBER_LOGIN_FOR_TEST = true;
 let authOtpPurpose = "";
 let authOtpResendSeconds = 60;
 let authOtpExpirySeconds = 300;
@@ -770,6 +771,10 @@ function setAuthOtpError(inputId, errorId, message) {
 }
 
 function clearAuthErrors(form) {
+  form.querySelectorAll("[data-login-error]").forEach((banner) => {
+    banner.hidden = true;
+    banner.textContent = "";
+  });
   form.querySelectorAll("[data-auth-error-for]").forEach((error) => {
     setAuthFieldError(error.dataset.authErrorFor, "");
   });
@@ -779,6 +784,19 @@ function clearAuthErrors(form) {
     error.closest(".auth-field")?.classList.remove("is-invalid");
   });
   form.querySelectorAll("[aria-invalid='true']").forEach((inputElement) => inputElement.setAttribute("aria-invalid", "false"));
+}
+
+function showAuthLoginFailure(form, message, inputIds = []) {
+  const banner = form.querySelector("[data-login-error]");
+  if (banner) {
+    banner.textContent = message;
+    banner.hidden = false;
+  }
+  inputIds.forEach((inputId) => {
+    const inputElement = document.getElementById(inputId);
+    inputElement?.closest(".auth-field")?.classList.add("is-invalid");
+    inputElement?.setAttribute("aria-invalid", "true");
+  });
 }
 
 function isTaiwanNationalId(value) {
@@ -1088,6 +1106,12 @@ function closeSignupNationalityTooltip({ restoreFocus = false } = {}) {
 function setAuthView(view, { focus = "" } = {}) {
   if (view !== "signup-1") closeSignupNationalityMenu();
   if (view !== "signup-1") closeSignupNationalityTooltip();
+  if (view.startsWith("login-")) {
+    ["auth-password-form", "auth-birthday-form", "login-code-form"].forEach((formId) => {
+      const form = document.getElementById(formId);
+      if (form) clearAuthErrors(form);
+    });
+  }
   if (view !== "login-code") {
     loginOtpHelpNote.hidden = true;
     loginOtpHelpTrigger.setAttribute("aria-expanded", "false");
@@ -1459,6 +1483,10 @@ function submitAuthForm(form) {
   clearAuthErrors(form);
   const value = (id) => document.getElementById(id).value.trim();
   if (form.id === "auth-password-form") {
+    if (LOCK_MEMBER_LOGIN_FOR_TEST) {
+      showAuthLoginFailure(form, "帳號或密碼有誤", ["login-id", "login-password"]);
+      return;
+    }
     const identity = value("login-id").toUpperCase();
     const password = document.querySelector("#login-password").value;
     const captcha = value("login-captcha-input").toUpperCase();
@@ -1482,6 +1510,10 @@ function submitAuthForm(form) {
     return;
   }
   if (form.id === "auth-birthday-form") {
+    if (LOCK_MEMBER_LOGIN_FOR_TEST) {
+      showAuthLoginFailure(form, "帳號或生日資料有誤", ["login-code-id", "login-birthday"]);
+      return;
+    }
     const identity = value("login-code-id").toUpperCase();
     // This is a front-end prototype without a member lookup; account existence is checked by the real service.
     if (!identity) { setAuthFieldError("login-code-id", "請輸入身分證號 / 居留證號"); return; }
@@ -1571,6 +1603,12 @@ function submitAuthOtp() {
     if (authOtpExpired || authOtpExpirySeconds <= 0) {
       authOtpExpired = true;
       setAuthOtpError(controls.input.slice(1), controls.error, authOtpPurpose === "login" ? "驗證碼已失效，請重新發送" : "動態密碼已失效，請重新發送");
+      renderAuthOtpState();
+      return;
+    }
+    if (LOCK_MEMBER_LOGIN_FOR_TEST && authOtpPurpose === "login") {
+      authOtpAttemptCount += 1;
+      setAuthOtpError(controls.input.slice(1), controls.error, authOtpAttemptCount >= 5 ? "輸入錯誤達 5 次，請重新發送驗證碼" : "驗證碼錯誤，請確認後再試");
       renderAuthOtpState();
       return;
     }
