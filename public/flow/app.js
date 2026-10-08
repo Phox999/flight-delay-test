@@ -173,6 +173,7 @@ const officialClaimUrl = "https://www.cathay-ins.com.tw/cathayins/personal/claim
 const generalClaimUrl = "https://www.cathay-ins.com.tw/cathayins/personal/claim/";
 let previousPolicyFocus = null;
 let previousPersonalDataFocus = null;
+let isOpeningChat = false;
 let previousUploadFocus = null;
 let selectedBoardingPass = null;
 let selectedDelayProofFiles = [];
@@ -560,7 +561,15 @@ function makeAvatar() {
 }
 
 function scrollChatToBottom() {
+  if (isOpeningChat) return;
   requestAnimationFrame(() => { chatScreen.scrollTop = chatScreen.scrollHeight; });
+}
+
+function scrollChatToStart() {
+  requestAnimationFrame(() => {
+    chatScreen.scrollTop = 0;
+    isOpeningChat = false;
+  });
 }
 
 function setComposerFlowLock(locked) {
@@ -658,6 +667,7 @@ function startChat(prompt = "") {
   setScreen(true);
   if (isUsabilityResearch) window.ResearchTracker?.page("claim-chat", "阿發對話");
   chatScreen.replaceChildren();
+  isOpeningChat = true;
   boardingInfoValidationAttempted = false;
   boardingInfoConfirmed = false;
   boardingPassRecognitionFailures = 0;
@@ -667,10 +677,12 @@ function startChat(prompt = "") {
   boardingInfoHasSubstantiveEdits = false;
   if (!prompt) {
     appendDefaultConsultation();
+    scrollChatToStart();
     return;
   }
   appendUserMessage(prompt);
   replyTo(prompt);
+  scrollChatToStart();
 }
 
 function makeNumberedList(values, { lowerAlpha = false } = {}) {
