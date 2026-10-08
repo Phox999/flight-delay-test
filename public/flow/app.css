@@ -855,7 +855,8 @@ a.inline-link { text-decoration: underline; }
   cursor: pointer;
 }
 .dialog-title { margin: 0; font-size: 16px; font-weight: 400; line-height: 22px; letter-spacing: .3px; }
-.dialog-copy { flex: 1 1 auto; min-height: 0; overflow-x: hidden; overflow-y: auto; margin: 0; padding: 24px; color: var(--text-secondary); background: #fff; font-size: 16px; line-height: 22px; letter-spacing: .3px; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; touch-action: pan-y; }
+.dialog-copy { flex: 1 1 auto; min-height: 0; overflow-y: auto; margin: 0; padding: 24px; color: var(--text-secondary); background: #fff; font-size: 16px; line-height: 22px; letter-spacing: .3px; }
+#policy-dialog .dialog-copy { position: absolute; inset: 46px 0 0; overflow-x: hidden; overflow-y: scroll; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; touch-action: pan-y; }
 .dialog-copy p { margin: 0 0 12px; }
 .dialog-copy p:last-child { margin-bottom: 0; }
 .policy-list { margin: 0; padding-left: 24px; }
