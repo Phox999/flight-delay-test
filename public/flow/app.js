@@ -1885,7 +1885,7 @@ function showUploadDialog(mode = "boarding-pass", returnFocus = document.activeE
   uploadHelpTrigger.setAttribute("aria-expanded", "false");
   setUploadNotes(mode === "delay-proof"
     ? ["支援 JPG、JPEG、PNG、HEIC、PDF，單檔上限 10 MB", "最多上傳 3 張班機延誤證明"]
-    : ["支援 JPG、JPEG、PNG、HEIC，單檔上限 10 MB", "如有 2 張（含）以上登機證或多段航班皆延誤，產險官網或線下通路(包含臨櫃及郵寄)申請"]);
+    : ["支援 JPG、JPEG、PNG、HEIC，單檔上限 10 MB", "如有 2 張（含）以上登機證，或多段航班皆延誤，請透過產險官網或線下通路（包含臨櫃及郵寄）申請。"]);
   uploadSourceMenu.querySelector("[role='dialog']").setAttribute("aria-label", mode === "delay-proof" ? "選擇班機延誤證明來源" : "選擇登機證來源");
   uploadDropzone.hidden = false;
   uploadFileList.replaceChildren();
@@ -3219,7 +3219,7 @@ function completeExperienceFeedback(card) {
   card.replaceChildren(check, message);
 }
 
-function showOfficialConfirm(description = "您即將離開阿發，前往產險服務條款頁。", url = officialClaimUrl, title = "即將前往國泰產險官網") {
+function showOfficialConfirm(description = "你即將離開阿發，前往國泰產險官網。", url = officialClaimUrl, title = "即將前往國泰產險官網") {
   confirmTitle.textContent = title;
   confirmCopy.textContent = description;
   confirmGo.href = url;
@@ -4109,7 +4109,7 @@ chatScreen.addEventListener("click", (event) => {
       openClaimSignup(button);
       break;
     case "claim-website":
-      showOfficialConfirm("你即將離開阿發，前往產險服務條款頁。", officialClaimUrl);
+      showOfficialConfirm("你即將離開阿發，前往國泰產險官網。", officialClaimUrl);
       break;
     case "restart-chat":
       startChat();
@@ -4183,14 +4183,14 @@ function autofillResearchCurrentPage(data = {}, scope = "") {
       const otpField = activeView?.querySelector("input[id$='otp-input']");
       if (otpField) {
         const filled = setResearchAutofillValue(`#${otpField.id}`, data.otp);
-        return { filled, screen: activeView.id.includes("signup") ? "會員註冊 OTP" : "會員驗證碼" };
+        return { filled, screen: activeView.id.includes("signup") ? "會員註冊動態密碼" : "會員驗證碼" };
       }
     }
     if (!otpDialog.hidden) {
       const filled = setResearchAutofillValue("#otp-input", data.otp);
-      return { filled, screen: "匯款 OTP 驗證" };
+      return { filled, screen: "匯款動態密碼驗證" };
     }
-    return { filled: false, message: "請先開啟 OTP 欄位，再代入 OTP。" };
+    return { filled: false, message: "請先開啟動態密碼欄位，再代入動態密碼。" };
   }
 
   if (scope === "flight") {
@@ -4230,7 +4230,7 @@ function autofillResearchCurrentPage(data = {}, scope = "") {
   }
 
   if (scope === "bank") return { filled: false, message: "請先開啟匯款資料表單，再代入銀行資訊。" };
-  return { filled: false, message: "請選擇 OTP、班機或銀行資料的代入按鈕。" };
+  return { filled: false, message: "請選擇動態密碼、班機或銀行資料的代入按鈕。" };
 }
 
 window.addEventListener("message", (event) => {

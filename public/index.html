@@ -337,7 +337,7 @@
       <div class="taskDataToolbar">
         <button class="taskDetailsToggle" id="personalDataToggle" type="button" aria-expanded="false" aria-controls="personalDataContent">查看詳細個人資料</button>
         <div class="autofillActions" role="group" aria-label="測試資料代入">
-          <button class="secondary" type="button" data-autofill-scope="otp" title="只代入目前開啟的 OTP 欄位">代入 OTP</button>
+          <button class="secondary" type="button" data-autofill-scope="otp" title="只代入目前開啟的動態密碼欄位">代入動態密碼</button>
           <button class="secondary" type="button" data-autofill-scope="flight" title="只代入目前開啟的班機資料表單">代入班機資訊</button>
           <button class="secondary" type="button" data-autofill-scope="bank" title="只代入目前開啟的銀行資料表單">代入銀行資訊</button>
         </div>
@@ -660,7 +660,7 @@ function setupTask(){
    ? `<p>你已購買國泰產險的旅遊平安險，手上仍保留 <b>紙本登機證</b>，但目前還不是國泰產險會員。</p>`
    : `<p>你已購買國泰產險的旅遊平安險，手上保留的是航空公司 App／手機錢包中的 <b>電子登機證 QR Code</b>，但目前還不是國泰產險會員。</p>`);
   const task = `<p>請先完成 <b>國泰產險會員註冊</b>，再透過阿發申請 <b>班機延誤理賠</b>，依照畫面完成你認為需要的操作。</p>`;
-  const operationTip = `<section class="scenarioSection"><h2>操作提示</h2><p>測試過程中的 <b>OTP 是 123123</b>；銀行帳號與班機資訊皆可使用「<b>測試資料一鍵代入</b>」。<b>會員註冊時也不需要輸入真實個人資料，請使用任意相同格式的資料填寫即可。</b></p><p class="operationTipCompletion">當你認為任務已完成時，請點擊上方「<b>我已完成</b>」。</p></section>`;
+  const operationTip = `<section class="scenarioSection"><h2>操作提示</h2><p>測試過程中的 <b>動態密碼（OTP）為 123123</b>；銀行帳號與班機資訊皆可使用「<b>測試資料一鍵代入</b>」。<b>會員註冊時也不需要輸入真實個人資料，請使用任意相同格式的資料填寫即可。</b></p><p class="operationTipCompletion">當你認為任務已完成時，請點擊上方「<b>我已完成</b>」。</p></section>`;
   document.getElementById("scenarioCopy").innerHTML = `<section class="scenarioSection"><h2>情境</h2>${situation}</section><section class="scenarioSection"><h2>任務</h2>${task}</section>${operationTip}`;
   document.getElementById("taskCopy").innerHTML = `<section class="scenarioSection"><h2>情境</h2>${situation}</section><section class="scenarioSection"><h2>任務</h2>${task}</section>${operationTip}`;
   document.getElementById("groupBQuestions").classList.toggle("hidden",group!=="B");
