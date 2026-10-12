@@ -62,6 +62,7 @@ let boardingInfoOriginalSnapshot = null;
 let boardingInfoPreviousSnapshot = null;
 let boardingInfoModificationCount = 0;
 let boardingInfoHasSubstantiveEdits = false;
+let boardingInfoHasUserInput = false;
 const bankInfoDialog = document.querySelector("#bank-info-dialog");
 const bankInfoForm = document.querySelector("#bank-info-form");
 let bankInfoClosePromptRetry = null;
@@ -692,6 +693,7 @@ function startChat(prompt = "") {
   boardingInfoPreviousSnapshot = null;
   boardingInfoModificationCount = 0;
   boardingInfoHasSubstantiveEdits = false;
+  boardingInfoHasUserInput = false;
   if (!prompt) {
     appendDefaultConsultation();
     scrollChatToStart();
@@ -2045,7 +2047,7 @@ function appendBoardingPassClosePrompt() {
   retry.type = "button";
   retry.className = "chat-inline-action";
   retry.textContent = "返回填寫航班資訊";
-  retry.dataset.chatAction = "return-empty-boarding-info";
+  retry.dataset.chatAction = "return-boarding-info";
   content.append(message, retry);
   appendAssistantMessage(content);
   retry.focus({ preventScroll: true });
@@ -2265,6 +2267,7 @@ function closeScheduledTimeDialog({ confirmed = false } = {}) {
     const [year, month, day] = date.split("/");
     boardingInfoForm.elements.year.value = year;
     boardingInfoForm.elements.date.value = `${month}/${day}`;
+    boardingInfoHasUserInput = true;
     updateBoardingInfoButton();
     boardingInfoDialog.hidden = false;
     if (isUsabilityResearch) window.ResearchTracker?.page("boarding-info", "確認登機證資訊");
@@ -2363,6 +2366,7 @@ function changedBoardingInfoFields(current, previous) {
 function prepareBoardingInfoSession({ manual = false } = {}) {
   boardingInfoForm.reset();
   boardingPassRecognitionFailures = 0;
+  boardingInfoHasUserInput = false;
   if (manual) {
     boardingInfoForm.querySelectorAll("[name]").forEach((field) => { field.value = ""; });
   }
@@ -2382,6 +2386,15 @@ function prepareBoardingInfoSession({ manual = false } = {}) {
   if (boardingInfoOriginalSnapshot) {
     boardingInfoPreviousSnapshot = { ...boardingInfoOriginalSnapshot };
   }
+  updateBoardingInfoButton();
+}
+
+function restoreBoardingInfoSession() {
+  const hasSavedBoardingInfo = boardingInfoOriginalSnapshot
+    || boardingInfoPreviousSnapshot
+    || boardingInfoHasUserInput;
+  if (!hasSavedBoardingInfo) prepareBoardingInfoSession({ manual: true });
+  boardingInfoDialog.hidden = false;
   updateBoardingInfoButton();
 }
 
@@ -4162,6 +4175,7 @@ boardingInfoForm.elements.date.addEventListener("input", (event) => {
   formatBoardingDateInput(event.currentTarget);
 });
 boardingInfoForm.addEventListener("input", () => {
+  boardingInfoHasUserInput = true;
   boardingInfoConfirmed = false;
   updateBoardingInfoButton();
   if (boardingInfoValidationAttempted) validateBoardingInfo();
@@ -4181,6 +4195,7 @@ boardingInfoForm.elements.year.addEventListener("input", (event) => {
   else if (!boardingInfoValidationAttempted) setBoardingFieldError(year, "");
 });
 boardingInfoForm.addEventListener("change", () => {
+  boardingInfoHasUserInput = true;
   boardingInfoConfirmed = false;
   updateBoardingInfoButton();
   if (boardingInfoValidationAttempted) validateBoardingInfo();
@@ -4215,13 +4230,7 @@ chatScreen.addEventListener("click", (event) => {
       openBankInfoDialog();
       break;
     case "return-boarding-info":
-      boardingInfoDialog.hidden = false;
-      if (isUsabilityResearch) window.ResearchTracker?.page("boarding-info", "確認登機證資訊");
-      boardingInfoForm.elements.passenger.focus({ preventScroll: true });
-      break;
-    case "return-empty-boarding-info":
-      prepareBoardingInfoSession({ manual: true });
-      boardingInfoDialog.hidden = false;
+      restoreBoardingInfoSession();
       if (isUsabilityResearch) window.ResearchTracker?.page("boarding-info", "確認登機證資訊");
       boardingInfoForm.elements.passenger.focus({ preventScroll: true });
       break;
