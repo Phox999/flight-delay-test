@@ -2018,10 +2018,11 @@ function showUploadDialog(mode = "boarding-pass", returnFocus = document.activeE
   uploadDialog.querySelector(".dialog-x").focus();
 }
 
-function closeUploadDialog({ restoreFocus = true, showNoProof = true } = {}) {
+function closeUploadDialog({ restoreFocus = true, showNoProof = true, showBoardingPassClosePrompt = false } = {}) {
   if (uploadDialog.hidden) return;
   const hasReadyProof = selectedDelayProofFiles.some((file) => !file.error && file.status === "ready");
   const shouldShowNoProof = showNoProof && uploadMode === "delay-proof" && !hasReadyProof;
+  const shouldShowBoardingPassClosePrompt = showBoardingPassClosePrompt && uploadMode === "boarding-pass";
   window.clearTimeout(uploadTimer);
   uploadLoading.hidden = true;
   uploadSourceMenu.hidden = true;
@@ -2033,6 +2034,21 @@ function closeUploadDialog({ restoreFocus = true, showNoProof = true } = {}) {
     else input.focus({ preventScroll: true });
   }
   if (shouldShowNoProof) appendNoDelayProofMessage();
+  else if (shouldShowBoardingPassClosePrompt) appendBoardingPassClosePrompt();
+}
+
+function appendBoardingPassClosePrompt() {
+  const content = document.createElement("div");
+  const message = document.createElement("p");
+  message.textContent = "沒有填寫原航班的登機日期及時間，不能申請班機延誤理賠喔。";
+  const retry = document.createElement("button");
+  retry.type = "button";
+  retry.className = "chat-inline-action";
+  retry.textContent = "返回填寫航班資訊";
+  retry.dataset.chatAction = "return-boarding-info";
+  content.append(message, retry);
+  appendAssistantMessage(content);
+  retry.focus({ preventScroll: true });
 }
 
 function showUploadSourceMenu() {
@@ -3660,7 +3676,7 @@ document.addEventListener("keydown", (event) => {
   else if (!scheduledTimeDialog.hidden) closeScheduledTimeDialog();
   else if (!signupStatementDialog.hidden) closeSignupStatement();
   else if (!authDialog.hidden) closeAuthDialog();
-  else if (!uploadDialog.hidden) closeUploadDialog();
+  else if (!uploadDialog.hidden) closeUploadDialog({ showBoardingPassClosePrompt: true });
   else if (!otpDialog.hidden) closeOtpDialog();
   else if (!bankInfoDialog.hidden) closeBankInfoDialog();
   else if (!boardingInfoDialog.hidden) closeBoardingInfoDialog();
@@ -3694,7 +3710,7 @@ personalDataDialog.querySelectorAll("[data-close-personal-data]").forEach((butto
 });
 
 uploadDialog.querySelectorAll("[data-close-upload]").forEach((button) => {
-  button.addEventListener("click", () => closeUploadDialog());
+  button.addEventListener("click", () => closeUploadDialog({ showBoardingPassClosePrompt: true }));
 });
 uploadHelpTrigger.addEventListener("click", showUploadHelp);
 uploadHelpClose.addEventListener("click", () => hideUploadHelp({ restoreFocus: true }));
