@@ -2047,10 +2047,16 @@ function appendBoardingPassClosePrompt() {
   retry.type = "button";
   retry.className = "chat-inline-action";
   retry.textContent = "返回填寫航班資訊";
-  retry.dataset.chatAction = "return-boarding-info";
+  retry.dataset.chatAction = "return-boarding-pass-upload";
   content.append(message, retry);
   appendAssistantMessage(content);
   retry.focus({ preventScroll: true });
+}
+
+function reopenBoardingPassUploadDialog() {
+  uploadDialog.hidden = false;
+  if (isUsabilityResearch) window.ResearchTracker?.page("boarding-pass-upload", "上傳登機證");
+  uploadDialog.querySelector(".dialog-x").focus({ preventScroll: true });
 }
 
 function showUploadSourceMenu() {
@@ -4233,6 +4239,9 @@ chatScreen.addEventListener("click", (event) => {
       restoreBoardingInfoSession();
       if (isUsabilityResearch) window.ResearchTracker?.page("boarding-info", "確認登機證資訊");
       boardingInfoForm.elements.passenger.focus({ preventScroll: true });
+      break;
+    case "return-boarding-pass-upload":
+      reopenBoardingPassUploadDialog();
       break;
     case "return-scheduled-time":
       openScheduledTimeDialog();
