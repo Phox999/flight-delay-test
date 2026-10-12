@@ -2045,7 +2045,7 @@ function appendBoardingPassClosePrompt() {
   retry.type = "button";
   retry.className = "chat-inline-action";
   retry.textContent = "返回填寫航班資訊";
-  retry.dataset.chatAction = "return-boarding-info";
+  retry.dataset.chatAction = "return-empty-boarding-info";
   content.append(message, retry);
   appendAssistantMessage(content);
   retry.focus({ preventScroll: true });
@@ -4215,6 +4215,12 @@ chatScreen.addEventListener("click", (event) => {
       openBankInfoDialog();
       break;
     case "return-boarding-info":
+      boardingInfoDialog.hidden = false;
+      if (isUsabilityResearch) window.ResearchTracker?.page("boarding-info", "確認登機證資訊");
+      boardingInfoForm.elements.passenger.focus({ preventScroll: true });
+      break;
+    case "return-empty-boarding-info":
+      prepareBoardingInfoSession({ manual: true });
       boardingInfoDialog.hidden = false;
       if (isUsabilityResearch) window.ResearchTracker?.page("boarding-info", "確認登機證資訊");
       boardingInfoForm.elements.passenger.focus({ preventScroll: true });
