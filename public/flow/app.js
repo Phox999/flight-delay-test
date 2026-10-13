@@ -3263,6 +3263,7 @@ function finishOtpVerification() {
     { content: result },
     { content: feedback, card: true, className: "message-feedback-shell" },
   ]);
+  if (isUsabilityResearch) window.ResearchTracker?.page("claim-case-number", "顯示案件號碼");
 }
 
 function finishOtpApiError() {

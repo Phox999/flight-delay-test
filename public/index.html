@@ -717,7 +717,8 @@ async function completeTask(source, event={}){
   if(taskCompletionInProgress || !session) return;
   taskCompletionInProgress = true;
   const eventMeta = source === "flow" ? (event.meta || {}) : {source:"participant-button"};
-  await sendEvent("task_success",eventMeta,event.page_id || null,event.page_name || null);
+  const pageId=event.page_id||(source==="participant"?"participant-task-page":null),pageName=event.page_name||(source==="participant"?"測試操作頁（我已完成）":null);
+  await sendEvent("task_success",eventMeta,pageId,pageName);
   document.getElementById("taskStatus").textContent="任務已完成";
   await api(`/api/sessions/${session.id}/finish`,{method:"POST",body:JSON.stringify({status:"completed",abandon_location:null})});
   go(5);

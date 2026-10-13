@@ -105,13 +105,15 @@ async function handleApi(request, env, url) {
     if (!adminOK(request,env)) return json({error:"unauthorized"},401);
     const rows = (await env.DB.prepare(`
       SELECT s.*,
+        (SELECT MIN(e.created_at) FROM events e WHERE e.session_id=s.id AND e.event_name='page_view' AND e.page_id='claim-case-number') case_number_displayed_at,
         (SELECT COUNT(*) FROM events e WHERE e.session_id=s.id AND e.event_name='retry') retry_count,
         (SELECT COUNT(*) FROM events e WHERE e.session_id=s.id AND e.event_name='recovery_found') recovery_found_count
       FROM sessions s
     `).all()).results;
-    const durations = rows.filter(r=>r.completed_at && r.started_at).map(r=>r.completed_at-r.started_at).sort((a,b)=>a-b);
+    const completedRows=rows.filter(r=>r.case_number_displayed_at!==null&&r.case_number_displayed_at!==undefined);
+    const durations = completedRows.filter(r=>r.started_at).map(r=>r.case_number_displayed_at-r.started_at).sort((a,b)=>a-b);
     const median = durations.length ? durations[Math.floor(durations.length/2)] : null;
-    const completed = rows.filter(r=>r.status==="completed").length;
+    const completed = completedRows.length;
     const avgRetry = rows.length ? (rows.reduce((a,r)=>a+(r.retry_count||0),0)/rows.length).toFixed(1) : "0.0";
     const bRows = rows.filter(r=>r.group_code==="B");
     const recovery = bRows.length ? Math.round(100*bRows.filter(r=>r.recovery_found_count>0).length/bRows.length) : 0;
@@ -131,6 +133,8 @@ async function handleApi(request, env, url) {
         (SELECT COUNT(*) FROM events e WHERE e.session_id=s.id AND e.event_name='ocr_fail') ocr_fail_count,
         (SELECT COUNT(*) FROM events e WHERE e.session_id=s.id AND e.event_name='ai_edit') ai_edit_count,
         (SELECT COUNT(*) FROM events e WHERE e.session_id=s.id AND e.event_name='recovery_found') recovery_found_count,
+        (SELECT MIN(e.created_at) FROM events e WHERE e.session_id=s.id AND e.event_name='page_view' AND e.page_id='claim-case-number') case_number_displayed_at,
+        (SELECT COALESCE(NULLIF(e.page_name,''),NULLIF(e.page_id,'')) FROM events e WHERE e.session_id=s.id AND e.event_name='task_success' ORDER BY e.created_at DESC LIMIT 1) completion_location,
         (SELECT GROUP_CONCAT(COALESCE(e.page_name,e.page_id),' → ') FROM events e WHERE e.session_id=s.id AND e.event_name='page_view') operation_path,
         (SELECT e.meta_json FROM events e WHERE e.session_id=s.id AND e.event_name='pre_task_profile' ORDER BY e.created_at DESC LIMIT 1) pre_task_profile_json,
         (SELECT e.meta_json FROM events e WHERE e.session_id=s.id AND e.event_name='post_task_feedback' ORDER BY e.created_at DESC LIMIT 1) post_task_feedback_json
@@ -152,7 +156,7 @@ async function handleApi(request, env, url) {
   if (mm && m === "GET") {
     if (!adminOK(request,env)) return json({error:"unauthorized"},401);
     const sid=mm[1];
-    const session=await env.DB.prepare(`SELECT * FROM sessions WHERE id=?`).bind(sid).first();
+    const session=await env.DB.prepare(`SELECT sessions.*,(SELECT MIN(e.created_at) FROM events e WHERE e.session_id=sessions.id AND e.event_name='page_view' AND e.page_id='claim-case-number') case_number_displayed_at FROM sessions WHERE id=?`).bind(sid).first();
     const events=(await env.DB.prepare(`SELECT * FROM events WHERE session_id=? ORDER BY created_at`).bind(sid).all()).results
       .map(e=>({...e,meta:safeParse(e.meta_json)}));
     const dwell={};
@@ -194,7 +198,7 @@ async function buildAdminAnalytics(env,url,dateRange=null) {
   const cutoff=days?Date.now()-days*86400000:null;
   const sessionWhere=dateRange?"WHERE started_at >= ? AND started_at < ?":cutoff===null?"":"WHERE started_at >= ?";
   const eventWhere=dateRange?"WHERE created_at >= ? AND created_at < ?":cutoff===null?"":"WHERE created_at >= ?";
-  const sessionsSql=`SELECT id,group_code,started_at,completed_at,abandoned_at,status,abandon_location,age_range,gender,travel_insurance_count,viewport,difficulty,recovery_understanding,progress_confidence FROM sessions ${sessionWhere} ORDER BY started_at DESC`;
+  const sessionsSql=`SELECT id,group_code,started_at,completed_at,abandoned_at,status,abandon_location,age_range,gender,travel_insurance_count,viewport,difficulty,recovery_understanding,progress_confidence,(SELECT MIN(e.created_at) FROM events e WHERE e.session_id=sessions.id AND e.event_name='page_view' AND e.page_id='claim-case-number') case_number_displayed_at FROM sessions ${sessionWhere} ORDER BY started_at DESC`;
   const eventsSql=`SELECT session_id,event_name,page_id,page_name,created_at,meta_json FROM events ${eventWhere} ORDER BY created_at`;
   const rangeParams=dateRange?[dateRange.start,dateRange.end]:cutoff===null?[]:[cutoff];
   const [sessionResult,eventResult]=await Promise.all([
@@ -266,17 +270,17 @@ async function buildAdminAnalytics(env,url,dateRange=null) {
     avg_clicks_per_participant:screen.participants.size?screen.click_count/screen.participants.size:0
   })).sort((a,b)=>(b.median_dwell_ms??-1)-(a.median_dwell_ms??-1)||b.avg_clicks_per_participant-a.avg_clicks_per_participant);
   const sessionStats=session=>bySession.get(session.id)||{retry:0,ocr_fail:0,ai_edit:0,recovery_found:0,back:0,names:new Set()};
-  const completed=sessions.filter(session=>session.status==="completed"||sessionStats(session).names.has("task_success"));
+  const completed=sessions.filter(session=>session.case_number_displayed_at!==null&&session.case_number_displayed_at!==undefined);
   const abandoned=sessions.filter(session=>session.status==="abandoned");
-  const durations=completed.map(session=>session.completed_at&&session.started_at?Math.max(0,session.completed_at-session.started_at):null).filter(value=>value!==null).sort((a,b)=>a-b);
+  const durations=completed.map(session=>session.started_at?Math.max(0,session.case_number_displayed_at-session.started_at):null).filter(value=>value!==null).sort((a,b)=>a-b);
   const median=durations.length?(durations.length%2?durations[(durations.length-1)/2]:(durations[durations.length/2-1]+durations[durations.length/2])/2):null;
   const retryTotal=sessions.reduce((sum,session)=>sum+sessionStats(session).retry,0);
   const grouped={A:[],B:[]};
   for(const session of sessions)if(grouped[session.group_code])grouped[session.group_code].push(session);
   const averageFeedback=(rows,key)=>{const values=rows.map(row=>feedbackBySession.get(row.id)?.[key]).filter(value=>value!==null&&value!==undefined&&Number.isFinite(Number(value))).map(Number);return{value:values.length?values.reduce((sum,value)=>sum+value,0)/values.length:null,count:values.length}};
   const groups=Object.entries(grouped).filter(([,rows])=>rows.length).map(([group_code,rows])=>{
-    const done=rows.filter(session=>session.status==="completed"||sessionStats(session).names.has("task_success"));
-    const groupDurations=done.map(session=>session.completed_at&&session.started_at?Math.max(0,session.completed_at-session.started_at):null).filter(value=>value!==null).sort((a,b)=>a-b);
+    const done=rows.filter(session=>session.case_number_displayed_at!==null&&session.case_number_displayed_at!==undefined);
+    const groupDurations=done.map(session=>session.started_at?Math.max(0,session.case_number_displayed_at-session.started_at):null).filter(value=>value!==null).sort((a,b)=>a-b);
     const groupMedian=groupDurations.length?(groupDurations.length%2?groupDurations[(groupDurations.length-1)/2]:(groupDurations[groupDurations.length/2-1]+groupDurations[groupDurations.length/2])/2):null;
     const retry=rows.reduce((sum,session)=>sum+sessionStats(session).retry,0);
     const difficulty=averageFeedback(rows,"ease_agreement"),submission=averageFeedback(rows,"submission_confidence"),recovery=averageFeedback(rows,"next_step_clarity"),confidence=averageFeedback(rows,"independent_confidence");
@@ -307,13 +311,14 @@ async function buildAdminAnalytics(env,url,dateRange=null) {
   };
   for(const session of sessions){
     if(session.started_at){const day=formatTaipeiDay(session.started_at);if(!dailyMap.has(day))dailyMap.set(day,{day,started:0,completed:0});dailyMap.get(day).started+=1;}
-    if(session.status==="completed"&&session.completed_at){const day=formatTaipeiDay(session.completed_at);if(!dailyMap.has(day))dailyMap.set(day,{day,started:0,completed:0});dailyMap.get(day).completed+=1;}
+    if(session.case_number_displayed_at){const day=formatTaipeiDay(session.case_number_displayed_at);if(!dailyMap.has(day))dailyMap.set(day,{day,started:0,completed:0});dailyMap.get(day).completed+=1;}
   }
   const includedSessionIds=new Set(sessions.map(session=>session.id));
   const funnelEvents=events.filter(event=>includedSessionIds.has(event.session_id));
-  const taskStarted=new Set(funnelEvents.filter(event=>event.event_name==="task_start").map(event=>event.session_id));
-  const taskCompleted=new Set([...completed.map(session=>session.id),...funnelEvents.filter(event=>event.event_name==="task_success").map(event=>event.session_id)]);
   const participants=(predicate)=>new Set(funnelEvents.filter(predicate).map(event=>event.session_id));
+  const taskStarted=new Set(funnelEvents.filter(event=>event.event_name==="task_start").map(event=>event.session_id));
+  const taskCompleted=new Set(completed.map(session=>session.id));
+  const selfReportedCompleted=participants(event=>event.event_name==="task_success");
   const eventParticipants=(name,predicate=()=>true)=>participants(event=>event.event_name===name&&predicate(safeParse(event.meta_json)));
   const groupCounts=(ids)=>Object.fromEntries(["A","B"].map(code=>[code,sessions.filter(session=>session.group_code===code&&ids.has(session.id)).length]));
   const successIds=new Set(taskCompleted);
@@ -332,7 +337,8 @@ async function buildAdminAnalytics(env,url,dateRange=null) {
     {key:"delay_proof_uploaded",label:"完成延誤證明上傳",ids:eventParticipants("delay_proof_uploaded")},
     {key:"bank_info_submitted",label:"送出匯款資料",ids:eventParticipants("bank_info_submitted")},
     {key:"payment_otp_verified",label:"完成匯款 OTP 驗證",ids:eventParticipants("otp_verified",meta=>meta.purpose==="bank_transfer")},
-    {key:"task_completed",label:"完成理賠任務",ids:successIds},
+    {key:"task_completed",label:"顯示案件號碼頁",ids:successIds},
+    {key:"task_self_reported",label:"點擊「我已完成」",ids:selfReportedCompleted},
     {key:"feedback_submitted",label:"提交測後回饋",ids:feedbackIds}
   ];
   const branchIds={
