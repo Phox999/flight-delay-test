@@ -207,20 +207,41 @@ async function buildAdminAnalytics(env,url,dateRange=null,sessionIds=null) {
   const sessionConditions=[],sessionParams=[];
   if(dateRange){sessionConditions.push("started_at >= ? AND started_at < ?");sessionParams.push(dateRange.start,dateRange.end)}
   else if(cutoff!==null&&sessionIds===null){sessionConditions.push("started_at >= ?");sessionParams.push(cutoff)}
-  if(sessionIds!==null){if(sessionIds.length){sessionConditions.push(`id IN (${sessionIds.map(()=>"?").join(",")})`);sessionParams.push(...sessionIds)}else sessionConditions.push("1=0")}
   const sessionWhere=sessionConditions.length?"WHERE "+sessionConditions.join(" AND "):"";
   const eventConditions=[],eventParams=[];
-  if(sessionIds!==null){if(sessionIds.length){eventConditions.push(`session_id IN (${sessionIds.map(()=>"?").join(",")})`);eventParams.push(...sessionIds)}else eventConditions.push("1=0")}
-  else if(dateRange){eventConditions.push("created_at >= ? AND created_at < ?");eventParams.push(dateRange.start,dateRange.end)}
-  else if(cutoff!==null){eventConditions.push("created_at >= ?");eventParams.push(cutoff)}
+  if(sessionIds===null&&dateRange){eventConditions.push("created_at >= ? AND created_at < ?");eventParams.push(dateRange.start,dateRange.end)}
+  else if(sessionIds===null&&cutoff!==null){eventConditions.push("created_at >= ?");eventParams.push(cutoff)}
   const eventWhere=eventConditions.length?"WHERE "+eventConditions.join(" AND "):"";
   const sessionsSql=`SELECT id,group_code,started_at,completed_at,abandoned_at,status,abandon_location,age_range,gender,travel_insurance_count,viewport,difficulty,recovery_understanding,progress_confidence,${taskCompletionScreenTimestampSql("sessions")} task_completion_screen_at FROM sessions ${sessionWhere} ORDER BY started_at DESC`;
   const eventsSql=`SELECT session_id,event_name,page_id,page_name,created_at,meta_json FROM events ${eventWhere} ORDER BY created_at`;
-  const [sessionResult,eventResult]=await Promise.all([
-    sessionParams.length?env.DB.prepare(sessionsSql).bind(...sessionParams).all():env.DB.prepare(sessionsSql).all(),
-    eventParams.length?env.DB.prepare(eventsSql).bind(...eventParams).all():env.DB.prepare(eventsSql).all()
-  ]);
-  const sessions=sessionResult.results||[],events=eventResult.results||[];
+  let sessions=[],events=[];
+  if(sessionIds!==null){
+    // D1 limits the number of bound SQL variables. Keep each filtered lookup
+    // below that limit, then combine the rows before calculating analytics.
+    const batchSize=200,batches=[];
+    for(let index=0;index<sessionIds.length;index+=batchSize)batches.push(sessionIds.slice(index,index+batchSize));
+    const batchResults=await Promise.all(batches.map(async ids=>{
+      const placeholders=ids.map(()=>"?").join(",");
+      const rangeClause=dateRange?" AND started_at >= ? AND started_at < ?":"";
+      const batchSessionsSql=`SELECT id,group_code,started_at,completed_at,abandoned_at,status,abandon_location,age_range,gender,travel_insurance_count,viewport,difficulty,recovery_understanding,progress_confidence,${taskCompletionScreenTimestampSql("sessions")} task_completion_screen_at FROM sessions WHERE id IN (${placeholders})${rangeClause} ORDER BY started_at DESC`;
+      const batchEventsSql=`SELECT session_id,event_name,page_id,page_name,created_at,meta_json FROM events WHERE session_id IN (${placeholders}) ORDER BY created_at`;
+      const sessionBindings=dateRange?[...ids,dateRange.start,dateRange.end]:ids;
+      const [sessionResult,eventResult]=await Promise.all([
+        env.DB.prepare(batchSessionsSql).bind(...sessionBindings).all(),
+        env.DB.prepare(batchEventsSql).bind(...ids).all()
+      ]);
+      return {sessions:sessionResult.results||[],events:eventResult.results||[]};
+    }));
+    sessions=batchResults.flatMap(result=>result.sessions).sort((a,b)=>b.started_at-a.started_at);
+    events=batchResults.flatMap(result=>result.events).sort((a,b)=>a.created_at-b.created_at);
+  }else{
+    const [sessionResult,eventResult]=await Promise.all([
+      sessionParams.length?env.DB.prepare(sessionsSql).bind(...sessionParams).all():env.DB.prepare(sessionsSql).all(),
+      eventParams.length?env.DB.prepare(eventsSql).bind(...eventParams).all():env.DB.prepare(eventsSql).all()
+    ]);
+    sessions=sessionResult.results||[];
+    events=eventResult.results||[];
+  }
   const eventStats=new Map(),participantEvents=new Map(),bySession=new Map(),profilesBySession=new Map(),feedbackBySession=new Map(),screenEventsBySession=new Map();
   for(const event of events){
     if(["page_view","screen_click","page_exit","task_success","task_abandon"].includes(event.event_name)){
@@ -394,3 +415,4 @@ async function buildAdminAnalytics(env,url,dateRange=null,sessionIds=null) {
     abandon_locations:[...abandonCounts].map(([label,total])=>({label,total})).sort((a,b)=>b.total-a.total)
   };
 }
+
