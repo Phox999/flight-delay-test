@@ -218,7 +218,7 @@ async function buildAdminAnalytics(env,url,dateRange=null,sessionIds=null) {
   if(sessionIds!==null){
     // D1 limits the number of bound SQL variables. Keep each filtered lookup
     // below that limit, then combine the rows before calculating analytics.
-    const batchSize=200,batches=[];
+    const batchSize=50,batches=[];
     for(let index=0;index<sessionIds.length;index+=batchSize)batches.push(sessionIds.slice(index,index+batchSize));
     const batchResults=await Promise.all(batches.map(async ids=>{
       const placeholders=ids.map(()=>"?").join(",");
@@ -415,4 +415,5 @@ async function buildAdminAnalytics(env,url,dateRange=null,sessionIds=null) {
     abandon_locations:[...abandonCounts].map(([label,total])=>({label,total})).sort((a,b)=>b.total-a.total)
   };
 }
+
 
