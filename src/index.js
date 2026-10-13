@@ -94,11 +94,17 @@ async function handleApi(request, env, url) {
     return json({ok:true});
   }
 
-  if (url.pathname === "/api/admin/analytics" && m === "GET") {
+  if (url.pathname === "/api/admin/analytics" && (m === "GET" || m === "POST")) {
     if (!adminOK(request,env)) return json({error:"unauthorized"},401);
     const dateRange=parseTaipeiDateRange(url);
     if(dateRange===false) return json({error:"invalid_date_range"},400);
-    return json(await buildAdminAnalytics(env,url,dateRange));
+    let sessionIds=null;
+    if(m==="POST"){
+      const filters=await body(request);
+      if(!Array.isArray(filters.session_ids)||filters.session_ids.length>500||filters.session_ids.some(sessionId=>typeof sessionId!=="string"||sessionId.length>128))return json({error:"invalid_session_filter"},400);
+      sessionIds=[...new Set(filters.session_ids)];
+    }
+    return json(await buildAdminAnalytics(env,url,dateRange,sessionIds));
   }
 
   if (url.pathname === "/api/admin/summary" && m === "GET") {
@@ -134,7 +140,7 @@ async function handleApi(request, env, url) {
         (SELECT COUNT(*) FROM events e WHERE e.session_id=s.id AND e.event_name='ai_edit') ai_edit_count,
         (SELECT COUNT(*) FROM events e WHERE e.session_id=s.id AND e.event_name='recovery_found') recovery_found_count,
         ${taskCompletionScreenTimestampSql("s")} task_completion_screen_at,
-        (SELECT COALESCE(NULLIF(e.page_name,''),NULLIF(e.page_id,''),CASE WHEN json_extract(e.meta_json,'$.source')='participant-button' THEN '測試操作頁（我已完成）' END) FROM events e WHERE e.session_id=s.id AND e.event_name='task_success' ORDER BY e.created_at DESC LIMIT 1) completion_location,
+        ${completionLocationSql("s")} completion_location,
         (SELECT GROUP_CONCAT(COALESCE(e.page_name,e.page_id),' → ') FROM events e WHERE e.session_id=s.id AND e.event_name='page_view') operation_path,
         (SELECT e.meta_json FROM events e WHERE e.session_id=s.id AND e.event_name='pre_task_profile' ORDER BY e.created_at DESC LIMIT 1) pre_task_profile_json,
         (SELECT e.meta_json FROM events e WHERE e.session_id=s.id AND e.event_name='post_task_feedback' ORDER BY e.created_at DESC LIMIT 1) post_task_feedback_json
@@ -157,7 +163,7 @@ async function handleApi(request, env, url) {
     if (!adminOK(request,env)) return json({error:"unauthorized"},401);
     const sid=mm[1];
     const session=await env.DB.prepare(`SELECT sessions.*,${taskCompletionScreenTimestampSql("sessions")} task_completion_screen_at FROM sessions WHERE id=?`).bind(sid).first();
-    const events=(await env.DB.prepare(`SELECT * FROM events WHERE session_id=? ORDER BY created_at`).bind(sid).all()).results
+    const events=(await env.DB.prepare(`SELECT * FROM events WHERE session_id=? ORDER BY created_at,rowid`).bind(sid).all()).results
       .map(e=>({...e,meta:safeParse(e.meta_json)}));
     const dwell={};
     for(let i=0;i<events.length;i++){
@@ -174,6 +180,7 @@ async function handleApi(request, env, url) {
 }
 function safeParse(s){ try{return JSON.parse(s||"{}")}catch{return{}} }
 function taskCompletionScreenTimestampSql(sessionAlias){return`COALESCE((SELECT MIN(e.created_at) FROM events e WHERE e.session_id=${sessionAlias}.id AND e.event_name='page_view' AND e.page_id='bank-transfer-otp'),(SELECT MIN(e.created_at) FROM events e WHERE e.session_id=${sessionAlias}.id AND e.event_name='screen_click' AND e.page_id='bank-transfer-otp'),(SELECT MIN(e.created_at) FROM events e WHERE e.session_id=${sessionAlias}.id AND e.event_name='otp_verified' AND json_extract(e.meta_json,'$.purpose')='bank_transfer'))`}
+function completionLocationSql(sessionAlias){return`(SELECT CASE WHEN json_extract(e.meta_json,'$.source')='participant-button' OR e.page_id='participant-task-page' THEN COALESCE((SELECT COALESCE(NULLIF(p.page_name,''),NULLIF(p.page_id,'')) FROM events p WHERE p.session_id=e.session_id AND p.event_name='page_view' AND p.rowid<e.rowid ORDER BY p.rowid DESC LIMIT 1),NULLIF(e.page_name,''),NULLIF(e.page_id,''),'阿發畫面（未記錄）') ELSE COALESCE(NULLIF(e.page_name,''),NULLIF(e.page_id,''),(SELECT COALESCE(NULLIF(p.page_name,''),NULLIF(p.page_id,'')) FROM events p WHERE p.session_id=e.session_id AND p.event_name='page_view' AND p.rowid<e.rowid ORDER BY p.rowid DESC LIMIT 1)) END FROM events e WHERE e.session_id=${sessionAlias}.id AND e.event_name='task_success' ORDER BY e.created_at DESC,e.rowid DESC LIMIT 1)`}
 
 function parseTaipeiDateRange(url){
   const from=url.searchParams.get("from"),to=url.searchParams.get("to");
@@ -192,19 +199,26 @@ function parseTaipeiDateRange(url){
   return {start:start.timestamp,end:end.timestamp+(end.hasTime?60000:86400000)};
 }
 
-async function buildAdminAnalytics(env,url,dateRange=null) {
+async function buildAdminAnalytics(env,url,dateRange=null,sessionIds=null) {
   const requested=url.searchParams.get("days");
   const parsed=requested===null?30:Number(requested);
   const days=Number.isFinite(parsed)&&parsed>=0?Math.min(3650,Math.floor(parsed)):30;
   const cutoff=days?Date.now()-days*86400000:null;
-  const sessionWhere=dateRange?"WHERE started_at >= ? AND started_at < ?":cutoff===null?"":"WHERE started_at >= ?";
-  const eventWhere=dateRange?"WHERE created_at >= ? AND created_at < ?":cutoff===null?"":"WHERE created_at >= ?";
+  const sessionConditions=[],sessionParams=[];
+  if(dateRange){sessionConditions.push("started_at >= ? AND started_at < ?");sessionParams.push(dateRange.start,dateRange.end)}
+  else if(cutoff!==null&&sessionIds===null){sessionConditions.push("started_at >= ?");sessionParams.push(cutoff)}
+  if(sessionIds!==null){if(sessionIds.length){sessionConditions.push(`id IN (${sessionIds.map(()=>"?").join(",")})`);sessionParams.push(...sessionIds)}else sessionConditions.push("1=0")}
+  const sessionWhere=sessionConditions.length?"WHERE "+sessionConditions.join(" AND "):"";
+  const eventConditions=[],eventParams=[];
+  if(sessionIds!==null){if(sessionIds.length){eventConditions.push(`session_id IN (${sessionIds.map(()=>"?").join(",")})`);eventParams.push(...sessionIds)}else eventConditions.push("1=0")}
+  else if(dateRange){eventConditions.push("created_at >= ? AND created_at < ?");eventParams.push(dateRange.start,dateRange.end)}
+  else if(cutoff!==null){eventConditions.push("created_at >= ?");eventParams.push(cutoff)}
+  const eventWhere=eventConditions.length?"WHERE "+eventConditions.join(" AND "):"";
   const sessionsSql=`SELECT id,group_code,started_at,completed_at,abandoned_at,status,abandon_location,age_range,gender,travel_insurance_count,viewport,difficulty,recovery_understanding,progress_confidence,${taskCompletionScreenTimestampSql("sessions")} task_completion_screen_at FROM sessions ${sessionWhere} ORDER BY started_at DESC`;
   const eventsSql=`SELECT session_id,event_name,page_id,page_name,created_at,meta_json FROM events ${eventWhere} ORDER BY created_at`;
-  const rangeParams=dateRange?[dateRange.start,dateRange.end]:cutoff===null?[]:[cutoff];
   const [sessionResult,eventResult]=await Promise.all([
-    rangeParams.length?env.DB.prepare(sessionsSql).bind(...rangeParams).all():env.DB.prepare(sessionsSql).all(),
-    rangeParams.length?env.DB.prepare(eventsSql).bind(...rangeParams).all():env.DB.prepare(eventsSql).all()
+    sessionParams.length?env.DB.prepare(sessionsSql).bind(...sessionParams).all():env.DB.prepare(sessionsSql).all(),
+    eventParams.length?env.DB.prepare(eventsSql).bind(...eventParams).all():env.DB.prepare(eventsSql).all()
   ]);
   const sessions=sessionResult.results||[],events=eventResult.results||[];
   const eventStats=new Map(),participantEvents=new Map(),bySession=new Map(),profilesBySession=new Map(),feedbackBySession=new Map(),screenEventsBySession=new Map();

@@ -451,7 +451,7 @@ const LOCAL_PREVIEW = location.protocol === "file:";
 const FLOW_URL = (window.APP_CONFIG && APP_CONFIG.FLOW_URL) || (LOCAL_PREVIEW
   ? new URL("./flow/index.html", location.href).href
   : new URL("/flow/", location.origin).href);
-let currentPage = 1, session = null, taskCompletionInProgress = false, taskRetryCount = 0, taskStarted = false, flowFrameReady = false, pendingAutofillData = null, scenarioCountdownTimer = null, scenarioCountdownDeadline = 0, scenarioCountdownComplete = false;
+let currentPage = 1, session = null, taskCompletionInProgress = false, taskRetryCount = 0, taskStarted = false, flowFrameReady = false, pendingAutofillData = null, lastFlowScreen = null, scenarioCountdownTimer = null, scenarioCountdownDeadline = 0, scenarioCountdownComplete = false;
 const TOTAL_STEPS = 5;
 const SCENARIO_READING_DURATION_MS = 40000;
 
@@ -639,6 +639,7 @@ document.getElementById("profileBtn").onclick=async()=>{
   scenarioCountdownComplete = false;
   flowFrameReady=false;
   pendingAutofillData=null;
+  lastFlowScreen=null;
   flowFrame.src="about:blank";
   document.getElementById("taskStatus").textContent="進行中";
   document.getElementById("beginTaskBtn").textContent="開始測試";
@@ -671,6 +672,7 @@ function startTask(){
   taskStarted=true;
   document.getElementById("beginTaskBtn").textContent="繼續測試";
   flowFrameReady=false;
+  lastFlowScreen=null;
   const group=session.group_code;
   const url = new URL(FLOW_URL);
   url.searchParams.set("research","1"); url.searchParams.set("group",group); url.searchParams.set("session",session.id);
@@ -696,6 +698,7 @@ document.getElementById("retryTaskBtn").onclick=async(event)=>{
     url.searchParams.set("retry",String(taskRetryCount));
     flowFrameReady=false;
     pendingAutofillData=null;
+    lastFlowScreen=null;
     flowFrame.src=url.toString();
     document.getElementById("taskStatus").textContent="進行中";
     document.getElementById("beginTaskBtn").textContent="繼續測試";
@@ -717,7 +720,7 @@ async function completeTask(source, event={}){
   if(taskCompletionInProgress || !session) return;
   taskCompletionInProgress = true;
   const eventMeta = source === "flow" ? (event.meta || {}) : {source:"participant-button"};
-  const pageId=event.page_id||(source==="participant"?"participant-task-page":null),pageName=event.page_name||(source==="participant"?"測試操作頁（我已完成）":null);
+  const pageId=event.page_id||(source==="participant"?lastFlowScreen?.page_id||"participant-task-page":null),pageName=event.page_name||(source==="participant"?lastFlowScreen?.page_name||"阿發畫面（未記錄）":null);
   await sendEvent("task_success",eventMeta,pageId,pageName);
   document.getElementById("taskStatus").textContent="任務已完成";
   await api(`/api/sessions/${session.id}/finish`,{method:"POST",body:JSON.stringify({status:"completed",abandon_location:null})});
@@ -740,6 +743,7 @@ window.addEventListener("message", async (ev)=>{
     return;
   }
   if(d.type!=="flight-delay-research") return;
+  if(d.event==="page_view")lastFlowScreen={page_id:d.page_id||null,page_name:d.page_name||d.page_id||"未知畫面"};
   if(d.event==="task_success"){
     await completeTask("flow",d);
     return;
