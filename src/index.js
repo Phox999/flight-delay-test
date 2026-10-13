@@ -174,14 +174,17 @@ function parseTaipeiDateRange(url){
   const from=url.searchParams.get("from"),to=url.searchParams.get("to");
   if(from===null&&to===null)return null;
   const parse=value=>{
-    if(!/^\d{4}-\d{2}-\d{2}$/.test(value||""))return null;
-    const [year,month,day]=value.split("-").map(Number),calendar=new Date(Date.UTC(year,month-1,day));
+    const match=/^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2}))?$/.exec(value||"");
+    if(!match)return null;
+    const [,yearText,monthText,dayText,hourText,minuteText]=match,[year,month,day]=[yearText,monthText,dayText].map(Number),calendar=new Date(Date.UTC(year,month-1,day));
     if(calendar.getUTCFullYear()!==year||calendar.getUTCMonth()!==month-1||calendar.getUTCDate()!==day)return null;
-    return Date.UTC(year,month-1,day)-8*60*60*1000;
+    const hasTime=hourText!==undefined,hour=hasTime?Number(hourText):0,minute=hasTime?Number(minuteText):0;
+    if(hour>23||minute>59)return null;
+    return {timestamp:Date.UTC(year,month-1,day,hour-8,minute),hasTime};
   };
-  const start=parse(from),startOfEnd=parse(to);
-  if(start===null||startOfEnd===null||start>startOfEnd)return false;
-  return {start,end:startOfEnd+86400000};
+  const start=parse(from),end=parse(to);
+  if(!start||!end||start.timestamp>end.timestamp)return false;
+  return {start:start.timestamp,end:end.timestamp+(end.hasTime?60000:86400000)};
 }
 
 async function buildAdminAnalytics(env,url,dateRange=null) {
