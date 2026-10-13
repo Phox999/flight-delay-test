@@ -96,7 +96,9 @@ async function handleApi(request, env, url) {
 
   if (url.pathname === "/api/admin/analytics" && m === "GET") {
     if (!adminOK(request,env)) return json({error:"unauthorized"},401);
-    return json(await buildAdminAnalytics(env,url));
+    const dateRange=parseTaipeiDateRange(url);
+    if(dateRange===false) return json({error:"invalid_date_range"},400);
+    return json(await buildAdminAnalytics(env,url,dateRange));
   }
 
   if (url.pathname === "/api/admin/summary" && m === "GET") {
@@ -118,7 +120,9 @@ async function handleApi(request, env, url) {
 
   if (url.pathname === "/api/admin/sessions" && m === "GET") {
     if (!adminOK(request,env)) return json({error:"unauthorized"},401);
-    const rows = (await env.DB.prepare(`
+    const dateRange=parseTaipeiDateRange(url);
+    if(dateRange===false) return json({error:"invalid_date_range"},400);
+    const sessionsSql=`
       SELECT s.*,
         CASE WHEN s.completed_at IS NOT NULL THEN s.completed_at-s.started_at
              WHEN s.abandoned_at IS NOT NULL THEN s.abandoned_at-s.started_at ELSE NULL END duration_ms,
@@ -134,8 +138,10 @@ async function handleApi(request, env, url) {
         SELECT sessions.*,
           ROW_NUMBER() OVER (PARTITION BY group_code ORDER BY started_at ASC, rowid ASC) AS group_sequence
         FROM sessions
-      ) s ORDER BY s.started_at DESC LIMIT 500
-    `).all()).results.map(session=>({
+        ) s ${dateRange?"WHERE s.started_at >= ? AND s.started_at < ?":""} ORDER BY s.started_at DESC LIMIT 500
+    `;
+    const sessionsQuery=env.DB.prepare(sessionsSql);
+    const rows = (await (dateRange?sessionsQuery.bind(dateRange.start,dateRange.end):sessionsQuery).all()).results.map(session=>({
       ...session,
       participant_code:`${session.group_code}${String(session.group_sequence).padStart(3,"0")}`
     }));
@@ -164,16 +170,33 @@ async function handleApi(request, env, url) {
 }
 function safeParse(s){ try{return JSON.parse(s||"{}")}catch{return{}} }
 
-async function buildAdminAnalytics(env,url) {
+function parseTaipeiDateRange(url){
+  const from=url.searchParams.get("from"),to=url.searchParams.get("to");
+  if(from===null&&to===null)return null;
+  const parse=value=>{
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(value||""))return null;
+    const [year,month,day]=value.split("-").map(Number),calendar=new Date(Date.UTC(year,month-1,day));
+    if(calendar.getUTCFullYear()!==year||calendar.getUTCMonth()!==month-1||calendar.getUTCDate()!==day)return null;
+    return Date.UTC(year,month-1,day)-8*60*60*1000;
+  };
+  const start=parse(from),startOfEnd=parse(to);
+  if(start===null||startOfEnd===null||start>startOfEnd)return false;
+  return {start,end:startOfEnd+86400000};
+}
+
+async function buildAdminAnalytics(env,url,dateRange=null) {
   const requested=url.searchParams.get("days");
   const parsed=requested===null?30:Number(requested);
   const days=Number.isFinite(parsed)&&parsed>=0?Math.min(3650,Math.floor(parsed)):30;
   const cutoff=days?Date.now()-days*86400000:null;
-  const sessionsSql=`SELECT id,group_code,started_at,completed_at,abandoned_at,status,abandon_location,age_range,gender,travel_insurance_count,viewport,difficulty,recovery_understanding,progress_confidence FROM sessions ${cutoff===null?"":"WHERE started_at >= ?"} ORDER BY started_at DESC`;
-  const eventsSql=`SELECT session_id,event_name,page_id,page_name,created_at,meta_json FROM events ${cutoff===null?"":"WHERE created_at >= ?"} ORDER BY created_at`;
+  const sessionWhere=dateRange?"WHERE started_at >= ? AND started_at < ?":cutoff===null?"":"WHERE started_at >= ?";
+  const eventWhere=dateRange?"WHERE created_at >= ? AND created_at < ?":cutoff===null?"":"WHERE created_at >= ?";
+  const sessionsSql=`SELECT id,group_code,started_at,completed_at,abandoned_at,status,abandon_location,age_range,gender,travel_insurance_count,viewport,difficulty,recovery_understanding,progress_confidence FROM sessions ${sessionWhere} ORDER BY started_at DESC`;
+  const eventsSql=`SELECT session_id,event_name,page_id,page_name,created_at,meta_json FROM events ${eventWhere} ORDER BY created_at`;
+  const rangeParams=dateRange?[dateRange.start,dateRange.end]:cutoff===null?[]:[cutoff];
   const [sessionResult,eventResult]=await Promise.all([
-    cutoff===null?env.DB.prepare(sessionsSql).all():env.DB.prepare(sessionsSql).bind(cutoff).all(),
-    cutoff===null?env.DB.prepare(eventsSql).all():env.DB.prepare(eventsSql).bind(cutoff).all()
+    rangeParams.length?env.DB.prepare(sessionsSql).bind(...rangeParams).all():env.DB.prepare(sessionsSql).all(),
+    rangeParams.length?env.DB.prepare(eventsSql).bind(...rangeParams).all():env.DB.prepare(eventsSql).all()
   ]);
   const sessions=sessionResult.results||[],events=eventResult.results||[];
   const eventStats=new Map(),participantEvents=new Map(),bySession=new Map(),profilesBySession=new Map(),feedbackBySession=new Map(),screenEventsBySession=new Map();
