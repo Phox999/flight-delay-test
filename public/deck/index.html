@@ -1,0 +1,801 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>產險阿發 2.0｜班機延誤理賠 UED 結案簡報</title>
+<link rel="icon" type="image/svg+xml" href="flow/assets/alpha-logo.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Montserrat:wght@700&family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --purple:#4f44c3; --ink:#191c1a; --ink2:#333645; --muted:#6b7280; --lilac:#dcd9ff; --soft:#f0eeff; --shadow:0 2px 30px rgba(27,31,68,.08); --r:32px; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html { scroll-behavior:smooth; }
+  body { background:#fbfbfe; color:var(--ink); font-family:"Inter","Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif; font-weight:500; line-height:1.5; -webkit-font-smoothing:antialiased; overflow-x:hidden; }
+  img { max-width:100%; height:auto; display:block; }
+  ul { list-style:none; }
+  .wrap { width:min(1440px, 100% - 64px); margin-inline:auto; position:relative; }
+  .mont { font-family:"Montserrat","Noto Sans TC",sans-serif; font-weight:700; line-height:1.1; }
+  .purple { color:var(--purple); }
+  .card { background:#fff; border-radius:var(--r); box-shadow:var(--shadow); }
+  .row { display:flex; align-items:center; }
+  .col { display:flex; flex-direction:column; }
+  .chip { display:inline-flex; align-items:center; width:fit-content; white-space:nowrap; font-weight:700; }
+  .blob { position:absolute; width:640px; max-width:none; opacity:.5; pointer-events:none; z-index:0; }
+
+  /* 頂部導覽 */
+  .top { position:sticky; top:0; z-index:20; background:rgba(251,251,254,.86); backdrop-filter:blur(12px); border-bottom:1px solid rgba(25,28,26,.06); }
+  .top .wrap { display:flex; align-items:center; gap:24px; height:60px; }
+  .brand { display:flex; align-items:center; gap:12px; font-size:18px; color:#000; text-decoration:none; white-space:nowrap; }
+  .brand i { width:3px; height:18px; background:#5b4ae6; }
+  .top nav { display:flex; gap:4px; margin-left:auto; overflow-x:auto; scrollbar-width:none; }
+  .top nav a { padding:8px 12px; border-radius:999px; font-size:14px; color:var(--ink2); text-decoration:none; white-space:nowrap; }
+  .top nav a:hover { background:var(--soft); color:var(--purple); }
+  a:focus-visible, button:focus-visible { outline:2px solid var(--purple); outline-offset:2px; }
+
+  /* 區塊 */
+  section { position:relative; }
+  /* 每個畫面至少佔滿一個螢幕，內容垂直置中；右下角的上下按鈕一次移動一個畫面 */
+  .screen { min-height:100svh; display:flex; flex-direction:column; justify-content:center; padding-block:92px 64px; }
+  .detail.screen { display:grid; }
+  .pager { position:fixed; right:18px; bottom:18px; z-index:30; display:flex; flex-direction:column; align-items:center; gap:4px; }
+  .pager button { width:40px; height:40px; border-radius:50%; border:1px solid rgba(25,28,26,.08); background:rgba(255,255,255,.55); color:var(--ink2); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); box-shadow:0 2px 10px rgba(27,31,68,.08); cursor:pointer; display:grid; place-items:center; transition:background .2s ease, opacity .2s ease; }
+  .pager button:hover { background:rgba(255,255,255,.95); }
+  .pager button:disabled { opacity:.35; cursor:default; }
+  .pager svg { width:20px; height:20px; }
+  .pager output { font-size:11px; font-weight:700; color:rgba(51,54,69,.55); font-variant-numeric:tabular-nums; line-height:1; padding:2px 0; }
+  .eyebrow { display:flex; align-items:center; gap:10px; font-size:16px; color:#575e78; margin-bottom:10px; }
+  .eyebrow::before { content:""; width:12px; height:12px; border-radius:50%; background:#4f1fcc; }
+  h2 { font-size:clamp(24px, 3vw, 36px); line-height:1.4; font-weight:700; margin-bottom:40px; text-wrap:pretty; }
+  h3 { font-weight:700; }
+  .grid { display:grid; gap:20px; }
+  .g3 { grid-template-columns:repeat(3, 1fr); }
+  .g2 { grid-template-columns:repeat(2, 1fr); }
+
+  /* 進場：捲到才淡入 */
+  .reveal { opacity:0; transform:translateY(32px); transition:opacity .8s ease, transform .8s cubic-bezier(.2,.7,.2,1); }
+  .reveal.in { opacity:1; transform:none; }
+  @media (prefers-reduced-motion: reduce) { .reveal { opacity:1; transform:none; transition:none; } html { scroll-behavior:auto; } }
+
+  /* 首屏 */
+  .hero { min-height:calc(100svh - 60px); display:flex; align-items:center; overflow:hidden; background:linear-gradient(180deg, #fff, #f6f5ff); }
+  .hero-title { display:flex; align-items:center; gap:clamp(20px, 3.4vw, 56px); margin-bottom:36px; }
+  .hero-title img { flex:none; width:clamp(88px, 11vw, 150px); }
+  .hero h1 { font-weight:700; line-height:1.35; }
+  .hero h1 span { display:block; font-size:clamp(22px, 3vw, 40px); color:#2d2d2d; }
+  .hero h1 b { display:block; font-size:clamp(32px, 5.2vw, 68px); color:var(--purple); text-wrap:balance; }
+  .hero h1 i { font-style:normal; position:relative; visibility:hidden; }
+  .hero h1 i.on { visibility:visible; }
+  .hero h1 i.caret::after { content:""; position:absolute; left:calc(100% + .08em); top:.14em; width:.56em; height:1.1em; background:currentColor; animation:blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity:0; } }
+  .hero .by { border-top:1px solid #21201f; padding-top:24px; display:flex; justify-content:space-between; align-items:flex-end; gap:24px; flex-wrap:wrap; font-size:clamp(16px, 1.8vw, 24px); color:#323232; }
+
+  /* 數字卡 */
+  .stat { padding:28px 32px; display:flex; flex-direction:column; gap:6px; }
+  .stat .num { font-size:clamp(38px, 4.4vw, 54px); color:var(--purple); display:flex; flex-wrap:wrap; align-items:baseline; gap:0 12px; }
+  .stat .num small { font-size:.36em; white-space:nowrap; }
+  .pill { border-radius:999px; padding:3px 16px; font-size:15px; color:#fff; background:var(--ink2); }
+  .tag { background:var(--lilac); border-radius:14px; padding:6px 14px; font-size:19px; color:#000; }
+  .meta { padding:20px 28px; gap:10px 12px; font-size:clamp(16px, 1.55vw, 20px); white-space:nowrap; }
+  .meta .tag { font-size:.88em; padding:6px 12px; }
+  .meta .who { background:#f4f4f4; border-radius:999px; padding:5px 14px; font-size:.78em; font-weight:500; color:#191c1a; }
+  .phase { background:#faefff; border-radius:22px; padding:16px 20px; gap:12px; font-size:clamp(18px, 2vw, 24px); font-weight:700; }
+  .goal { display:flex; gap:14px; font-size:clamp(17px, 1.9vw, 22px); font-weight:700; line-height:1.6; }
+  .goal::before { content:""; flex:none; width:16px; height:16px; margin-top:.55em; background:#ff91f0; border-radius:3px; transform:rotate(45deg); }
+
+  /* 規模：五個階段 */
+  .nodes { grid-template-columns:repeat(5, 1fr); gap:44px; }
+  .node { padding:26px; display:flex; flex-direction:column; gap:10px; position:relative; }
+  .node .no { border-radius:14px; padding:6px 12px; background:var(--lilac); font-size:20px; color:#000; }
+  .node h3 { font-size:24px; color:var(--purple); }
+  .node p { font-size:19px; flex:1; }
+  .node small { font-size:14px; color:var(--muted); }
+  .node:not(:last-child)::after { content:"→"; position:absolute; right:-34px; top:50%; translate:0 -50%; color:var(--purple); font-size:22px; font-weight:700; }
+  .legend { display:flex; gap:28px; margin-top:20px; font-size:16px; font-weight:700; }
+  .legend span { display:flex; align-items:center; gap:8px; }
+  .legend i { width:10px; height:10px; border-radius:50%; background:currentColor; }
+
+  /* 流程走讀 */
+  .steps { display:flex; flex-direction:column; }
+  .step { display:grid; grid-template-columns:auto 1fr; align-items:center; gap:clamp(32px, 6vw, 88px); }
+  .phone { --ps:.74; position:relative; width:calc(393px * var(--ps)); height:calc(852px * var(--ps)); flex:none; }
+  .phone .device { position:absolute; inset:0; border-radius:calc(28px * var(--ps)); border:1px solid #e2e4ec; background:#fff; box-shadow:0 12px 36px rgba(79,68,195,.14); overflow:hidden; }
+  .phone .device::before { content:""; position:absolute; inset:0; margin:auto; width:30px; height:30px; background:url(flow/assets/loading-star.svg) center / contain no-repeat; animation:spin 1.8s linear infinite; opacity:.75; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .phone iframe { position:relative; width:393px; height:852px; border:0; background:transparent; transform:scale(var(--ps)); transform-origin:0 0; }
+  /* 播放中不攔截滑鼠（頁面捲動不受影響）；暫停或播完後可以自己操作 */
+  .phone[data-state="idle"] iframe, .phone[data-state="playing"] iframe { pointer-events:none; }
+  .ctrl { position:absolute; right:-14px; bottom:-24px; display:flex; align-items:center; gap:8px; }
+  .ctrl button { width:40px; height:40px; border-radius:50%; border:1px solid #e2e4ec; background:#fff; color:var(--purple); box-shadow:0 4px 14px rgba(27,31,68,.16); cursor:pointer; display:grid; place-items:center; transition:background .2s ease, transform .2s ease; }
+  .ctrl button:hover { background:var(--soft); }
+  .ctrl .replay:hover { transform:rotate(-30deg); }
+  .ctrl svg { width:20px; height:20px; }
+  .ctrl .tip { display:none; padding:5px 12px; border-radius:999px; background:var(--purple); color:#fff; font-size:13px; font-weight:700; white-space:nowrap; box-shadow:0 4px 14px rgba(27,31,68,.16); }
+  .phone[data-state="paused"] .tip, .phone[data-state="ended"] .tip { display:block; }
+  @media (min-height:860px) { .phone { --ps:.82; } }
+  @media (min-height:1000px) { .phone { --ps:.92; } }
+  .murmur { gap:12px; margin-bottom:16px; }
+  .screen.apart { position:relative; margin-top:72px; }
+  .apart-label::after { content:""; flex:1; border-top:2px dashed rgba(37,99,235,.3); }
+  .apart-label { display:flex; align-items:center; gap:12px; margin-bottom:32px; font-size:16px; font-weight:500; color:var(--muted); }
+  .apart-label span { flex:none; background:#2563eb; color:#fff; border-radius:999px; padding:5px 16px; font-size:14px; font-weight:700; }
+  .step { --accent:var(--purple); --accent-soft:var(--soft); }
+  .step.common { --accent:#2563eb; --accent-soft:#ebf2ff; }
+  .walk { flex:none; width:40px; height:40px; background:var(--accent); -webkit-mask:url(assets/walk.png) center / contain no-repeat; mask:url(assets/walk.png) center / contain no-repeat; }
+  .bubble { position:relative; background:#fff; border-radius:999px; padding:9px 24px; box-shadow:0 4px 18px rgba(51,46,128,.16); font-size:clamp(15px, 1.6vw, 18px); font-weight:700; color:var(--accent); }
+  .bubble::after { content:""; position:absolute; left:16px; bottom:-6px; width:14px; height:14px; background:#fff; transform:rotate(45deg); border-radius:0 0 3px 0; }
+  .copy { padding:clamp(24px, 3.4vw, 40px); display:flex; flex-direction:column; gap:22px; }
+  .copy .no { background:var(--accent); color:#fff; border-radius:16px; padding:5px 14px; font-size:clamp(18px, 2.2vw, 26px); }
+  .copy h3 { font-size:clamp(28px, 4vw, 48px); color:var(--accent); line-height:1.2; }
+  .need { display:grid; grid-template-columns:minmax(150px, .32fr) auto 1fr; align-items:center; gap:20px; }
+  .box { border-radius:20px; padding:18px 22px 20px; display:flex; flex-direction:column; gap:10px; align-self:stretch; }
+  .box .chip { border-radius:10px; padding:3px 12px; font-size:16px; }
+  .box li { display:flex; gap:12px; font-size:clamp(17px, 2vw, 22px); font-weight:700; line-height:1.55; }
+  .box li::before { content:""; flex:none; width:10px; height:10px; margin-top:.6em; border-radius:50%; background:var(--accent); }
+
+  /* 異常處理 */
+  .band { background:var(--purple); color:#fff; border-radius:var(--r); padding:22px clamp(24px, 4vw, 44px); display:flex; align-items:center; justify-content:space-between; gap:24px; flex-wrap:wrap; }
+  .cats { grid-template-columns:4fr 4fr 3fr 3fr; align-items:stretch; }
+  .cat { overflow:visible; }
+  .cat header { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 22px; border-radius:var(--r) var(--r) 0 0; font-size:clamp(18px, 2vw, 22px); font-weight:700; }
+  .cat header .mont { font-size:32px; }
+  .cat ul { display:flex; flex-direction:column; gap:10px; padding:18px 18px 22px; }
+  .cat li { background:rgba(241,242,246,.7); border-radius:12px; padding:10px 16px; font-size:clamp(16px, 1.7vw, 19px); font-weight:700; }
+  /* 異常處理：四支手機依序自動播放 */
+  .errphones { grid-template-columns:repeat(4, 1fr); gap:24px; align-items:start; margin-top:8px; }
+  .errphones figure { display:flex; flex-direction:column; align-items:center; gap:14px; }
+  .errphones figcaption { display:flex; flex-direction:column; align-items:center; gap:6px; text-align:center; }
+  .errphones .cat-chip { border-radius:999px; padding:4px 14px; font-size:14px; font-weight:700; color:#191c1a; }
+  .errphones b { font-size:clamp(18px, 1.8vw, 22px); line-height:1.3; }
+  .errphones small { font-size:15px; color:var(--muted); line-height:1.5; }
+  .errphones .phone { --ps:.56; }
+  .errphones .phone .tip { display:none; }
+  @media (min-height:860px) { .errphones .phone { --ps:.62; } }
+  @media (min-height:1000px) { .errphones .phone { --ps:.72; } }
+  .shots { grid-template-columns:repeat(4, 1fr); gap:28px; }
+  .shots figure { display:flex; flex-direction:column; gap:10px; }
+  .shots figcaption { display:flex; gap:10px; align-items:flex-start; min-height:3em; font-size:16px; font-weight:700; }
+  .shots .no { border-radius:8px; padding:2px 8px; font-size:14px; background:#ece9ff; color:var(--purple); }
+  .shots .no.on { background:var(--purple); color:#fff; }
+  .shots { align-items:start; }
+  .shots .frame { --fh:852; aspect-ratio:393 / var(--fh); position:relative; }
+  .shots .frame img { position:absolute; left:-9.16%; top:calc(-24 / var(--fh) * 100%); width:118.32%; max-width:none; }
+  .notes { display:flex; flex-wrap:wrap; gap:14px 28px; margin-top:44px; font-size:16px; }
+  .notes .chip { background:#f1f2f6; border-radius:8px; padding:2px 10px; font-size:14px; color:var(--muted); margin-right:8px; }
+
+  /* 使用者驗證 */
+  .overview { grid-template-columns:minmax(260px, .42fr) 1fr; }
+  .big { background:var(--purple); color:#fff; border-radius:var(--r); padding:36px; display:flex; flex-direction:column; justify-content:space-between; gap:36px; }
+  .finding { padding:28px 36px; display:grid; grid-template-columns:auto 1fr auto auto; align-items:center; gap:24px; flex:1; }
+  .finding .pct { font-size:clamp(44px, 6vw, 68px); color:var(--purple); }
+  .cta { background:var(--purple); color:#fff; border-radius:999px; padding:9px 20px; font-size:18px; }
+  .detail { display:grid; grid-template-columns:1fr 1.06fr; gap:clamp(28px, 5vw, 72px); align-items:center; align-content:center; }
+  .detail .pct { font-size:clamp(52px, 7vw, 76px); color:var(--purple); }
+  .dots { display:flex; flex-wrap:wrap; gap:8px; margin:20px 0 24px; }
+  .dots i { width:22px; height:22px; border-radius:50%; background:rgba(206,200,250,.6); }
+  .dots i.on { background:var(--purple); }
+  .qa { border-radius:22px; padding:18px 24px 22px; display:flex; flex-direction:column; gap:8px; font-size:clamp(17px, 1.9vw, 21px); }
+  .qa .chip { border-radius:8px; padding:2px 12px; font-size:15px; }
+
+  /* 固定尺寸畫布（對照畫面、時程圖）依容器寬度等比縮放 */
+  .scaler { position:relative; width:100%; height:calc(var(--sh) * 1px * var(--s, .6)); overflow:hidden; border-radius:calc(32px * var(--s, .6)); }
+  .canvas { position:absolute; left:0; top:0; width:calc(var(--sw) * 1px); height:calc(var(--sh) * 1px); transform:scale(var(--s, .6)); transform-origin:0 0; }
+  .canvas > * { position:absolute; }
+  .panel { inset:0 0 auto 0; background:#fff; border-radius:44px; box-shadow:var(--shadow); }
+  button.scaler { display:block; border:0; background:none; font:inherit; color:inherit; text-align:left; cursor:pointer; }
+  .stagepill { display:flex; align-items:center; height:42px; width:391px; border-radius:99px; background:#f8f4ff; font-size:24px; font-weight:700; }
+  .stagepill span { width:42px; margin:0 10px 0 9px; text-align:center; font-size:16px; color:#5b4ae6; }
+  .bub { width:305px; height:68px; border-radius:10px; background:#fff; font-size:16px; line-height:22px; letter-spacing:.3px; font-weight:400; color:#3a3a3a; }
+  .bub span, .swap span { position:absolute; transition:opacity .35s ease; }
+  .bub span { inset:12px 16px; }
+  .after { opacity:0; transition:opacity .35s ease; }
+  .mock { width:393px; min-height:872px; padding:20px 0 16px; border-radius:32px; display:flex; flex-direction:column; color:#3a3a3a; font-family:"PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif; font-size:16px; line-height:22px; letter-spacing:.3px; font-weight:400;
+    background:radial-gradient(240px 300px at 0% 60%, rgba(136,125,253,.2), transparent 72%), radial-gradient(220px 260px at 100% 72%, rgba(176,247,255,.42), transparent 72%), #fcfcfe; box-shadow:0 0 0 1px rgba(25,28,26,.06), 0 8px 28px rgba(27,31,68,.06); }
+  .mock-head { display:flex; justify-content:center; align-items:center; gap:6px; margin-bottom:34px; font-size:18px; line-height:24px; font-weight:600; }
+  .mock-head span { padding:1px 8px; border-radius:999px; background:#4f44c3; color:#fff; font-size:14px; line-height:20px; font-weight:500; }
+  .mock-user { align-self:flex-end; margin-right:16px; padding:12px 16px; border-radius:10px; background:#9fc5fe; box-shadow:0 2px 9px rgba(27,31,68,.12); }
+  .mock-time { margin-top:8px; color:#777; font-size:12px; line-height:18px; }
+  .mock-time.r { align-self:flex-end; margin-right:16px; }
+  .mock-bot { display:flex; align-items:flex-start; gap:1px; margin-top:16px; padding:0 16px; }
+  .mock-avatar { position:relative; flex:none; width:32px; height:32px; border-radius:50%; background:#fff; }
+  .mock-avatar img { position:absolute; left:2px; top:3px; width:28px; height:28px; object-fit:contain; }
+  .mock-avatar img.star { left:auto; right:0; top:0; width:12px; height:12px; }
+  .mock-content { display:flex; flex-direction:column; align-items:flex-start; width:325px; padding:3px 10px 0; }
+  .mock-bubble { max-width:305px; padding:12px 16px; border-radius:10px; background:linear-gradient(137deg, #fff 8%, rgba(255,255,255,.5) 96%); box-shadow:0 2px 9px rgba(27,31,68,.08); }
+  .mock-bubble h4 { margin-bottom:22px; font-size:16px; line-height:22px; font-weight:600; }
+  .mock-bubble p.gap { margin-top:22px; }
+  .mock-bubble ol { padding-left:23px; list-style:decimal; }
+  .mock-bubble ol ol { padding-left:22px; list-style:lower-alpha; }
+  .mock-card { width:250px; margin-top:16px; padding-top:12px; overflow:hidden; border-radius:12px; background:#fff; box-shadow:0 2px 15px rgba(27,31,68,.08); }
+  .mock-card p { margin:0 16px 4px; }
+  .mock-card ol { margin:0 16px 12px; padding-left:27px; list-style:lower-alpha; color:#4f44c3; font-weight:500; }
+  .mock-card b { display:grid; place-items:center; min-height:44px; border-top:1px solid #eaeaea; color:#4f44c3; font-weight:500; }
+  .mock-composer { display:flex; align-items:center; gap:8px; margin-top:auto; padding:22px 24px 0; }
+  .mock-composer span { flex:1; height:44px; padding:0 24px; border-radius:22px; background:#fff; color:#a0a0a0; line-height:44px; box-shadow:0 2px 9px rgba(27,31,68,.06); }
+  .mock-composer i { flex:none; display:grid; place-items:center; width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg, #9fc5fe, #887dfd); }
+  .mock-composer i img { width:22px; height:22px; }
+  .mock-note { margin-top:8px; padding:0 20px; color:#777; font-size:12px; line-height:17px; letter-spacing:0; text-align:center; }
+  /* 研究發現一：固定高度的對話截面，內容接在標題列下方 */
+  .mock.fixed { height:657px; min-height:0; overflow:hidden; }
+  .mock.fixed .mock-head { margin-bottom:0; padding-bottom:14px; }
+  .mock-bot.cut { margin-top:0; }
+  .mock-bot.cut .mock-content { padding-top:0; }
+  .mock-bot.cut .mock-card { margin-top:0; padding-top:4px; border-radius:0 0 12px 12px; }
+  .mock-avatar.ghost { visibility:hidden; }
+  .mock-bot + .mock-user { margin-top:16px; }
+  .mock-swap { position:relative; width:305px; height:68px; padding:0; background:#fff; }
+  .mock-swap span { position:absolute; inset:12px 16px; transition:opacity .35s ease; }
+  .mock-chips { display:flex; gap:8px; margin-top:16px; }
+  .mock-chips b { height:38px; padding:8px 24px; border-radius:22px; background:#fff; box-shadow:0 2px 9px rgba(27,31,68,.1); font-weight:400; }
+  .mock-sliver { flex:none; display:block; width:113px; height:12px; margin-left:59px; border-radius:0 0 20px 20px; background:#fff; box-shadow:0 2px 9px rgba(27,31,68,.1); }
+  .pilltag { width:146px; height:28px; border-radius:99px; background:#fff; color:#5b4ae6; font-size:14px; line-height:28px; text-align:center; }
+  [aria-pressed="true"] .after { opacity:1; }
+  [aria-pressed="true"] .before { opacity:0; }
+  .hint { right:20px; top:12px; display:flex; align-items:center; gap:8px; border-radius:999px; padding:8px 18px; background:var(--purple); color:#fff; font-size:18px; font-weight:700; white-space:nowrap; }
+
+  /* 結案總結 */
+  .summary { grid-template-columns:minmax(240px, .36fr) 1fr; }
+  .goalrow { padding:20px 28px; display:grid; grid-template-columns:auto auto 7em 11em 1fr; align-items:center; gap:16px; }
+  .goalrow .no { background:#dad4ff; border-radius:12px; padding:3px 10px; font-size:18px; }
+  .goalrow .n { font-size:48px; color:var(--purple); }
+  .deliver { display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-top:20px; font-size:16px; font-weight:700; }
+  .deliver .chip { background:#ece9ff; color:var(--purple); border-radius:999px; padding:6px 16px; }
+
+  /* 時程 */
+  .gantt-wrap { overflow-x:auto; }
+  .gantt-wrap .scaler { min-width:860px; border-radius:0; }
+  .month { top:46px; width:65px; text-align:center; font-size:30px; color:#313131; line-height:45px; }
+  .month::after { content:""; position:absolute; left:32px; top:59px; width:1px; height:746px; background:#999; }
+  .bar { height:82px; border-radius:100px; display:flex; align-items:center; justify-content:center; white-space:nowrap; }
+  .bar.p { background:var(--purple); color:#fff; font-size:28px; font-weight:500; }
+  .bar.g { height:66px; background:#e8e8e8; color:#191c1a; font-size:28px; font-weight:500; }
+  .ms { width:230px; display:flex; flex-direction:column; align-items:center; }
+  .ms::before { content:""; width:17px; height:17px; border-radius:50%; background:var(--purple); }
+  .ms::after { content:""; order:1; width:2px; height:66px; background:var(--purple); }
+  .ms .bar { order:2; padding:0 30px; min-width:230px; }
+
+  footer { position:relative; overflow:hidden; min-height:100svh; display:flex; align-items:center; padding:120px 0 96px; background:linear-gradient(180deg, #fbfbfe, #f0eeff); }
+  footer .thanks { gap:clamp(20px, 4vw, 48px); margin-bottom:clamp(40px, 7vw, 88px); flex-wrap:wrap; }
+  footer .thanks img { width:clamp(120px, 17vw, 220px); }
+  footer .thanks b { font-size:clamp(72px, 15vw, 200px); line-height:1.1; }
+
+  @media (max-width: 960px) {
+    .g3, .overview, .summary, .detail { grid-template-columns:1fr; }
+    .g2 { grid-template-columns:1fr; }
+    .nodes { grid-template-columns:repeat(2, 1fr); gap:20px; }
+    .node::after { display:none; }
+    .cats { grid-template-columns:repeat(2, 1fr); }
+    .errphones { grid-template-columns:repeat(2, 1fr); row-gap:56px; }
+    .shots { grid-template-columns:repeat(2, 1fr); }
+    .step { grid-template-columns:1fr; justify-items:center; gap:36px; }
+    .finding { grid-template-columns:1fr; gap:10px; }
+    .finding .arrow { display:none; }
+    .goalrow { grid-template-columns:auto auto 1fr; }
+    .goalrow p { grid-column:1 / -1; }
+    .screen { padding-block:84px 48px; }
+  }
+  @media (max-width: 600px) {
+    .wrap { width:calc(100% - 32px); }
+    .cats, .shots, .errphones { grid-template-columns:1fr; }
+    .need { grid-template-columns:1fr; }
+    .need > span { display:none; }
+    .phone { --ps:.72; }
+    .hero-title { flex-direction:column; align-items:flex-start; }
+    .meta { white-space:normal; flex-wrap:wrap; }
+    .top nav a { padding:8px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top"><div class="wrap">
+  <a class="brand" href="#top"><span>UED</span><i></i><span>阿發</span></a>
+  <nav aria-label="章節">
+    <a href="#goals">設計目標</a><a href="#scale">設計規模</a><a href="#flow">流程設計</a><a href="#errors">異常處理</a><a href="#research">使用者驗證</a><a href="#summary">結案總結</a><a href="#timeline">時程</a>
+  </nav>
+</div></header>
+
+<main id="top">
+
+<!-- 首屏 -->
+<section class="hero" data-screen>
+  <img class="blob" src="flow/assets/system-bg.svg" alt="" style="left:-220px;bottom:-260px;width:820px">
+  <img class="blob" src="flow/assets/system-bg.svg" alt="" style="right:-200px;top:-240px;width:760px;opacity:.7">
+  <div class="wrap">
+    <div class="hero-title">
+      <img src="assets/mascot.png" width="156" height="156" alt="阿發">
+      <h1><span>從業務流程到完整體驗，</span><b>打造阿發全新班機延誤理賠流程</b></h1>
+    </div>
+    <div class="by">
+      <p>組長 小花 <span style="margin:0 14px;opacity:.5">｜</span> 設計 景崙</p>
+      <img src="assets/logo.png" width="190" height="80" alt="Digital Data Technology 數位數據暨科技發展中心">
+    </div>
+  </div>
+</section>
+
+<!-- 設計目標 -->
+<section id="goals"><div class="wrap screen" data-screen>
+  <h2 class="reveal">從諮詢到理賠申請，打造班機延誤自助服務新體驗</h2>
+  <div class="grid g3 reveal">
+    <div class="card stat"><span class="pill chip">客服</span><h3>預計降減班機延誤客服進線</h3><p class="mont num">-60% <small>(約11,000通)</small></p></div>
+    <div class="card stat"><span class="pill chip">理賠</span><h3>預計減少需要補交文件的案件</h3><p class="mont num">-39.4% <small>(約5000件)</small></p></div>
+    <div class="card stat"><span class="pill chip" style="background:var(--purple)">理賠新增功能</span><h3>自動核賠件數</h3><p class="mont num">+1,000 <small style="font-family:'Noto Sans TC',sans-serif;font-size:.45em">件</small></p></div>
+  </div>
+  <div class="grid g2 reveal" style="margin-top:20px;align-items:stretch">
+    <div class="col" style="gap:20px">
+      <div class="card col" style="padding:28px 32px;gap:14px;flex:1">
+        <span class="tag chip mont">MVP目標</span>
+        <p class="row phase"><img src="assets/phase.png" width="44" height="44" alt="">Phase 1｜班機延誤理賠主流程</p>
+        <p class="row phase"><img src="assets/phase.png" width="44" height="44" alt="">Phase 2｜登入、註冊、滿意度調查</p>
+      </div>
+      <div class="card row meta">
+        <span class="tag chip">負責單位</span><span style="margin-right:8px">CXC 戰情室</span>
+        <span class="tag chip">協作角色</span><span>金控 PM</span>
+        <span class="chip who">許淑靜</span>
+      </div>
+    </div>
+    <div class="card col" style="padding:32px;gap:20px;justify-content:center">
+      <span class="tag chip">設計目標</span>
+      <ul class="col" style="gap:12px">
+        <li class="goal">實現對話即完成理賠，將業務流程轉化為直覺、連貫的對話式申請體驗</li>
+        <li class="goal">透過防呆設計，降低填寫錯誤與文件缺漏風險</li>
+        <li class="goal">主動發掘使用情境，補足流程規劃中的體驗缺口</li>
+        <li class="goal">透過使用者測試驗證設計，提出改善方案</li>
+      </ul>
+    </div>
+  </div>
+</div></section>
+
+<!-- 設計規模 -->
+<section id="scale" style="background:#fff"><div class="wrap screen" data-screen>
+  <p class="eyebrow reveal">設計規模</p>
+  <h2 class="reveal">將理賠流程展開為完整畫面與操作路徑，涵蓋正常、錯誤及等待情境</h2>
+  <div class="grid g3 reveal">
+    <div class="card stat"><p class="row" style="gap:12px;flex-wrap:wrap"><span class="mont num">150</span><b style="font-size:20px">個不重複畫面</b></p><p style="color:var(--muted)">涵蓋各步驟的正常、錯誤與等待狀態</p></div>
+    <div class="card stat"><p class="row" style="gap:12px;flex-wrap:wrap"><span class="mont num">253</span><b style="font-size:20px">條流程連線</b></p><p style="color:var(--muted)">串接各畫面與不同操作路徑</p></div>
+    <div class="card stat"><p class="row" style="gap:12px;flex-wrap:wrap"><span class="mont num">14</span><b style="font-size:20px">類異常處理</b></p><p style="color:var(--muted)">格式、辨識、驗證、連線、逾時</p></div>
+  </div>
+  <div class="grid nodes reveal" style="margin-top:28px">
+    <div class="card node"><span class="no chip mont">01</span><h3>提出理賠</h3><p>確認客戶意圖</p><small>16 個畫面</small></div>
+    <div class="card node"><span class="no chip mont" style="background:#9fc5fe">02</span><h3 style="color:#5489d8">身分驗證</h3><p>會員登入 / 註冊</p><small>63 個畫面</small></div>
+    <div class="card node"><span class="no chip mont">03</span><h3>確認航班資訊</h3><p>上傳登機證、延誤證明</p><small>44 個畫面</small></div>
+    <div class="card node"><span class="no chip mont">04</span><h3>匯款資料</h3><p>填理賠款帳戶</p><small>16 個畫面</small></div>
+    <div class="card node"><span class="no chip mont">05</span><h3>驗證送出</h3><p>輸入驗證碼確認身份</p><small>20 個畫面</small></div>
+  </div>
+  <p class="legend"><span class="purple"><i></i>主要流程</span><span style="color:#5489d8"><i></i>通用流程</span></p>
+</div></section>
+
+<!-- 流程設計（十個步驟由下方 STEPS 產生；手機捲到才淡入並播放一次） -->
+<section id="flow"><div class="wrap">
+  <div class="screen" id="flow-first" data-screen>
+    <p class="eyebrow reveal">流程設計</p>
+    <h2 class="reveal">從業務規格延伸到實際操作，將流程缺口轉化為具體設計方案</h2>
+  </div>
+  <div class="steps" id="steps"></div>
+</div></section>
+
+<!-- 異常處理 -->
+<section id="errors" style="background:#fff"><div class="wrap"><div class="screen" data-screen>
+  <p class="eyebrow reveal">異常處理</p>
+  <h2 class="reveal">系統錯誤也有清楚的指引，保證服務不中斷</h2>
+  <div class="band reveal">
+    <p class="row" style="gap:20px"><span class="mont" style="font-size:clamp(56px, 7vw, 80px)">14</span><span class="col"><b style="font-size:clamp(20px, 2.4vw, 26px)">類異常情境</b><span style="font-size:16px;opacity:.82">4 大分類 · 分層處理</span></span></p>
+    <b style="font-size:clamp(17px, 2vw, 22px)">發生錯誤時，說明原因並提供後續處理方式</b>
+  </div>
+  <div class="grid cats reveal" style="margin-top:20px">
+    <div class="card cat"><header style="background:#83d8ff">文件上傳與辨識<span class="mont">4</span></header><ul><li>檔案格式錯誤</li><li>檔案超過 10 MB</li><li>文件無法辨識</li><li>系統辨識異常</li></ul></div>
+    <div class="card cat"><header style="background:#c5b2ff">身分與驗證<span class="mont">4</span></header><ul><li>OTP 輸入錯誤</li><li>OTP 已失效</li><li>OTP 錯誤達上限</li><li>帳號鎖定</li></ul></div>
+    <div class="card cat"><header style="background:#8feacd">資料與查詢<span class="mont">3</span></header><ul><li>欄位格式錯誤</li><li>查無有效保單</li><li>搜尋查無結果</li></ul></div>
+    <div class="card cat"><header style="background:#ffe5aa">系統與對話<span class="mont">3</span></header><ul><li>連線／API 異常</li><li>對話逾時</li><li>不當輸入與提問上限</li></ul></div>
+  </div>
+
+  </div><div class="screen" id="errors-example" data-screen>
+  <h2 class="reveal">四類異常各舉一例：發生錯誤時說明原因，並提供下一步</h2>
+  <div class="grid errphones reveal" id="errphones" data-chain></div>
+  <div class="notes reveal">
+    <p><span class="chip">PM 規格</span>三次後直接收件，轉專人處理</p>
+    <p><span class="chip">無法繼續申請時</span>系統異常時，引導至會員中心或其他理賠申請管道</p>
+  </div>
+</div></div></section>
+
+<!-- 使用者驗證 -->
+<section id="research"><div class="wrap"><div class="screen" data-screen>
+  <p class="eyebrow reveal">使用者驗證</p>
+  <h2 class="reveal">以使用者回饋驗證設計假設，將兩項關鍵問題轉化為具體改善方案</h2>
+  <div class="grid overview reveal">
+    <div class="big">
+      <div><p class="mont" style="font-size:clamp(96px, 12vw, 140px)">49</p><b style="font-size:clamp(22px, 2.6vw, 30px)">人進行 A/B 測試</b></div>
+      <ul class="col" style="gap:8px;color:#e2deff">
+        <li class="row" style="gap:12px"><span class="mont" style="font-size:30px;color:#fff;min-width:44px">27</span>A 組｜紙本登機證</li>
+        <li class="row" style="gap:12px"><span class="mont" style="font-size:30px;color:#fff;min-width:44px">22</span>B 組｜電子登機證</li>
+        <li class="row" style="gap:12px"><span class="mont" style="font-size:30px;color:#fff;min-width:44px">37</span>完成測試</li>
+      </ul>
+    </div>
+    <div class="col" style="gap:20px">
+      <a class="card finding" href="#finding-1" style="text-decoration:none;color:inherit">
+        <p class="row" style="gap:6px;align-items:baseline"><span class="mont pct">33.3%</span><b style="font-size:20px">人</b></p>
+        <p class="col"><b style="font-size:clamp(19px, 2.2vw, 24px)">辨識失敗原因不夠清楚</b><span style="color:var(--muted)">B組（6／18 人）</span></p>
+        <b class="purple arrow" style="font-size:28px">→</b><span class="chip cta">增加辨識失敗引導</span>
+      </a>
+      <a class="card finding" href="#finding-2" style="text-decoration:none;color:inherit">
+        <p class="row" style="gap:6px;align-items:baseline"><span class="mont pct">24.3%</span><b style="font-size:20px">人</b></p>
+        <p class="col"><b style="font-size:clamp(19px, 2.2vw, 24px)">理賠資格說明不易理解</b><span style="color:var(--muted)">A/B 組合計（9／37 人）</span></p>
+        <b class="purple arrow" style="font-size:28px">→</b><span class="chip cta">調整理賠資格說明</span>
+      </a>
+    </div>
+  </div>
+
+  </div>
+  <!-- 研究發現一：點擊對照畫面切換修改前／修改後文案 -->
+  <div class="detail screen" id="finding-1" data-screen>
+    <div class="reveal">
+      <h2 style="margin-bottom:28px">根據辨識失敗的測試回饋，強化錯誤說明與後續操作引導</h2>
+      <p class="row" style="gap:14px;align-items:flex-end;flex-wrap:wrap"><span class="mont pct">33.3%</span><b style="font-size:clamp(20px, 2.4vw, 28px);line-height:1.3;padding-bottom:6px">人認為畫面<br>有說明失敗原因</b></p>
+      <div class="dots" data-on="6" data-total="18" role="img" aria-label="18 人中有 6 人"></div>
+      <div class="col" style="gap:16px">
+        <div class="card qa"><span class="chip" style="background:#e2e4ec;color:var(--muted)">問題</span><p style="color:#4b5263">辨識失敗原因與後續操作指引不夠明確</p></div>
+        <div class="qa" style="background:var(--purple);color:#fff"><span class="chip" style="background:#fff;color:var(--purple)">解法</span><b>首次失敗說明原因，第 2 次次失敗後引導手動輸入</b></div>
+      </div>
+    </div>
+    <button type="button" class="scaler reveal" id="compare1" data-w="846" style="--sw:846;--sh:800" aria-pressed="false" aria-label="辨識失敗訊息對照：點一下切換修改前與修改後的文案">
+      <div class="canvas"><div class="panel" style="height:823px"></div>
+        <b class="swap" style="left:36px;top:8px;width:140px;height:48px;font-size:23px;line-height:48px;color:#5b4ae6"><span class="before">BEFORE</span><span class="after" style="color:#5489d8">AFTER</span></b>
+        <b class="swap" style="left:184px;top:9px;width:220px;height:45px;font-size:23px;line-height:45px"><span class="before">修改前</span><span class="after">修改後（提案）</span></b>
+        <span class="hint swap" style="width:186px;height:43px"><span class="before" style="inset:8px 18px">點一下看修改後 →</span><span class="after" style="inset:8px 18px">← 點一下看修改前</span></span>
+        <p class="stagepill" style="left:15px;top:70px"><span>01</span>首次辨識失敗</p>
+        <p class="stagepill" style="left:432px;top:70px"><span>02</span>再次上傳仍失敗</p>
+        <b class="after pilltag" style="left:251px;top:77px">說明可能原因</b>
+        <b class="after pilltag" style="left:672px;top:77px">推薦手動輸入</b>
+        <div class="mock fixed" style="left:15px;top:122px">
+          <p class="mock-head">國泰產險智能助理阿發<span>Beta</span></p>
+          <div class="mock-bot cut"><span class="mock-avatar ghost"></span><div class="mock-content"><div class="mock-card"><ol start="3"><li>班機延誤證明（視情況）</li></ol><b>確認申請</b><b>前往國泰產險官網</b></div><p class="mock-time">10:07 PM 送出</p></div></div>
+          <p class="mock-user">確認申請</p>
+          <p class="mock-time r">10:07 PM 送出</p>
+          <div class="mock-bot"><span class="mock-avatar"><img src="flow/assets/mascot-face.png" alt=""><img class="star" src="flow/assets/mascot-star.svg" alt=""></span><div class="mock-content"><p class="mock-bubble mock-swap"><span class="before">你上傳的文件無法辨識，請手動輸入或重新上傳。</span><span class="after">登機證無法辨識，請重新上傳清晰的登機證或改用手動輸入。</span></p><p class="mock-time">10:07 PM 送出</p><p class="mock-chips"><b>手動輸入</b><b>重新上傳</b></p></div></div>
+          <p class="mock-composer"><span>告訴我你想做什麼</span><i><img src="flow/assets/send.svg" alt=""></i></p>
+          <p class="mock-note">當您傳送訊息，即表示同意「AI告知聲明」。本服務由AI提供，<br>內容僅供參考，實際資訊仍以國泰產險官網公告為準。</p>
+        </div>
+        <div class="mock fixed" style="left:430px;top:122px">
+          <p class="mock-head">國泰產險智能助理阿發<span>Beta</span></p>
+          <i class="mock-sliver"></i>
+          <div class="mock-bot"><span class="mock-avatar"><img src="flow/assets/mascot-face.png" alt=""><img class="star" src="flow/assets/mascot-star.svg" alt=""></span><div class="mock-content"><p class="mock-bubble mock-swap"><span class="before">你上傳的文件無法辨識，請手動輸入或重新上傳。</span><span class="after">登機證無法辨識，請重新上傳清晰的登機證或改用手動輸入。</span></p><p class="mock-time">10:07 PM 送出</p><p class="mock-chips"><b>手動輸入</b><b>重新上傳</b></p></div></div>
+          <p class="mock-user">重新上傳</p>
+          <p class="mock-time r">10:07 PM 送出</p>
+          <div class="mock-bot"><span class="mock-avatar"><img src="flow/assets/mascot-face.png" alt=""><img class="star" src="flow/assets/mascot-star.svg" alt=""></span><div class="mock-content"><p class="mock-bubble mock-swap"><span class="before">文件已上傳成功，但目前無法辨識內容，請改用手動輸入。</span><span class="after">登機證資訊仍無法辨識，請改用手動輸入繼續申請。</span></p><p class="mock-time">10:07 PM 送出</p><p class="mock-chips"><b>手動輸入</b></p></div></div>
+          <p class="mock-composer"><span>告訴我你想做什麼</span><i><img src="flow/assets/send.svg" alt=""></i></p>
+          <p class="mock-note">當您傳送訊息，即表示同意「AI告知聲明」。本服務由AI提供，<br>內容僅供參考，實際資訊仍以國泰產險官網公告為準。</p>
+        </div>
+      </div>
+    </button>
+  </div>
+
+  <!-- 研究發現二 -->
+  <div class="detail screen" id="finding-2" data-screen>
+    <div class="reveal">
+      <h2 style="margin-bottom:28px">將理賠適用條件提前並分層呈現，讓關鍵申請資格更容易辨識</h2>
+      <p class="row" style="gap:14px;align-items:flex-end;flex-wrap:wrap"><span class="mont pct">24.3%</span><span class="col" style="padding-bottom:6px"><b style="font-size:clamp(20px, 2.4vw, 28px);line-height:1.3">人完整答對</b><span style="color:var(--muted)">理賠適用條件（9／37 人）</span></span></p>
+      <div class="dots" data-on="9" data-total="37" role="img" aria-label="37 人中有 9 人"></div>
+      <div class="col" style="gap:16px">
+        <div class="card qa"><span class="chip" style="background:#e2e4ec;color:var(--muted)">問題</span><p style="color:var(--muted)">適用條件隱藏於較長的說明文字中，不易掌握重點</p></div>
+        <div class="qa" style="background:var(--purple);color:#fff"><span class="chip" style="background:#fff;color:var(--purple)">解法</span><b>將「本人投保個人件」與「延誤後仍搭原班機」提前呈現，並補充適用限制</b></div>
+      </div>
+    </div>
+    <div class="scaler reveal" data-w="849" style="--sw:849;--sh:997">
+      <div class="canvas"><div class="panel" style="height:997px"></div>
+        <p class="row" style="left:18px;top:12px;width:396px;height:48px;border-radius:99px;background:#f8f4ff;padding-left:26px;font-weight:700"><span style="width:114px;font-size:19px;color:#5b4ae6">BEFORE</span><span style="font-size:18px">原本的長段落說明</span></p>
+        <p class="row" style="left:436px;top:12px;width:396px;height:48px;border-radius:99px;background:#eef5ff;padding-left:26px;font-weight:700"><span style="width:114px;font-size:19px;color:#5489d8">AFTER</span><span style="font-size:18px">先講兩項適用條件</span></p>
+        <div class="mock" style="left:15px;top:74px" role="img" aria-label="修改前畫面：注意事項是一長段文字">
+          <p class="mock-head">國泰產險智能助理阿發<span>Beta</span></p>
+          <p class="mock-user">我想申請班機延誤的理賠</p>
+          <p class="mock-time r">10:07 PM 送出</p>
+          <div class="mock-bot">
+            <span class="mock-avatar"><img src="flow/assets/mascot-face.png" alt=""><img class="star" src="flow/assets/mascot-star.svg" alt=""></span>
+            <div class="mock-content">
+              <div class="mock-bubble"><h4>班機延誤理賠注意事項</h4><ol><li>本服務僅適用班機延誤後仍搭乘原航班。以下情況請改由產險官網或線下通路辦理：<ol><li>班機取消/改搭其他班機</li><li>申請實支實付型</li><li>錯過轉機航班</li><li>同時申請其他理賠項目</li></ol></li><li>限個人件，且要保人與被保險人須為同一人</li><li>須為班機延誤發生後二年內提出</li><li>須為國泰產險會員</li></ol></div>
+              <div class="mock-card"><p>申請前請準備：</p><ol><li>登機證</li><li>本人匯款帳戶</li><li>班機延誤證明（視情況）</li></ol><b>確認申請</b><b>前往國泰產險官網</b></div>
+              <p class="mock-time">10:07 PM 送出</p>
+            </div>
+          </div>
+          <p class="mock-composer"><span>告訴我你想做什麼</span><i><img src="flow/assets/send.svg" alt=""></i></p>
+          <p class="mock-note">當您傳送訊息，即表示同意「AI告知聲明」。本服務由AI提供，<br>內容僅供參考，實際資訊仍以國泰產險官網公告為準。</p>
+        </div>
+        <div class="mock" style="left:441px;top:74px" role="img" aria-label="修改後畫面：先列出兩項適用條件">
+          <p class="mock-head">國泰產險智能助理阿發<span>Beta</span></p>
+          <p class="mock-user">我想申請班機延誤的理賠</p>
+          <p class="mock-time r">10:07 PM 送出</p>
+          <div class="mock-bot">
+            <span class="mock-avatar"><img src="flow/assets/mascot-face.png" alt=""><img class="star" src="flow/assets/mascot-star.svg" alt=""></span>
+            <div class="mock-content">
+              <div class="mock-bubble"><h4>班機延誤理賠注意事項</h4><p>透過阿發申請，須符合：</p><ol><li>國泰產險會員本人投保個人件（要保人與被保險人都是本人）</li><li>延誤後仍搭乘原班機</li><li>須於延誤後 2 年內申請</li></ol><p class="gap">以下情況請改由官網或其他通路辦理：</p><ol><li>取消／改搭班機</li><li>錯過轉機</li><li>申請實支實付</li><li>同時申請其他理賠</li></ol></div>
+              <div class="mock-card"><p>申請前請準備：</p><ol><li>登機證</li><li>本人匯款帳戶</li><li>班機延誤證明</li></ol><b>確認申請</b><b>前往國泰產險官網</b></div>
+              <p class="mock-time">10:07 PM 送出</p>
+            </div>
+          </div>
+          <p class="mock-composer"><span>告訴我你想做什麼</span><i><img src="flow/assets/send.svg" alt=""></i></p>
+          <p class="mock-note">當您傳送訊息，即表示同意「AI告知聲明」。本服務由AI提供，<br>內容僅供參考，實際資訊仍以國泰產險官網公告為準。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- 結案總結 -->
+<section id="summary" style="background:#fff"><div class="wrap screen" data-screen>
+  <p class="eyebrow reveal">結案總結</p>
+  <h2 class="reveal">四項設計目標皆已完成，交付開發</h2>
+  <div class="grid summary reveal">
+    <div class="big"><div><p class="mont" style="font-size:clamp(64px, 8vw, 92px)">100%</p><b style="font-size:clamp(22px, 2.6vw, 30px)">設計目標已交付</b></div><b style="font-size:20px">設計交付完成，銜接後續開發</b></div>
+    <div><div class="col" id="goalrows" style="gap:14px"></div>
+      <p class="deliver"><span style="color:var(--muted)">設計交付</span><span class="chip">User Flow</span><span class="chip">UI 畫面</span><span class="chip">互動原型</span><span class="chip">易用性測試報告</span></p>
+    </div>
+  </div>
+</div></section>
+
+<!-- 專案時程 -->
+<section id="timeline"><div class="wrap screen" data-screen>
+  <p class="eyebrow reveal">專案時程</p>
+  <h2 class="reveal"><span class="purple">2 個月即完成設計交付</span>，銜接開發測試與 2027 年第一季上線計畫</h2>
+  <div class="gantt-wrap reveal"><div class="scaler" data-w="1920" style="--sw:1920;--sh:870">
+    <div class="canvas" role="img" aria-label="時程圖：8 月到 10 月完成 P1 設計、P2 設計與測試、流程調整，9 月 P1 交付、10 月 P2 交付；11 月起產險 RD 與廠商開發、SIT、QA 修正，預計 2027 年第一季上線。目前在 11/9。">
+      <span class="month" style="left:330px">8月</span><span class="month" style="left:539px">9月</span><span class="month" style="left:748px">10月</span><span class="month" style="left:957px">11月</span><span class="month" style="left:1166px">12月</span><span class="month" style="left:1375px">1月</span><span class="month" style="left:1584px">2月</span>
+      <b class="purple" style="left:96px;top:233px;font-size:48px;line-height:58px">產險阿發</b>
+      <b class="chip" style="left:96px;top:307px;background:rgba(227,220,255,.55);border-radius:18px;padding:8px 16px;font-size:20px;line-height:22px;color:#4c37dd">班機延誤</b>
+      <span class="bar p" style="left:472px;top:233px;width:148px">P1 設計</span>
+      <span class="bar p" style="left:626px;top:233px;width:244px">P2 設計・測試</span>
+      <span class="bar p" style="left:875px;top:233px;width:148px">流程調整</span>
+      <span class="bar g" style="left:1023px;top:530px;width:362px">產險 RD＋廠商開發</span>
+      <span class="bar g" style="left:1391px;top:530px;width:166px">SIT</span>
+      <span class="bar g" style="left:1563px;top:530px;width:181px">QA・修正</span>
+      <div class="ms" style="left:508px;top:323px"><span class="bar p">P1 交付</span></div>
+      <div class="ms" style="left:757px;top:323px"><span class="bar p">P2 交付</span></div>
+      <div class="ms" style="left:1632px;top:620px"><span class="bar p" style="min-width:300px">預計 2027 Q1 上線</span></div>
+      <div class="col" style="left:1005px;top:0;width:56px;height:851px;align-items:center;color:#fc854e">
+        <b style="font-size:32px;line-height:39px">11/9</b>
+        <i style="margin-top:14px;border:15px solid transparent;border-top:26px solid currentColor;border-bottom:0"></i>
+        <i style="flex:1;width:3px;background:currentColor;margin-top:-4px"></i>
+      </div>
+    </div>
+  </div></div>
+</div></section>
+
+</main>
+
+<footer data-screen>
+  <img class="blob" src="flow/assets/system-bg.svg" alt="" style="right:-180px;bottom:-320px;width:760px">
+  <div class="wrap">
+    <p class="row thanks"><img src="assets/mascot.png" width="156" height="156" alt="阿發"><b class="purple">Thanks</b></p>
+    <div class="row" style="justify-content:space-between;gap:24px;flex-wrap:wrap;border-top:1px solid #21201f;padding-top:24px">
+      <span class="brand" style="font-size:clamp(24px, 3vw, 36px)"><span>UED</span><i style="height:1em"></i><span>阿發</span></span>
+      <img src="assets/logo.png" width="247" height="104" alt="Digital Data Technology 數位數據暨科技發展中心">
+    </div>
+  </div>
+</footer>
+
+<div class="pager" role="group" aria-label="上下移動畫面">
+  <button type="button" id="pg-up" aria-label="上一個畫面" title="上一個畫面"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button>
+  <output id="pg-pos" aria-live="polite"></output>
+  <button type="button" id="pg-down" aria-label="下一個畫面" title="下一個畫面"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+</div>
+
+<script>
+// ---------- 流程設計：十個步驟 ----------
+const STEPS = [
+  ['01','提出理賠','我這樣可以申請嗎？要準備什麼？','判斷客戶要申請還是諮詢',['透過快速選單，一鍵進入理賠申請','申請條件與應備文件分類呈現']],
+  ['02','身分驗證','申請一定要先登入嗎？','驗證會員身分，才能進入理賠申請',['不需離開對話，在阿發就能完成登入','提供密碼與驗證碼兩種登入方式']],
+  ['03','個資聲明','要同意哪些事？我的資料會怎麼用？','客戶必須完整觀看個資聲明',['一鍵滑至聲明底部，不需手動捲動','閱讀至底部後，才開放同意']],
+  ['04','登機證辨識','登機證拍照上傳就可以嗎？','收取登機證並辨識航班資料',['上傳登機證，自動帶入航班資料','上傳前清楚說明格式、大小與張數限制']],
+  ['05','航班資訊確認','辨識出來的資料錯了怎麼辦？','請客戶確認登機證辨識結果',['自動帶入辨識結果，不需重新填寫','輸入機場名稱或代碼，就能快速搜尋']],
+  ['06','延誤證明','我手上沒有延誤證明怎麼辦？','收取延誤證明，最多三份',['一次最多上傳三份證明，不需分次操作','不清楚如何取得證明，也能直接查看說明']],
+  ['07','匯款資料','理賠金會匯到哪裡？','收取本人匯款帳戶資料',['上傳存摺，自動帶入帳戶資料','輸入銀行或分行名稱，就能快速搜尋']],
+  ['08','動態密碼驗證','收不到驗證碼怎麼辦？','透過動態密碼驗證申請身分',['顯示發送對象與有效時間，方便確認','沒收到驗證碼，也能重新發送']],
+  ['09','送出與回饋','送出之後怎麼知道進度？','完成理賠收件與滿意度調查',['送出後立即提供案件編號與查詢入口','一題完成滿意度評分，再依回答追問原因']],
+  // 會員註冊不在主要流程內：放在最後，並用分隔線隔開
+  ['02A','會員註冊','我不是會員，還要另外去註冊嗎？','提供線下投保客戶加入會員的渠道',['不需離開阿發，就能完成會員註冊','註冊後自動登入，接續原本的理賠申請']],
+];
+const REPLAY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>';
+document.getElementById('steps').innerHTML = STEPS.map(([no, name, ask, need, how]) => `
+  <div class="screen${no === '02A' ? ' apart' : ''}" data-screen>${no === '02A' ? '<p class="apart-label reveal"><span>通用流程</span>還不是會員時，才會經過這一段</p>' : ''}<article class="step${['02', '02A'].includes(no) ? ' common' : ''}">
+    <div class="phone reveal" data-step="${no}" data-state="idle">
+      <div class="device"><iframe title="阿發操作示範：${name}" tabindex="-1"></iframe></div>
+      <div class="ctrl"><span class="tip" aria-hidden="true">可以自己操作</span><button type="button" class="toggle" data-name="${name}"></button><button type="button" class="replay" aria-label="從頭重播「${name}」的操作示範" title="從頭重播">${REPLAY}</button></div>
+    </div>
+    <div class="reveal">
+      <p class="row murmur"><span class="walk" aria-hidden="true"></span><span class="bubble">${ask}</span></p>
+      <div class="card copy">
+        <div class="row" style="gap:16px;flex-wrap:wrap"><span class="no chip mont">${no}</span><h3>${name}</h3></div>
+        <div class="need">
+          <div class="box" style="background:#f3f4f7"><span class="chip" style="background:#e2e4ec;color:var(--muted)">業務需求</span><p style="font-size:18px;color:var(--muted)">${need}</p></div>
+          <span style="font-size:22px;color:var(--muted)">→</span>
+          <div class="box" style="background:var(--accent-soft)"><span class="chip" style="background:var(--accent);color:#fff">設計特點</span><ul>${how.map(t => `<li>${t}</li>`).join('')}</ul></div>
+        </div>
+      </div>
+    </div>
+  </article></div>`).join('');
+{ // 第一步併入章節標題所在的畫面
+  const firstWrap = document.querySelector('#steps > .screen');
+  document.getElementById('flow-first').append(firstWrap.firstElementChild);
+  firstWrap.remove();
+}
+
+// ---------- 異常處理：四大分類各一個代表情境 ----------
+const ERR_SCENES = [
+  ['E1', '文件上傳與辨識', '#83d8ff', '文件無法辨識', '說明原因，可重新上傳或改用手動輸入'],
+  ['E2', '身分與驗證', '#c5b2ff', '動態密碼輸入錯誤', '提示錯誤次數，可重新輸入或重新發送'],
+  ['E3', '資料與查詢', '#8feacd', '欄位格式錯誤', '標出錯誤欄位，修正後即可繼續'],
+  ['E4', '系統與對話', '#ffe5aa', '連線異常', '保留已選檔案，可直接重試'],
+];
+document.getElementById('errphones').innerHTML = ERR_SCENES.map(([step, cat, color, name, how]) => `
+  <figure>
+    <figcaption><span class="cat-chip" style="background:${color}">${cat}</span><b>${name}</b><small>${how}</small></figcaption>
+    <div class="phone" data-step="${step}" data-state="idle">
+      <div class="device"><iframe title="阿發操作示範：${name}" tabindex="-1"></iframe></div>
+      <div class="ctrl"><span class="tip" aria-hidden="true">可以自己操作</span><button type="button" class="toggle" data-name="${name}"></button><button type="button" class="replay" aria-label="從頭重播「${name}」的操作示範" title="從頭重播">${REPLAY}</button></div>
+    </div>
+  </figure>`).join('');
+
+// ---------- 人數圓點 ----------
+document.querySelectorAll('.dots').forEach(d => { d.innerHTML = Array.from({ length: +d.dataset.total }, (_, i) => `<i${i < +d.dataset.on ? ' class="on"' : ''}></i>`).join(''); });
+
+// ---------- 四項目標 ----------
+const CHECK = '<svg width="26" height="26" viewBox="0 0 28 28" role="img" aria-label="已完成"><circle cx="14" cy="14" r="14" fill="#00ca00"/><path d="M8 14.5l4 4 8-9" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+document.getElementById('goalrows').innerHTML = [
+  ['01','對話式申請','10','個步驟','整合諮詢與理賠申請，讓客戶在阿發完成完整申請流程'],
+  ['02','防呆設計','14','類異常','針對不同異常，提供錯誤提示、操作引導與替代方案'],
+  ['03','補足缺口','150','個畫面','依業務需求檢視操作情境，補齊流程中的體驗缺口'],
+  ['04','使用者驗證','49','人實測','透過實際操作測試發現體驗問題，提出 5 項設計調整'],
+].map(([no, name, n, unit, desc]) => `<div class="card goalrow">${CHECK}<span class="no chip mont">${no}</span><b class="purple" style="font-size:22px">${name}</b><span class="row" style="gap:6px;align-items:baseline"><span class="mont n">${n}</span><b>${unit}</b></span><p>${desc}</p></div>`).join('');
+
+// ---------- 固定尺寸畫布縮放 ----------
+const ro = new ResizeObserver(es => es.forEach(e => e.target.style.setProperty('--s', e.contentRect.width / +e.target.dataset.w)));
+document.querySelectorAll('.scaler').forEach(el => ro.observe(el));
+
+// ---------- 修改前／修改後切換 ----------
+const compare1 = document.getElementById('compare1');
+compare1.addEventListener('click', () => compare1.setAttribute('aria-pressed', compare1.getAttribute('aria-pressed') !== 'true'));
+
+// ---------- 捲到才淡入 ----------
+// 用「畫面跨過視窗中線」當觸發點：按上下按鈕捲過來後才淡入，看得到效果
+const fade = new IntersectionObserver(es => es.forEach(e => {
+  if (!e.isIntersecting) return;
+  fade.unobserve(e.target);
+  e.target.querySelectorAll('.reveal').forEach((el, i) => { el.style.transitionDelay = Math.min(i, 6) * 110 + 'ms'; el.classList.add('in'); });
+}), { rootMargin: '-48% 0px -48% 0px' });
+document.querySelectorAll('[data-screen]').forEach(el => fade.observe(el));
+
+// ---------- 手機：第一次捲到才載入並播放一次；右下角可暫停／繼續與重播 ----------
+// 狀態：idle（尚未載入）→ playing → paused（可自己操作）／ended（播完，可自己操作）
+const ICON = {
+  play: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.2v13.6L19 12z"/></svg>',
+  pause: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5h3.6v14H7zM13.4 5H17v14h-3.6z"/></svg>',
+};
+const phones = [...document.querySelectorAll('.phone')];
+function setState(phone, state) {
+  phone.dataset.state = state;
+  const btn = phone.querySelector('.toggle'), name = btn.dataset.name;
+  const playing = state === 'playing', resume = state === 'paused' && !phone.dataset.dirty;
+  btn.innerHTML = playing ? ICON.pause : ICON.play;
+  btn.title = playing ? '暫停，改成自己操作' : resume ? '繼續播放' : '從頭播放';
+  btn.setAttribute('aria-label', btn.title + '：「' + name + '」的操作示範');
+}
+const send = (phone, cmd) => phone.querySelector('iframe').contentWindow.postMessage({ type: 'afa-autoplay', cmd }, '*');
+// 預載：先把手機載到這一步的起始畫面並停著（不播放），進到這個畫面時就不會白屏
+function load(phone) {
+  if (phone.dataset.loaded) return;
+  phone.dataset.loaded = '1';
+  delete phone.dataset.ready; delete phone.dataset.dirty;
+  phone.querySelector('iframe').src = 'flow/index.html?apstep=' + phone.dataset.step + '&aponce=1&apwait=1&t=' + Date.now();
+}
+function begin(phone) { delete phone.dataset.want; send(phone, 'start'); }
+// 開始播放：第一次進到這個畫面，或在還沒播過時按播放
+function activate(phone) {
+  if (phone.dataset.state !== 'idle') return;
+  setState(phone, 'playing');
+  if (phone.dataset.ready) begin(phone); else { phone.dataset.want = '1'; load(phone); }
+}
+// 從頭重播
+function play(phone) {
+  delete phone.dataset.loaded;
+  phone.dataset.want = '1';
+  load(phone);
+  setState(phone, 'playing');
+}
+// 停留在畫面上一小段時間才開始播，快速捲過不會觸發；同時預載下一步
+const pending = new Map();
+const starter = new IntersectionObserver(es => es.forEach(e => {
+  const phone = e.target;
+  clearTimeout(pending.get(phone));
+  if (!e.isIntersecting) return;
+  pending.set(phone, setTimeout(() => {
+    starter.unobserve(phone);
+    const chain = phone.closest('[data-chain]');
+    if (chain && chain.querySelector('.phone') !== phone) { load(phone); return; } // 等前一支播完
+    activate(phone);
+    const next = phones[phones.indexOf(phone) + 1];
+    if (next) load(next);
+  }, 700));
+}), { threshold: .6 });
+phones.forEach(phone => {
+  setState(phone, 'idle');
+  starter.observe(phone);
+  phone.querySelector('.replay').addEventListener('click', () => play(phone));
+  phone.querySelector('.toggle').addEventListener('click', () => {
+    const state = phone.dataset.state;
+    if (state === 'playing') { send(phone, 'pause'); setState(phone, 'paused'); }
+    else if (state === 'paused' && !phone.dataset.dirty) { send(phone, 'play'); setState(phone, 'playing'); }
+    else if (state === 'idle') activate(phone);
+    else play(phone); // 已播完，或暫停期間自己操作過：從頭播放
+  });
+});
+addEventListener('message', e => {
+  const d = e.data; if (!d || d.type !== 'afa-autoplay') return;
+  const phone = phones.find(p => p.querySelector('iframe').contentWindow === e.source); if (!phone) return;
+  if (d.event === 'ready') { phone.dataset.ready = '1'; if (phone.dataset.want) begin(phone); }
+  if (d.event === 'done') {
+    setState(phone, 'ended');
+    const chain = phone.closest('[data-chain]');
+    if (chain) { // 接著播同一組的下一支
+      const list = [...chain.querySelectorAll('.phone')];
+      const next = list[list.indexOf(phone) + 1];
+      if (next && next.dataset.state === 'idle') activate(next);
+    }
+  }
+  if (d.event === 'dirty') { phone.dataset.dirty = '1'; setState(phone, phone.dataset.state); }
+});
+// 頁面載入後先預載第一步
+setTimeout(() => load(phones[0]), 1200);
+
+// ---------- 右下角上下按鈕：一次移動一個畫面 ----------
+const screens = [...document.querySelectorAll('[data-screen]')];
+const pgUp = document.getElementById('pg-up'), pgDown = document.getElementById('pg-down'), pgPos = document.getElementById('pg-pos');
+function currentScreen() {
+  const mid = innerHeight / 2; let best = 0, bestDist = Infinity;
+  screens.forEach((el, i) => {
+    const r = el.getBoundingClientRect();
+    const d = r.top <= mid && r.bottom >= mid ? 0 : Math.min(Math.abs(r.top - mid), Math.abs(r.bottom - mid));
+    if (d < bestDist) { bestDist = d; best = i; }
+  });
+  return best;
+}
+function goScreen(i) {
+  const el = screens[Math.max(0, Math.min(screens.length - 1, i))];
+  const r = el.getBoundingClientRect();
+  // 畫面比視窗矮就置中，否則對齊頂端
+  const top = scrollY + r.top - Math.max(0, (innerHeight - r.height) / 2);
+  scrollTo({ top, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+}
+function updatePager() {
+  const i = currentScreen();
+  pgPos.textContent = (i + 1) + ' / ' + screens.length;
+  pgUp.disabled = i === 0; pgDown.disabled = i === screens.length - 1;
+}
+pgUp.addEventListener('click', () => goScreen(currentScreen() - 1));
+pgDown.addEventListener('click', () => goScreen(currentScreen() + 1));
+addEventListener('scroll', updatePager, { passive: true });
+addEventListener('resize', updatePager);
+addEventListener('keydown', e => {
+  if (e.altKey || e.ctrlKey || e.metaKey || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+  if (e.key === 'PageDown') { e.preventDefault(); goScreen(currentScreen() + 1); }
+  else if (e.key === 'PageUp') { e.preventDefault(); goScreen(currentScreen() - 1); }
+});
+updatePager();
+
+// ---------- 首屏標題：打字效果 ----------
+(() => {
+  const h1 = document.querySelector('.hero h1');
+  h1.setAttribute('aria-label', h1.textContent.replace(/\s+/g, ''));
+  [...h1.children].forEach(line => { line.innerHTML = [...line.textContent].map(c => '<i aria-hidden="true">' + c + '</i>').join(''); });
+  const chars = [...h1.querySelectorAll('i')];
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { chars.forEach(c => c.classList.add('on')); return; }
+  let k = 0;
+  const tick = () => {
+    if (k > 0) chars[k - 1].classList.remove('caret');
+    if (k >= chars.length) { const last = chars[chars.length - 1]; last.classList.add('caret'); setTimeout(() => last.classList.remove('caret'), 2400); return; }
+    const c = chars[k++]; c.classList.add('on', 'caret');
+    setTimeout(tick, c === c.parentElement.lastElementChild ? 420 : 70);
+  };
+  setTimeout(tick, 450);
+})();
+</script>
+</body>
+</html>

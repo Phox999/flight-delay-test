@@ -1,0 +1,11 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="ic/checkbox" clip-path="url(#clip0_0_8)">
+<rect id="Rectangle 1" width="24" height="24" rx="4" fill="#9FC5FE"/>
+<path id="Path 3" fill-rule="evenodd" clip-rule="evenodd" d="M7.04852 12.3515C6.5799 11.8828 5.8201 11.8828 5.35147 12.3515C4.88284 12.8201 4.88284 13.5799 5.35147 14.0485L8.95146 17.6485C9.44231 18.1394 10.246 18.1126 10.7031 17.5902L19.1031 7.99022C19.5395 7.49146 19.4889 6.73334 18.9902 6.29692C18.4914 5.86051 17.7333 5.91105 17.2969 6.40981L9.74154 15.0445L7.04852 12.3515Z" fill="#3A3A3A"/>
+</g>
+<defs>
+<clipPath id="clip0_0_8">
+<rect width="24" height="24" fill="white"/>
+</clipPath>
+</defs>
+</svg>

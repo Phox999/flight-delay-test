@@ -5,6 +5,7 @@
 - `public/admin.html`：研究後台
 - `public/flow/`：嵌入第四頁的阿發 HTML、CSS、JavaScript 與圖片資產
 - `public/tracker-bridge.js`：核心流程往外層問卷傳送事件的橋接
+- `public/deck/`：結案簡報網頁（部署後在 `/deck/`）。`public/deck/flow/` 是簡報專用的阿發原型副本，會自動播放操作示範，不寫入測試資料；研究用的 `public/flow/` 不受影響
 - `src/index.js`：Cloudflare Worker API
 - `schema.sql`：D1 資料表
 - `wrangler.jsonc`：Workers 設定
