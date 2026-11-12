@@ -2406,3 +2406,7 @@ a.inline-link { text-decoration: underline; }
   content: ""; flex: none; width: 12px; height: 12px;
   background: url("assets/external-link.svg") center / contain no-repeat;
 }
+
+/* 動態密碼驗證：錯誤訊息出現時，面板往上長（8 + 22 = 30px），「重新發送」與「收不到動態密碼？」位置不動（Figma 09-05／09-06／09-08） */
+.otp-sheet { transition: top .22s ease; }
+.otp-sheet:has(#otp-error:not([hidden])) { top: 94px; }

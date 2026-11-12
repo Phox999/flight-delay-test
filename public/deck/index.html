@@ -148,7 +148,7 @@
   .errphones figcaption { display:flex; flex-direction:column; align-items:center; gap:6px; text-align:center; }
   .errphones .cat-chip { border-radius:999px; padding:4px 14px; font-size:16px; font-weight:700; color:#191c1a; }
   .errphones b { font-size:clamp(20px, 2vw, 26px); line-height:1.3; }
-  .errphones small { font-size:17px; color:var(--muted); line-height:1.5; }
+  .errphones small { font-size:clamp(14px, 1.15vw, 17px); color:var(--muted); line-height:1.5; } /* 說明最長 19 字，筆電寬度下仍維持一行 */
   /* 手機大小跟著視窗高度放大（Figma 上是 393 寬的 0.86 倍）；寬度不夠時不再放大，避免四支擠在一起 */
   #errors-example { padding-block:76px 44px; } /* 手機放大後，上下留白收一點，維持在一個螢幕內 */
   .errphones .phone { --ps:.58; }
@@ -290,6 +290,7 @@
   .goalrow { padding:20px 28px; display:grid; grid-template-columns:auto auto 7em 11em 1fr; align-items:center; gap:16px; }
   .goalrow .no { background:#dad4ff; border-radius:12px; padding:3px 10px; font-size:18px; }
   .goalrow .n { font-size:48px; color:var(--purple); }
+  .goalrow p { font-size:19px; font-weight:500; line-height:1.45; } /* Figma 26／1920，與目標名稱 32 的比例一致 */
   .deliver { display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-top:20px; font-size:16px; font-weight:700; }
   .deliver .chip { background:#ece9ff; color:var(--purple); border-radius:999px; padding:6px 16px; }
 
@@ -690,7 +691,7 @@ document.getElementById('steps').innerHTML = STEPS.map(([no, name, ask, need, ho
       <div class="card copy">
         <div class="row" style="gap:16px;flex-wrap:wrap"><span class="no chip mont">${no}</span><h3>${name}</h3></div>
         <div class="need">
-          <div class="box" style="background:#f3f4f7"><span class="chip" style="background:#e2e4ec;color:var(--muted)">業務需求</span><p style="font-size:18px;color:var(--muted)">${need}</p></div>
+          <div class="box" style="background:#f3f4f7"><span class="chip" style="background:#e2e4ec;color:var(--muted)">業務需求</span><p style="font-size:18px;font-weight:500;color:#2e2e2e">${need}</p></div>
           <span style="font-size:22px;color:var(--muted)">→</span>
           <div class="box" style="background:var(--accent-soft)"><span class="chip" style="background:var(--accent);color:#fff">設計特點</span><ul>${how.map(t => `<li>${t}</li>`).join('')}</ul></div>
         </div>
@@ -705,10 +706,10 @@ document.getElementById('steps').innerHTML = STEPS.map(([no, name, ask, need, ho
 
 // ---------- 異常處理：四大分類各一個代表情境 ----------
 const ERR_SCENES = [
-  ['E1', '文件上傳與辨識', '#c5b2ff', '文件無法辨識', '說明原因，可重新上傳或改用手動輸入'],
-  ['E2', '身分與驗證', '#afbfff', '動態密碼已失效', '提示已失效，可直接重新發送'],
-  ['E3', '資料與查詢', '#99ccff', '檔案大小與格式錯誤', '逐一標出問題檔案，刪除後重新上傳'],
-  ['E4', '系統與對話', '#83d8ff', '系統異常', '說明狀況，引導前往會員中心申請'],
+  ['E1', '文件上傳與辨識', '#c5b2ff', '文件無法辨識', '說明失敗原因，可重新上傳或改用手動輸入'],
+  ['E2', '身分與驗證', '#afbfff', '動態密碼輸入錯誤', '提示輸入錯誤與次數限制，可重新輸入'],
+  ['E3', '資料與查詢', '#99ccff', '檔案大小與格式錯誤', '標示不符規定的檔案，刪除後可重新上傳'],
+  ['E4', '系統與對話', '#83d8ff', '系統異常', '說明異常狀況，引導至會員中心繼續申請'],
 ];
 document.getElementById('errphones').innerHTML = ERR_SCENES.map(([step, cat, color, name, how]) => `
   <figure>

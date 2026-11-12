@@ -689,17 +689,19 @@
       await finalPress("[data-chat-action='retry-boarding-pass']");
     },
 
-    // E2 身分與驗證｜動態密碼已失效：提示已失效，可直接重新發送（Figma 09-08）
+    // E2 身分與驗證｜動態密碼輸入錯誤：提示輸入錯誤與次數限制，可重新輸入（Figma 09-05）
     "E2": async () => {
       errMode();
       await fastForward(toOtpDialog);
       await waitFor("#otp-input");
-      await sleep(1600);
-      // 原型的動態密碼 5 分鐘後失效；示範時把剩餘秒數撥到 1 秒，讓它自己走到失效狀態
-      otpExpirySeconds = 1; // app.js 的全域變數
-      await waitText("動態密碼已失效");
+      await sleep(1400);
+      await type("#otp-input", "000000", { perChar: 260, showCaret: true }); // 打錯的動態密碼
+      await sleep(500);
+      hideCaret();
+      await tap("#otp-next", { pause: 400 });
+      await waitText("驗證碼錯誤");
       await sleep(ERR_HOLD);
-      await finalPress("#otp-resend");
+      await finalPress("#otp-input"); // 停在「重新輸入」
     },
 
     // E3 資料與查詢｜檔案大小與格式錯誤：逐一標出問題檔案，刪除後重新上傳（Figma 08-07）
@@ -720,18 +722,25 @@
       await finalPress(".upload-file-item.has-error .upload-file-remove");
     },
 
-    // E4 系統與對話｜系統異常：說明狀況，引導前往會員中心申請（Figma 06-14）
-    // 原型在登機證上傳沒有系統異常的分支，這裡用延誤證明上傳時的系統異常示範，訊息與按鈕相同
+    // E4 系統與對話｜系統異常：說明異常狀況，引導至會員中心繼續申請（訊息樣式同 Figma 06-14）
+    // 從會員註冊的「設定密碼」開始（UI Section 4），送出後發生系統異常；
+    // 起始畫面刻意不用上傳面板，避免和左邊「檔案大小與格式錯誤」重複。
     "E4": async () => {
       errMode();
       await fastForward(async () => {
-        await toBoardingInfo();
-        await FLOW.boardingInfo({ edit: true });
-        await waitFor("#upload-help-trigger");
+        await toClaimButtons();
+        await FLOW.signupOpen();
+        await FLOW.signupBasic();
+        await FLOW.signupStatements();
+        await FLOW.signupOtp();
       });
-      await sleep(700);
-      await FLOW.pickFile("system-error");
-      await FLOW.confirmUpload();
+      await waitFor("#signup-password");
+      await sleep(900);
+      await type("#signup-password", SAMPLE.password, { perChar: 130 });
+      await type("#signup-confirm-password", SAMPLE.password, { perChar: 130 });
+      await sleep(500);
+      window.__simulateSignupApiError = true; // app.js：設定密碼送出時改走系統異常
+      await tap("#auth-primary", { pause: 400 });
       await waitFor("[data-chat-action='claim-member']");
       await sleep(ERR_HOLD);
       await finalPress("[data-chat-action='claim-member']");

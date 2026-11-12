@@ -1724,8 +1724,22 @@ function submitAuthForm(form) {
     const confirmation = document.querySelector("#signup-confirm-password").value;
     if (!isValidAuthPassword(password)) { setAuthFieldError("signup-password", "8-12位英數混合且不得為連續3碼及特殊符號"); return; }
     if (password !== confirmation) { setAuthFieldError("signup-confirm-password", "密碼不一致"); return; }
+    // 簡報示範用：模擬註冊送出時系統異常（autoplay.js 的 E4 會設定這個旗標）
+    if (window.__simulateSignupApiError) { finishSignupApiError(); return; }
     finishSignup();
   }
+}
+
+function finishSignupApiError() {
+  clearAuthOtpTimers();
+  authDialog.hidden = true;
+  authReturnToLogin = false;
+  setComposerFlowLock(false);
+  const content = document.createElement("div");
+  const message = document.createElement("p");
+  message.textContent = "系統出現異常，建議你可以到會員中心使用理賠申請服務。";
+  content.append(message, makeAction("前往會員中心", "claim-member"));
+  appendAssistantMessage(content);
 }
 
 function submitAuthOtp() {
