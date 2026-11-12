@@ -202,17 +202,45 @@
     return el;
   }
 
-  async function type(target, text, { perChar = 70 } = {}) {
+  // ---- 輸入游標 ----
+  // 手機嵌在簡報頁時拿不到系統焦點，欄位裡不會出現原生的輸入游標；
+  // 這裡補一條閃爍的直線跟在文字後面，看起來才像正在打字。
+  const caretStyle = document.createElement("style");
+  caretStyle.textContent = "@keyframes ap-caret{0%,55%{opacity:1}56%,100%{opacity:0}}";
+  document.head.appendChild(caretStyle);
+  const caret = document.createElement("div");
+  caret.setAttribute("aria-hidden", "true");
+  caret.style.cssText = "position:absolute;left:0;top:0;width:2px;height:22px;margin-top:-11px;border-radius:1px;background:#3a3a3a;pointer-events:none;z-index:99998;display:none;animation:ap-caret 1s linear infinite";
+  stage.appendChild(caret);
+  const measure = document.createElement("canvas").getContext("2d");
+  function placeCaret(el) {
+    const cs = getComputedStyle(el);
+    measure.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+    const spacing = parseFloat(cs.letterSpacing) || 0;
+    const textWidth = measure.measureText(el.value).width + spacing * el.value.length;
+    const scale = stageScale();
+    const s = stage.getBoundingClientRect();
+    const r = el.getBoundingClientRect();
+    const x = (r.left - s.left) / scale + parseFloat(cs.borderLeftWidth) + parseFloat(cs.paddingLeft) + textWidth + 1;
+    const y = (r.top + r.height / 2 - s.top) / scale;
+    caret.style.transform = `translate(${x}px,${y}px)`;
+    caret.style.display = "block";
+  }
+  function hideCaret() { caret.style.display = "none"; }
+
+  async function type(target, text, { perChar = 70, showCaret = false } = {}) {
     const el = await tap(target, { pause: 200 });
     el.focus();
     // 頁面未取得系統焦點時（例如嵌在 Figma 內），focus 事件不一定會觸發；補發一次讓下拉選單能開啟。
     if (!document.hasFocus()) el.dispatchEvent(new FocusEvent("focus"));
     const setter = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(el), "value")?.set;
     let value = "";
+    if (showCaret && !fast) { hideCursor(); placeCaret(el); await sleep(perChar); }
     for (const ch of fast ? [text] : text) {
       value += ch;
       if (setter) setter.call(el, value); else el.value = value;
       el.dispatchEvent(new Event("input", { bubbles: true }));
+      if (showCaret && !fast) placeCaret(el);
       if (!fast) await sleep(perChar);
     }
     el.dispatchEvent(new Event("change", { bubbles: true }));
@@ -602,10 +630,11 @@
       await fastForward(toBoardingInfo);
       await waitFor("#confirm-info");
       await sleep(900);
-      await type("#origin-airport", "杜拜", { perChar: 320 });
+      // 一個字一個字打，欄位裡留著閃爍的輸入游標；不點選結果，停在「正在輸入」的畫面
+      await type("#origin-airport", "杜拜", { perChar: 900, showCaret: true });
       await waitFor("#origin-airport-options [data-airport-option][data-value='DXB']");
-      await sleep(900);
-      await finalPress("#origin-airport-options [data-airport-option][data-value='DXB']");
+      hideCursor();
+      await sleep(HOLD);
     },
 
     // 06 延誤證明：選好檔案 → 按下確認上傳

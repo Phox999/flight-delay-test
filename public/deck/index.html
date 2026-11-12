@@ -146,13 +146,18 @@
   .errphones { grid-template-columns:repeat(4, 1fr); gap:24px; align-items:start; margin-top:8px; }
   .errphones figure { display:flex; flex-direction:column; align-items:center; gap:14px; }
   .errphones figcaption { display:flex; flex-direction:column; align-items:center; gap:6px; text-align:center; }
-  .errphones .cat-chip { border-radius:999px; padding:4px 14px; font-size:14px; font-weight:700; color:#191c1a; }
-  .errphones b { font-size:clamp(18px, 1.8vw, 22px); line-height:1.3; }
-  .errphones small { font-size:15px; color:var(--muted); line-height:1.5; }
-  .errphones .phone { --ps:.56; }
+  .errphones .cat-chip { border-radius:999px; padding:4px 14px; font-size:16px; font-weight:700; color:#191c1a; }
+  .errphones b { font-size:clamp(20px, 2vw, 26px); line-height:1.3; }
+  .errphones small { font-size:17px; color:var(--muted); line-height:1.5; }
+  /* 手機大小跟著視窗高度放大（Figma 上是 393 寬的 0.86 倍）；寬度不夠時不再放大，避免四支擠在一起 */
+  #errors-example { padding-block:76px 44px; } /* 手機放大後，上下留白收一點，維持在一個螢幕內 */
+  .errphones .phone { --ps:.58; }
   .errphones .phone .tip { display:none; }
-  @media (min-height:860px) { .errphones .phone { --ps:.62; } }
-  @media (min-height:1000px) { .errphones .phone { --ps:.72; } }
+  @media (min-height:860px) { .errphones .phone { --ps:.64; } }
+  @media (min-height:920px) and (min-width:1240px) { .errphones .phone { --ps:.7; } }
+  @media (min-height:980px) and (min-width:1340px) { .errphones .phone { --ps:.76; } }
+  @media (min-height:1040px) and (min-width:1440px) { .errphones .phone { --ps:.82; } }
+  @media (min-height:1100px) and (min-width:1520px) { .errphones .phone { --ps:.86; } }
   .shots { grid-template-columns:repeat(4, 1fr); gap:28px; }
   .shots figure { display:flex; flex-direction:column; gap:10px; }
   .shots figcaption { display:flex; gap:10px; align-items:flex-start; min-height:3em; font-size:16px; font-weight:700; }
@@ -205,6 +210,7 @@
   .mock-bubble { max-width:305px; padding:12px 16px; border-radius:10px; background:linear-gradient(137deg, #fff 8%, rgba(255,255,255,.5) 96%); box-shadow:0 2px 9px rgba(27,31,68,.08); }
   .mock-bubble h4 { margin-bottom:22px; font-size:16px; line-height:22px; font-weight:600; }
   .mock-bubble p.gap { margin-top:22px; }
+  .mock-bubble li b { font-weight:500; } /* Figma UI 的重點字是 Medium */
   .mock-bubble ol { padding-left:23px; list-style:decimal; }
   .mock-bubble ol ol { padding-left:22px; list-style:lower-alpha; }
   .mock-card { width:250px; margin-top:16px; padding-top:12px; overflow:hidden; border-radius:12px; background:#fff; box-shadow:0 2px 15px rgba(27,31,68,.08); }
@@ -493,7 +499,7 @@
           <div class="mock-bot">
             <span class="mock-avatar"><img src="flow/assets/mascot-face.png" alt=""><img class="star" src="flow/assets/mascot-star.svg" alt=""></span>
             <div class="mock-content">
-              <div class="mock-bubble"><h4>班機延誤理賠注意事項</h4><ol><li>本服務僅適用班機延誤後仍搭乘原航班。以下情況請改由產險官網或線下通路辦理：<ol><li>班機取消/改搭其他班機</li><li>申請實支實付型</li><li>錯過轉機航班</li><li>同時申請其他理賠項目</li></ol></li><li>限個人件，且要保人與被保險人須為同一人</li><li>須為班機延誤發生後二年內提出</li><li>須為國泰產險會員</li></ol></div>
+              <div class="mock-bubble"><h4>班機延誤理賠注意事項</h4><ol><li>本服務僅適用<b>班機延誤後仍搭乘原航班</b>。以下情況請改由產險官網或線下通路辦理：<ol><li>班機取消/改搭其他班機</li><li>申請實支實付型</li><li>錯過轉機航班</li><li>同時申請其他理賠項目</li></ol></li><li>限個人件，且要保人與被保險人須為同一人</li><li>須為班機延誤發生後二年內提出</li><li>須為國泰產險會員</li></ol></div>
               <div class="mock-card"><p>申請前請準備：</p><ol><li>登機證</li><li>本人匯款帳戶</li><li>班機延誤證明（視情況）</li></ol><b>確認申請</b><b>前往國泰產險官網</b></div>
               <p class="mock-time">10:07 PM 送出</p>
             </div>
@@ -508,7 +514,7 @@
           <div class="mock-bot">
             <span class="mock-avatar"><img src="flow/assets/mascot-face.png" alt=""><img class="star" src="flow/assets/mascot-star.svg" alt=""></span>
             <div class="mock-content">
-              <div class="mock-bubble"><h4>班機延誤理賠注意事項</h4><p>透過阿發申請，須符合：</p><ol><li>國泰產險會員本人投保個人件（要保人與被保險人都是本人）</li><li>延誤後仍搭乘原班機</li><li>須於延誤後 2 年內申請</li></ol><p class="gap">以下情況請改由官網或其他通路辦理：</p><ol><li>取消／改搭班機</li><li>錯過轉機</li><li>申請實支實付</li><li>同時申請其他理賠</li></ol></div>
+              <div class="mock-bubble"><h4>班機延誤理賠注意事項</h4><p>透過阿發申請，須符合：</p><ol><li>國泰產險會員<b>本人投保個人件（要保人與被保險人都是本人）</b></li><li><b>延誤後仍搭乘原班機</b></li><li>須於延誤後 2 年內申請</li></ol><p class="gap">以下情況請改由官網或其他通路辦理：</p><ol><li>取消／改搭班機</li><li>錯過轉機</li><li>申請實支實付</li><li>同時申請其他理賠</li></ol></div>
               <div class="mock-card"><p>申請前請準備：</p><ol><li>登機證</li><li>本人匯款帳戶</li><li>班機延誤證明</li></ol><b>確認申請</b><b>前往國泰產險官網</b></div>
               <p class="mock-time">10:07 PM 送出</p>
             </div>

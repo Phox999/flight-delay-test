@@ -774,7 +774,16 @@ function appendClaimDetails() {
     const list = document.createElement("ol");
     items.forEach((text) => {
       const item = document.createElement("li");
-      item.textContent = text;
+      // 以 ** 包住的字用 Medium 字重（Figma UI 03-04 的重點字）
+      text.split("**").forEach((part, index) => {
+        if (!part) return;
+        if (index % 2) {
+          const strong = document.createElement("b");
+          strong.style.fontWeight = "500";
+          strong.textContent = part;
+          item.append(strong);
+        } else item.append(part);
+      });
       list.append(item);
     });
     return list;
@@ -785,8 +794,8 @@ function appendClaimDetails() {
     heading,
     makeLead("透過阿發申請，須符合："),
     makePlainList([
-      "國泰產險會員本人投保個人件（要保人與被保險人都是本人）",
-      "延誤後仍搭乘原班機",
+      "國泰產險會員**本人投保個人件（要保人與被保險人都是本人）**",
+      "**延誤後仍搭乘原班機**",
       "須於延誤後 2 年內申請",
     ]),
     otherLead,
