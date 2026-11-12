@@ -213,8 +213,12 @@
   .mock-card b { display:grid; place-items:center; min-height:44px; border-top:1px solid #eaeaea; color:#4f44c3; font-weight:500; }
   .mock-composer { display:flex; align-items:center; gap:8px; margin-top:auto; padding:22px 24px 0; }
   .mock-composer span { flex:1; height:44px; padding:0 24px; border-radius:22px; background:#fff; color:#a0a0a0; line-height:44px; box-shadow:0 2px 9px rgba(27,31,68,.06); }
-  .mock-composer i { flex:none; display:grid; place-items:center; width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg, #9fc5fe, #887dfd); }
-  .mock-composer i img { width:22px; height:22px; }
+  /* send.svg 本身就是整顆按鈕（漸層圓底＋紙飛機），直接以 40px 呈現，不再另外包一層底色 */
+  .mock-composer i { flex:none; display:block; width:40px; height:40px; }
+  .mock-composer i img { display:block; width:40px; height:40px; }
+  /* 聚光燈遮罩：整片壓暗，只留一塊亮區（依 Figma 的 Subtract 圖層） */
+  .spot { overflow:hidden; border-radius:36px; pointer-events:none; }
+  .spot i { position:absolute; border-radius:24px; box-shadow:0 0 0 2000px rgba(68,66,66,.68); }
   .mock-note { margin-top:8px; padding:0 20px; color:#777; font-size:12px; line-height:17px; letter-spacing:0; text-align:center; }
   /* 研究發現一：固定高度的對話截面，內容接在標題列下方 */
   .mock.fixed { height:657px; min-height:0; overflow:hidden; }
@@ -338,10 +342,10 @@
     <div class="card col" style="padding:32px;gap:20px;justify-content:center">
       <span class="tag chip">設計目標</span>
       <ul class="col" style="gap:12px">
-        <li class="goal">實現對話即完成理賠，將業務流程轉化為直覺、連貫的對話式申請體驗</li>
-        <li class="goal">透過防呆設計，降低填寫錯誤與文件缺漏風險</li>
-        <li class="goal">主動發掘使用情境，補足流程規劃中的體驗缺口</li>
-        <li class="goal">透過使用者測試驗證設計，提出改善方案</li>
+        <li class="goal"><span>實現對話即完成理賠，將業務流程轉化為<span class="purple">直覺、連貫的對話式申請體驗</span></span></li>
+        <li class="goal"><span>透過防呆設計，<span class="purple">降低填寫錯誤與文件缺漏風險</span></span></li>
+        <li class="goal"><span>主動發掘使用情境，<span class="purple">補足流程規劃中的體驗缺口</span></span></li>
+        <li class="goal"><span>透過<span class="purple">使用者測試驗證設計</span>，提出改善方案</span></li>
       </ul>
     </div>
   </div>
@@ -370,7 +374,7 @@
 <section id="flow"><div class="wrap">
   <div class="screen" id="flow-first" data-screen>
     <p class="eyebrow reveal">流程設計</p>
-    <h2 class="reveal">從業務規格延伸到實際操作，將流程缺口轉化為具體設計方案</h2>
+    <h2 class="reveal">從業務規格落地至實際設計，補足流程缺口並提出具體設計方案</h2>
   </div>
   <div class="steps" id="steps"></div>
 </div></section>
@@ -384,19 +388,15 @@
     <b style="font-size:clamp(17px, 2vw, 22px)">發生錯誤時，說明原因並提供後續處理方式</b>
   </div>
   <div class="grid cats reveal" style="margin-top:20px">
-    <div class="card cat"><header style="background:#83d8ff">文件上傳與辨識<span class="mont">4</span></header><ul><li>檔案格式錯誤</li><li>檔案超過 10 MB</li><li>文件無法辨識</li><li>系統辨識異常</li></ul></div>
-    <div class="card cat"><header style="background:#c5b2ff">身分與驗證<span class="mont">4</span></header><ul><li>OTP 輸入錯誤</li><li>OTP 已失效</li><li>OTP 錯誤達上限</li><li>帳號鎖定</li></ul></div>
-    <div class="card cat"><header style="background:#8feacd">資料與查詢<span class="mont">3</span></header><ul><li>欄位格式錯誤</li><li>查無有效保單</li><li>搜尋查無結果</li></ul></div>
-    <div class="card cat"><header style="background:#ffe5aa">系統與對話<span class="mont">3</span></header><ul><li>連線／API 異常</li><li>對話逾時</li><li>不當輸入與提問上限</li></ul></div>
+    <div class="card cat"><header style="background:#c5b2ff">文件上傳與辨識<span class="mont">4</span></header><ul><li>檔案格式錯誤</li><li>檔案超過 10 MB</li><li>文件無法辨識</li><li>系統辨識異常</li></ul></div>
+    <div class="card cat"><header style="background:#afbfff">身分與驗證<span class="mont">4</span></header><ul><li>OTP 輸入錯誤</li><li>OTP 已失效</li><li>OTP 錯誤達上限</li><li>帳號鎖定</li></ul></div>
+    <div class="card cat"><header style="background:#99ccff">資料與查詢<span class="mont">3</span></header><ul><li>欄位格式錯誤</li><li>查無有效保單</li><li>搜尋查無結果</li></ul></div>
+    <div class="card cat"><header style="background:#83d8ff">系統與對話<span class="mont">3</span></header><ul><li>連線／API 異常</li><li>對話逾時</li><li>不當輸入與提問上限</li></ul></div>
   </div>
 
   </div><div class="screen" id="errors-example" data-screen>
   <h2 class="reveal">四類異常各舉一例：發生錯誤時說明原因，並提供下一步</h2>
   <div class="grid errphones reveal" id="errphones" data-chain></div>
-  <div class="notes reveal">
-    <p><span class="chip">PM 規格</span>三次後直接收件，轉專人處理</p>
-    <p><span class="chip">無法繼續申請時</span>系統異常時，引導至會員中心或其他理賠申請管道</p>
-  </div>
 </div></div></section>
 
 <!-- 使用者驗證 -->
@@ -435,7 +435,7 @@
       <div class="dots" data-on="6" data-total="18" role="img" aria-label="18 人中有 6 人"></div>
       <div class="col" style="gap:16px">
         <div class="card qa"><span class="chip" style="background:#e2e4ec;color:var(--muted)">問題</span><p style="color:#4b5263">辨識失敗原因與後續操作指引不夠明確</p></div>
-        <div class="qa" style="background:var(--purple);color:#fff"><span class="chip" style="background:#fff;color:var(--purple)">解法</span><b>首次失敗說明原因，第 2 次次失敗後引導手動輸入</b></div>
+        <div class="qa" style="background:var(--purple);color:#fff"><span class="chip" style="background:#fff;color:var(--purple)">解法</span><b>首次失敗說明原因，第 2 次失敗後引導手動輸入</b></div>
       </div>
     </div>
     <button type="button" class="scaler reveal" id="compare1" data-w="846" style="--sw:846;--sh:800" aria-pressed="false" aria-label="辨識失敗訊息對照：點一下切換修改前與修改後的文案">
@@ -466,6 +466,7 @@
           <p class="mock-composer"><span>告訴我你想做什麼</span><i><img src="flow/assets/send.svg" alt=""></i></p>
           <p class="mock-note">當您傳送訊息，即表示同意「AI告知聲明」。本服務由AI提供，<br>內容僅供參考，實際資訊仍以國泰產險官網公告為準。</p>
         </div>
+        <div class="spot" style="left:15px;top:132px;width:831px;height:663px" aria-hidden="true"><i style="left:15px;top:294px;width:798px;height:198px"></i></div>
       </div>
     </button>
   </div>
@@ -515,6 +516,7 @@
           <p class="mock-composer"><span>告訴我你想做什麼</span><i><img src="flow/assets/send.svg" alt=""></i></p>
           <p class="mock-note">當您傳送訊息，即表示同意「AI告知聲明」。本服務由AI提供，<br>內容僅供參考，實際資訊仍以國泰產險官網公告為準。</p>
         </div>
+        <div class="spot" style="left:18px;top:151px;width:831px;height:811px" aria-hidden="true"><i style="left:15px;top:82px;width:798px;height:352px"></i></div>
       </div>
     </div>
   </div>
@@ -583,12 +585,12 @@
 const STEPS = [
   ['01','提出理賠','我這樣可以申請嗎？要準備什麼？','判斷客戶要申請還是諮詢',['透過快速選單，一鍵進入理賠申請','申請條件與應備文件分類呈現']],
   ['02','身分驗證','申請一定要先登入嗎？','驗證會員身分，才能進入理賠申請',['不需離開對話，在阿發就能完成登入','提供密碼與驗證碼兩種登入方式']],
-  ['03','個資聲明','要同意哪些事？我的資料會怎麼用？','客戶必須完整觀看個資聲明',['一鍵滑至聲明底部，不需手動捲動','閱讀至底部後，才開放同意']],
-  ['04','登機證辨識','登機證拍照上傳就可以嗎？','收取登機證並辨識航班資料',['上傳登機證，自動帶入航班資料','上傳前清楚說明格式、大小與張數限制']],
-  ['05','航班資訊確認','辨識出來的資料錯了怎麼辦？','請客戶確認登機證辨識結果',['自動帶入辨識結果，不需重新填寫','輸入機場名稱或代碼，就能快速搜尋']],
-  ['06','延誤證明','我手上沒有延誤證明怎麼辦？','收取延誤證明，最多三份',['一次最多上傳三份證明，不需分次操作','不清楚如何取得證明，也能直接查看說明']],
-  ['07','匯款資料','理賠金會匯到哪裡？','收取本人匯款帳戶資料',['上傳存摺，自動帶入帳戶資料','輸入銀行或分行名稱，就能快速搜尋']],
-  ['08','動態密碼驗證','收不到驗證碼怎麼辦？','透過動態密碼驗證申請身分',['顯示發送對象與有效時間，方便確認','沒收到驗證碼，也能重新發送']],
+  ['03','個資聲明','要同意哪些事？我的資料會怎麼用？','客戶必須完整觀看個資聲明',['一鍵滑至聲明底部，不需手動捲動','閱讀至底部才開放同意，避免客訴爭議']],
+  ['04','登機證辨識','登機證拍照上傳就可以嗎？','收取登機證並辨識航班資料',['上傳登機證，即可自動帶入航班資料','以進度條呈現申請階段，讓使用者清楚掌握目前進度']],
+  ['05','航班資訊確認','辨識出來的資料錯了怎麼辦？','請客戶確認登機證辨識結果',['輸入機場名稱或代碼，就能快速搜尋','命中關鍵字以粗體標示，快速找到對應結果']],
+  ['06','延誤證明','我手上沒有延誤證明怎麼辦？','收取延誤證明，最多三份',['不清楚如何取得證明，能直接查看說明']],
+  ['07','匯款資料','理賠金會匯到哪裡？','收取本人匯款帳戶資料',['支援存摺上傳與手動輸入，依需求選擇填寫方式','輸入銀行或分行名稱，就能快速搜尋']],
+  ['08','動態密碼驗證','收不到驗證碼怎麼辦？','透過動態密碼驗證申請身分',['清楚顯示驗證碼發送門號，方便確認','未收到驗證碼時，提供重發與操作指引']],
   ['09','送出與回饋','送出之後怎麼知道進度？','完成理賠收件與滿意度調查',['送出後立即提供案件編號與查詢入口','一題完成滿意度評分，再依回答追問原因']],
   // 會員註冊不在主要流程內：放在最後，並用分隔線隔開
   ['02A','會員註冊','我不是會員，還要另外去註冊嗎？','提供線下投保客戶加入會員的渠道',['不需離開阿發，就能完成會員註冊','註冊後自動登入，接續原本的理賠申請']],
@@ -620,10 +622,10 @@ document.getElementById('steps').innerHTML = STEPS.map(([no, name, ask, need, ho
 
 // ---------- 異常處理：四大分類各一個代表情境 ----------
 const ERR_SCENES = [
-  ['E1', '文件上傳與辨識', '#83d8ff', '文件無法辨識', '說明原因，可重新上傳或改用手動輸入'],
-  ['E2', '身分與驗證', '#c5b2ff', '動態密碼輸入錯誤', '提示錯誤次數，可重新輸入或重新發送'],
-  ['E3', '資料與查詢', '#8feacd', '欄位格式錯誤', '標出錯誤欄位，修正後即可繼續'],
-  ['E4', '系統與對話', '#ffe5aa', '連線異常', '保留已選檔案，可直接重試'],
+  ['E1', '文件上傳與辨識', '#c5b2ff', '文件無法辨識', '說明原因，可重新上傳或改用手動輸入'],
+  ['E2', '身分與驗證', '#afbfff', '動態密碼已失效', '提示已失效，可直接重新發送'],
+  ['E3', '資料與查詢', '#99ccff', '檔案大小與格式錯誤', '逐一標出問題檔案，刪除後重新上傳'],
+  ['E4', '系統與對話', '#83d8ff', '系統異常', '說明狀況，引導前往會員中心申請'],
 ];
 document.getElementById('errphones').innerHTML = ERR_SCENES.map(([step, cat, color, name, how]) => `
   <figure>

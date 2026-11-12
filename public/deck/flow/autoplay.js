@@ -641,32 +641,21 @@
       await finalPress("[data-chat-action='retry-boarding-pass']");
     },
 
-    // E2 身分與驗證｜動態密碼輸入錯誤：提示剩餘次數，可重新輸入
+    // E2 身分與驗證｜動態密碼已失效：提示已失效，可直接重新發送（Figma 09-08）
     "E2": async () => {
       errMode();
       await fastForward(toOtpDialog);
-      await FLOW.otpType({ demoError: true });
-      await finalPress("#otp-next");
-    },
-
-    // E3 資料與查詢｜欄位格式錯誤：標出錯誤欄位，修正後繼續
-    "E3": async () => {
-      errMode();
-      await fastForward(toBoardingInfo);
-      await waitFor("#confirm-info");
-      await sleep(800);
-      const original = document.querySelector("#boarding-info-form [name='date']").value;
-      await type("#boarding-info-form [name='date']", "13/45", { perChar: 150 });
-      await tap("#confirm-info", { pause: 400 });
-      hideCursor();
-      await waitText("請輸入正確的起飛日期");
+      await waitFor("#otp-input");
+      await sleep(1600);
+      // 原型的動態密碼 5 分鐘後失效；示範時把剩餘秒數撥到 1 秒，讓它自己走到失效狀態
+      otpExpirySeconds = 1; // app.js 的全域變數
+      await waitText("動態密碼已失效");
       await sleep(ERR_HOLD);
-      await type("#boarding-info-form [name='date']", original, { perChar: 150 });
-      await finalPress("#confirm-info");
+      await finalPress("#otp-resend");
     },
 
-    // E4 系統與對話｜連線異常：保留已選檔案，可直接重試
-    "E4": async () => {
+    // E3 資料與查詢｜檔案大小與格式錯誤：逐一標出問題檔案，刪除後重新上傳（Figma 08-07）
+    "E3": async () => {
       errMode();
       await fastForward(async () => {
         await toBoardingInfo();
@@ -674,13 +663,30 @@
         await waitFor("#upload-help-trigger");
       });
       await sleep(800);
-      await FLOW.pickFile("network-error");
-      await sleep(400);
-      await tap("#upload-confirm", { pause: 400 });
+      await FLOW.pickFile("proof-sample-pdf"); // 正常檔案
+      await FLOW.pickFile("docx-large");       // 超過 10 MB
+      await FLOW.pickFile("zip");              // 不支援的格式
       hideCursor();
-      await waitText("網路連線異常");
+      await waitText("此檔案格式不支援");
       await sleep(ERR_HOLD);
-      await finalPress("#upload-confirm");
+      await finalPress(".upload-file-item.has-error .upload-file-remove");
+    },
+
+    // E4 系統與對話｜系統異常：說明狀況，引導前往會員中心申請（Figma 06-14）
+    // 原型在登機證上傳沒有系統異常的分支，這裡用延誤證明上傳時的系統異常示範，訊息與按鈕相同
+    "E4": async () => {
+      errMode();
+      await fastForward(async () => {
+        await toBoardingInfo();
+        await FLOW.boardingInfo({ edit: true });
+        await waitFor("#upload-help-trigger");
+      });
+      await sleep(700);
+      await FLOW.pickFile("system-error");
+      await FLOW.confirmUpload();
+      await waitFor("[data-chat-action='claim-member']");
+      await sleep(ERR_HOLD);
+      await finalPress("[data-chat-action='claim-member']");
     },
 
     // 09 送出與回饋：已送出、顯示案件編號 → 選「有點卡住」→ 接續詢問原因 → 完成
