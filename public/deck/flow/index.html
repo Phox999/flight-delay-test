@@ -630,7 +630,7 @@
 
             <section class="auth-view" id="auth-view-signup-4" data-auth-view="signup-4" hidden>
               <div class="auth-progress" data-step="4"><div class="auth-progress-label"><span>設定密碼</span><span class="auth-progress-count"><strong>4</strong><span class="auth-progress-total"> / 4</span></span></div><div class="auth-progress-track"><img class="auth-progress-fill" src="assets/signup-progress-bar.png" alt="" /></div></div>
-              <p class="auth-rule-hint"><img src="assets/ic-mml-info.svg" alt="" /><span>密碼的設定規則</span></p>
+              <button class="auth-rule-hint" id="signup-rule-trigger" type="button" aria-expanded="false" aria-controls="signup-rule-note"><img src="assets/ic-mml-info.svg" alt="" /><span>密碼的設定規則</span></button>
               <form class="auth-form" id="signup-password-form" data-auth-form="signup-4" novalidate>
                 <label class="auth-field" for="signup-password"><span>設定會員密碼</span><span class="auth-input-action"><input id="signup-password" name="password" type="password" autocomplete="new-password" placeholder="8-12 英數字，禁連續 3 碼及特殊符號" aria-describedby="signup-password-error" /><button class="auth-icon-button" type="button" data-toggle-password="signup-password" aria-label="顯示密碼" aria-pressed="false"><img src="assets/auth-eye-closed.svg" alt="" /></button></span><span class="auth-field-error" id="signup-password-error" data-auth-error-for="signup-password" role="alert" hidden></span></label>
                 <label class="auth-field" for="signup-confirm-password"><span>再次輸入密碼</span><span class="auth-input-action"><input id="signup-confirm-password" name="confirmPassword" type="password" autocomplete="new-password" placeholder="8-12 英數字，禁連續 3 碼及特殊符號" aria-describedby="signup-confirm-password-error" /><button class="auth-icon-button" type="button" data-toggle-password="signup-confirm-password" data-toggle-label="再次輸入的密碼" aria-label="顯示再次輸入的密碼" aria-pressed="false"><img src="assets/auth-eye-closed.svg" alt="" /></button></span><span class="auth-field-error" id="signup-confirm-password-error" data-auth-error-for="signup-confirm-password" role="alert" hidden></span></label>
@@ -644,6 +644,10 @@
           <div class="otp-help-note login-otp-help-note" id="login-otp-help-note" role="note" hidden>
             <p>請確認手機號碼及電子郵件是否正確。可能因電信或系統繁忙而延遲送達，若透過電子郵件收取，請一併查看垃圾郵件匣。</p>
             <button type="button" id="login-otp-help-close" aria-label="關閉提示">×</button>
+          </div>
+          <div class="otp-help-note login-otp-help-note signup-rule-note" id="signup-rule-note" role="note" hidden>
+            <p>密碼8-12碼英文和數字(不含符號)<br />不可與會員帳號相同<br />不可有重複或連續3碼字元(如111、abc、123)</p>
+            <button type="button" id="signup-rule-close" aria-label="關閉提示">×</button>
           </div>
         </section>
         <div class="auth-nationality-menu" id="signup-nationality-menu" hidden>

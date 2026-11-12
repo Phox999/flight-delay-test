@@ -112,6 +112,13 @@ const signupNationalityTooltipTail = signupNationalityTooltip.querySelector(".au
 const loginOtpHelpTrigger = document.querySelector("#login-otp-help-trigger");
 const loginOtpHelpNote = document.querySelector("#login-otp-help-note");
 const loginOtpHelpClose = document.querySelector("#login-otp-help-close");
+const signupRuleTrigger = document.querySelector("#signup-rule-trigger");
+const signupRuleNote = document.querySelector("#signup-rule-note");
+const signupRuleClose = document.querySelector("#signup-rule-close");
+function closeSignupRule() {
+  signupRuleNote.hidden = true;
+  signupRuleTrigger.setAttribute("aria-expanded", "false");
+}
 const authTitle = document.querySelector("#auth-title");
 const authTabs = document.querySelector("#auth-tabs");
 const authScroll = document.querySelector("#auth-scroll");
@@ -1246,6 +1253,7 @@ function setAuthView(view, { focus = "" } = {}) {
     loginOtpHelpNote.hidden = true;
     loginOtpHelpTrigger.setAttribute("aria-expanded", "false");
   }
+  if (view !== "signup-4") closeSignupRule();
   authActiveView = view;
   authSheet.dataset.view = view;
   authViews.forEach((panel) => { panel.hidden = panel.dataset.authView !== view; });
@@ -4147,6 +4155,17 @@ loginOtpHelpClose.addEventListener("click", () => {
   loginOtpHelpNote.hidden = true;
   loginOtpHelpTrigger.setAttribute("aria-expanded", "false");
 });
+// 設定密碼：點「密碼的設定規則」開關提示（Figma 04-21B）
+function positionSignupRule() {
+  positionOtpTooltip(signupRuleNote, signupRuleTrigger, authSheet);
+}
+signupRuleTrigger.addEventListener("click", () => {
+  signupRuleNote.hidden = !signupRuleNote.hidden;
+  signupRuleTrigger.setAttribute("aria-expanded", String(!signupRuleNote.hidden));
+  if (!signupRuleNote.hidden) positionSignupRule();
+});
+signupRuleClose.addEventListener("click", closeSignupRule);
+window.addEventListener("resize", positionSignupRule);
 window.addEventListener("resize", positionOtpHelp);
 window.addEventListener("resize", positionLoginOtpHelp);
 window.visualViewport?.addEventListener("resize", positionOtpHelp);
@@ -4155,6 +4174,10 @@ otpDialog.addEventListener("click", (event) => {
   if (otpHelpNote.hidden || event.target.closest(".otp-help") || event.target.closest("#otp-help-note")) return;
   otpHelpNote.hidden = true;
   otpHelpTrigger.setAttribute("aria-expanded", "false");
+});
+authDialog.addEventListener("click", (event) => {
+  if (signupRuleNote.hidden || event.target.closest("#signup-rule-trigger") || event.target.closest("#signup-rule-note")) return;
+  closeSignupRule();
 });
 authDialog.addEventListener("click", (event) => {
   if (loginOtpHelpNote.hidden || event.target.closest(".login-code-help") || event.target.closest("#login-otp-help-note")) return;

@@ -136,7 +136,7 @@
 
   /* 異常處理 */
   .band { background:var(--purple); color:#fff; border-radius:var(--r); padding:22px clamp(24px, 4vw, 44px); display:flex; align-items:center; justify-content:space-between; gap:24px; flex-wrap:wrap; }
-  .cats { grid-template-columns:4fr 4fr 3fr 3fr; align-items:stretch; }
+  .cats { grid-template-columns:repeat(4, 1fr); align-items:stretch; }
   .cat { overflow:visible; }
   .cat header { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 22px; border-radius:var(--r) var(--r) 0 0; font-size:clamp(18px, 2vw, 22px); font-weight:700; }
   .cat header .mont { font-size:32px; }
@@ -589,10 +589,10 @@
 <!-- 異常處理 -->
 <section id="errors"><div class="wrap"><div class="screen" data-screen>
   <p class="eyebrow reveal">異常處理</p>
-  <h2 class="reveal">系統錯誤也有清楚的指引，保證服務不中斷</h2>
+  <h2 class="reveal">從文件上傳到身分驗證，完善各環節的異常處理設計</h2>
   <div class="band reveal">
-    <p class="row" style="gap:20px"><span class="mont" style="font-size:clamp(56px, 7vw, 80px)">14</span><span class="col"><b style="font-size:clamp(20px, 2.4vw, 26px)">類異常情境</b><span style="font-size:16px;opacity:.82">4 大分類 · 分層處理</span></span></p>
-    <b style="font-size:clamp(17px, 2vw, 22px)">發生錯誤時，說明原因並提供後續處理方式</b>
+    <p class="row" style="gap:20px"><span class="mont" style="font-size:clamp(56px, 7vw, 80px)">14</span><b style="font-size:clamp(20px, 2.4vw, 26px)">類異常情境</b></p>
+    <b style="font-size:clamp(17px, 2vw, 22px)">發生錯誤時，說明原因並提供客戶後續處理方式</b>
   </div>
   <div class="grid cats reveal" style="margin-top:20px">
     <div class="card cat"><header style="background:#c5b2ff">文件上傳與辨識<span class="mont">4</span></header><ul><li>檔案格式錯誤</li><li>檔案超過 10 MB</li><li>文件無法辨識</li><li>系統辨識異常</li></ul></div>
@@ -623,7 +623,7 @@
   <p class="eyebrow reveal">專案時程</p>
   <h2 class="reveal"><span class="purple">2 個月即完成設計交付</span>，銜接開發測試與 2027 年第一季上線計畫</h2>
   <div class="gantt-wrap reveal"><div class="scaler" data-w="1920" style="--sw:1920;--sh:870">
-    <div class="canvas" role="img" aria-label="時程圖：8 月到 10 月完成 P1 設計、P2 設計與測試、流程調整，9 月 P1 交付、10 月 P2 交付；11 月起產險 RD 與廠商開發、SIT、QA 修正，預計 2027 年第一季上線。目前在 11/9。">
+    <div class="canvas" role="img" aria-label="時程圖：8 月到 10 月完成 P1 設計、P2 設計與測試、流程調整，9 月 P1 交付、10 月 P2 交付；11 月起產險 RD 與廠商開發、SIT、QA 修正，預計 2027 年第一季上線。目前在 11/12。">
       <span class="month" style="left:330px">8月</span><span class="month" style="left:539px">9月</span><span class="month" style="left:748px">10月</span><span class="month" style="left:957px">11月</span><span class="month" style="left:1166px">12月</span><span class="month" style="left:1375px">1月</span><span class="month" style="left:1584px">2月</span>
       <b class="purple" style="left:96px;top:233px;font-size:48px;line-height:58px">產險阿發</b>
       <b class="chip" style="left:96px;top:307px;background:rgba(227,220,255,.55);border-radius:18px;padding:8px 16px;font-size:20px;line-height:22px;color:#4c37dd">班機延誤</b>
@@ -637,7 +637,7 @@
       <div class="ms" style="left:757px;top:323px"><span class="bar p">P2 交付</span></div>
       <div class="ms" style="left:1632px;top:620px"><span class="bar p" style="min-width:300px">預計 2027 Q1 上線</span></div>
       <div class="col" style="left:1005px;top:0;width:56px;height:851px;align-items:center;color:#fc854e">
-        <b style="font-size:32px;line-height:39px">11/9</b>
+        <b style="font-size:32px;line-height:39px;white-space:nowrap">11/12</b>
         <i style="margin-top:14px;border:15px solid transparent;border-top:26px solid currentColor;border-bottom:0"></i>
         <i style="flex:1;width:3px;background:currentColor;margin-top:-4px"></i>
       </div>
