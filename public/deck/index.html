@@ -169,6 +169,47 @@
   .notes { display:flex; flex-wrap:wrap; gap:14px 28px; margin-top:44px; font-size:16px; }
   .notes .chip { background:#f1f2f6; border-radius:8px; padding:2px 10px; font-size:14px; color:var(--muted); margin-right:8px; }
 
+  /* 使用者驗證：受測旅程與前後測結果 */
+  #journey { padding-block:72px 28px; }
+  @media (max-height:960px) { #finding-2 { padding-block:76px 40px; } } /* 筆電高度下維持在一個螢幕內 */
+  #journey h2 { margin-bottom:18px; }
+  .jtop { display:grid; grid-template-columns:1fr auto 1fr; gap:20px; align-items:center; }
+  .jnode { padding:14px 24px 16px; display:flex; flex-direction:column; gap:8px; }
+  .jmeta, .jmain { justify-content:space-between; gap:12px; }
+  .jtag { background:#f8f4ff; color:#5b4ae6; border-radius:999px; padding:3px 12px; font-size:13px; }
+  .jmain { align-items:baseline; }
+  .jmain b { font-size:clamp(22px, 2.6vw, 34px); }
+  .jmain .mont { font-size:clamp(34px, 4vw, 50px); color:#5b4ae6; white-space:nowrap; }
+  .jmain small { font-family:"Noto Sans TC", sans-serif; font-size:.6em; }
+  .jarrow { width:40px; height:40px; border-radius:50%; background:#f8f4ff; color:#5b4ae6; display:grid; place-items:center; font-size:22px; font-weight:700; }
+  .jtrack { margin-top:12px; padding:6px 24px 10px; display:grid; grid-template-columns:minmax(230px, 22%) repeat(5, 1fr); align-items:center; }
+  .jhead, .jst { padding:12px 0; font-size:clamp(14px, 1.4vw, 17px); text-align:center; }
+  .jhead { font-size:clamp(16px, 1.6vw, 20px); }
+  .jlabel, .jline { border-top:1px solid #f1eefc; }
+  .jlabel { justify-content:center; width:auto; margin:10px 0; padding:10px 16px; border-radius:999px; border-top:0; font-size:clamp(15px, 1.6vw, 21px); }
+  .jline { grid-column:2 / -1; align-self:stretch; display:grid; grid-template-columns:repeat(5, 1fr); justify-items:center; align-items:center; position:relative; color:var(--c); }
+  .jline::before { content:""; position:absolute; left:10%; right:10%; top:50%; height:4px; margin-top:-2px; border-radius:2px; background:currentColor; }
+  .jline i { position:relative; width:18px; height:18px; border-radius:50%; background:currentColor; box-shadow:0 0 0 6px #f8f4ff; }
+  .jline b { position:relative; padding:8px 18px; border-radius:999px; background:var(--c); color:#fff; font-size:clamp(13px, 1.3vw, 16px); white-space:nowrap; }
+  .jtable { margin-top:12px; padding:10px 20px 14px; overflow-x:auto; }
+  .jtable table { width:100%; min-width:880px; border-collapse:separate; border-spacing:0 6px; }
+  .jtable th { padding:2px 8px; font-size:clamp(14px, 1.3vw, 17px); font-weight:700; color:var(--muted); text-align:center; white-space:nowrap; }
+  .jtable thead tr:first-child th { font-size:clamp(16px, 1.5vw, 19px); padding-top:8px; }
+  .jtable th.q { text-align:left; padding-left:16px; }
+  .jtable th.q b { font-size:clamp(18px, 1.8vw, 22px); color:var(--ink); margin-right:14px; }
+  .jtable th.q small { font-size:14px; font-weight:500; }
+  .jtable td { padding:11px 8px; text-align:center; font-size:clamp(15px, 1.5vw, 19px); color:#4b5263; }
+  .jtable tbody tr:nth-child(odd) td { background:#f5f5f5; }
+  .jtable td:first-child { border-radius:10px 0 0 10px; } .jtable td:last-child { border-radius:0 10px 10px 0; }
+  .jtable td.q { width:40%; padding-left:16px; text-align:left; color:var(--ink); line-height:1.45; }
+  .jtable .ma, .jtable .mb, .jtable .d { font-weight:700; font-size:clamp(20px, 2.1vw, 26px); }
+  .jtable .ma { color:#5b4ae6; } .jtable .mb { color:#5489d8; } .jtable .d { color:var(--ink); white-space:nowrap; }
+  .jtable .sep { border-left:1px solid #e2e4ec; }
+  @media (max-width:900px) {
+    .jtop { grid-template-columns:1fr; } .jarrow { rotate:90deg; margin-inline:auto; }
+    .jtrack { overflow-x:auto; grid-template-columns:210px repeat(5, 120px); }
+  }
+
   /* 使用者驗證 */
   .overview { grid-template-columns:minmax(260px, .42fr) 1fr; }
   .big { background:var(--purple); color:#fff; border-radius:var(--r); padding:36px; display:flex; flex-direction:column; justify-content:space-between; gap:36px; }
@@ -302,7 +343,7 @@
 <header class="top"><div class="wrap">
   <a class="brand" href="#top"><span>UED</span><i></i><span>阿發</span></a>
   <nav aria-label="章節">
-    <a href="#goals">設計目標</a><a href="#scale">設計規模</a><a href="#flow">流程設計</a><a href="#errors">異常處理</a><a href="#research">使用者驗證</a><a href="#summary">結案總結</a><a href="#timeline">時程</a>
+    <a href="#goals">設計目標</a><a href="#scale">設計規模</a><a href="#research">使用者驗證</a><a href="#flow">流程設計</a><a href="#errors">異常處理</a><a href="#summary">結案總結</a><a href="#timeline">時程</a>
   </nav>
 </div></header>
 
@@ -376,46 +417,53 @@
   <p class="legend"><span class="purple"><i></i>主要流程</span><span style="color:#5489d8"><i></i>通用流程</span></p>
 </div></section>
 
-<!-- 流程設計（十個步驟由下方 STEPS 產生；手機捲到才淡入並播放一次） -->
-<section id="flow"><div class="wrap">
-  <div class="screen" id="flow-first" data-screen>
-    <p class="eyebrow reveal">流程設計</p>
-    <h2 class="reveal">從業務規格落地至實際設計，補足流程缺口並提出具體設計方案</h2>
-  </div>
-  <div class="steps" id="steps"></div>
-</div></section>
-
-<!-- 異常處理 -->
-<section id="errors" style="background:#fff"><div class="wrap"><div class="screen" data-screen>
-  <p class="eyebrow reveal">異常處理</p>
-  <h2 class="reveal">系統錯誤也有清楚的指引，保證服務不中斷</h2>
-  <div class="band reveal">
-    <p class="row" style="gap:20px"><span class="mont" style="font-size:clamp(56px, 7vw, 80px)">14</span><span class="col"><b style="font-size:clamp(20px, 2.4vw, 26px)">類異常情境</b><span style="font-size:16px;opacity:.82">4 大分類 · 分層處理</span></span></p>
-    <b style="font-size:clamp(17px, 2vw, 22px)">發生錯誤時，說明原因並提供後續處理方式</b>
-  </div>
-  <div class="grid cats reveal" style="margin-top:20px">
-    <div class="card cat"><header style="background:#c5b2ff">文件上傳與辨識<span class="mont">4</span></header><ul><li>檔案格式錯誤</li><li>檔案超過 10 MB</li><li>文件無法辨識</li><li>系統辨識異常</li></ul></div>
-    <div class="card cat"><header style="background:#afbfff">身分與驗證<span class="mont">4</span></header><ul><li>OTP 輸入錯誤</li><li>OTP 已失效</li><li>OTP 錯誤達上限</li><li>帳號鎖定</li></ul></div>
-    <div class="card cat"><header style="background:#99ccff">資料與查詢<span class="mont">3</span></header><ul><li>欄位格式錯誤</li><li>查無有效保單</li><li>搜尋查無結果</li></ul></div>
-    <div class="card cat"><header style="background:#83d8ff">系統與對話<span class="mont">3</span></header><ul><li>連線／API 異常</li><li>對話逾時</li><li>不當輸入與提問上限</li></ul></div>
-  </div>
-
-  </div><div class="screen" id="errors-example" data-screen>
-  <h2 class="reveal">四類異常各舉一例：發生錯誤時說明原因，並提供下一步</h2>
-  <div class="grid errphones reveal" id="errphones" data-chain></div>
-</div></div></section>
-
 <!-- 使用者驗證 -->
-<section id="research"><div class="wrap"><div class="screen" data-screen>
+<section id="research"><div class="wrap">
+  <!-- 受測旅程與前後測結果 -->
+  <div class="screen" id="journey" data-screen>
+  <p class="eyebrow reveal">使用者驗證</p>
+  <h2 class="reveal" style="margin-bottom:24px">49 人參與測試，登機證辨識失敗組在三項體驗評分皆偏低</h2>
+  <div class="jtop reveal">
+    <div class="card jnode">
+      <p class="row jmeta"><span class="chip jtag">STEP 01</span><span class="row" style="gap:8px"><span class="chip jtag">A 組 27 人</span><span class="chip jtag">B 組 22 人</span></span></p>
+      <p class="row jmain"><b>參與測試</b><span class="mont">49 <small>人</small></span></p>
+    </div>
+    <span class="jarrow" aria-hidden="true">→</span>
+    <div class="card jnode">
+      <p class="row jmeta"><span class="chip jtag">STEP 02</span><span class="row" style="gap:8px"><span class="chip jtag">A 組 19 人</span><span class="chip jtag">B 組 18 人</span></span></p>
+      <p class="row jmain"><b>完成後測問卷</b><span class="mont">37 <small>份</small></span></p>
+    </div>
+  </div>
+  <div class="card jtrack reveal" role="img" aria-label="A、B 兩組的測試流程相同：確認意願、註冊會員、上傳登機證、填寫匯款資料、OTP 驗證；B 組在上傳登機證時刻意安排辨識失敗。">
+    <b class="jhead">A／B 組測試流程</b><b class="jst">確認意願</b><b class="jst">註冊會員</b><b class="jst">上傳登機證</b><b class="jst">填寫匯款資料</b><b class="jst">OTP 驗證</b>
+    <span class="chip jlabel" style="background:#f8f4ff;color:#5b4ae6">A 組｜登機證辨識成功</span>
+    <span class="jline" style="--c:#5b4ae6"><i></i><i></i><i></i><i></i><i></i></span>
+    <span class="chip jlabel" style="background:#f4faff;color:#2e7aed">B 組｜登機證辨識失敗</span>
+    <span class="jline" style="--c:#5489d8"><i></i><i></i><b>刻意安排辨識失敗</b><i></i><i></i></span>
+  </div>
+  <div class="card jtable reveal">
+    <table>
+      <thead>
+        <tr><th class="q"><b>問卷統計</b><small>7 分量表，分數越高越正面</small></th><th colspan="3" style="color:#5b4ae6">A 組 · n = 19</th><th colspan="3" class="sep" style="color:#5489d8">B 組 · n = 18</th><th class="sep" style="color:var(--ink)">差距</th></tr>
+        <tr class="sub"><th class="q">問卷題目</th><th>平均</th><th>中位數</th><th>標準差</th><th class="sep">平均</th><th>中位數</th><th>標準差</th><th class="sep">B 組 − A 組平均</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="q">Q1 整體而言，我覺得剛才的理賠申請流程容易完成</td><td class="ma">6.11</td><td>6</td><td>0.81</td><td class="mb sep">5.33</td><td>5</td><td>1.03</td><td class="d sep">−0.78</td></tr>
+        <tr><td class="q">Q2 完成剛才的操作後，你有多確定理賠申請已成功送出</td><td class="ma">6.21</td><td>7</td><td>1.13</td><td class="mb sep">5.33</td><td>6</td><td>1.64</td><td class="d sep">−0.88</td></tr>
+        <tr><td class="q">Q8 如果未來再次遇到班機延誤，我有信心能透過阿發獨立完成理賠申請</td><td class="ma">6.21</td><td>6</td><td>0.79</td><td class="mb sep">5.39</td><td>5</td><td>1.50</td><td class="d sep">−0.82</td></tr>
+      </tbody>
+    </table>
+  </div>
+  </div>
+
+  <div class="screen" data-screen>
   <p class="eyebrow reveal">使用者驗證</p>
   <h2 class="reveal">以使用者回饋驗證設計假設，將兩項關鍵問題轉化為具體改善方案</h2>
   <div class="grid overview reveal">
     <div class="big">
-      <div><p class="mont" style="font-size:clamp(96px, 12vw, 140px)">49</p><b style="font-size:clamp(22px, 2.6vw, 30px)">人進行 A/B 測試</b></div>
+      <div><p class="mont" style="font-size:clamp(96px, 12vw, 140px)">2</p><b style="font-size:clamp(22px, 2.6vw, 30px)">項關鍵問題</b></div>
       <ul class="col" style="gap:8px;color:#e2deff">
-        <li class="row" style="gap:12px"><span class="mont" style="font-size:30px;color:#fff;min-width:44px">27</span>A 組｜紙本登機證</li>
-        <li class="row" style="gap:12px"><span class="mont" style="font-size:30px;color:#fff;min-width:44px">22</span>B 組｜電子登機證</li>
-        <li class="row" style="gap:12px"><span class="mont" style="font-size:30px;color:#fff;min-width:44px">37</span>完成測試</li>
+        <li class="row" style="gap:12px"><span class="mont" style="font-size:30px;color:#fff;min-width:44px">49</span>人實測中發現</li>
       </ul>
     </div>
     <div class="col" style="gap:20px">
@@ -527,6 +575,35 @@
     </div>
   </div>
 </div></section>
+
+<!-- 流程設計（十個步驟由下方 STEPS 產生；手機捲到才淡入並播放一次） -->
+<section id="flow" style="background:#fff"><div class="wrap">
+  <div class="screen" id="flow-first" data-screen>
+    <p class="eyebrow reveal">流程設計</p>
+    <h2 class="reveal">從業務規格落地至實際設計，補足流程缺口並提出具體設計方案</h2>
+  </div>
+  <div class="steps" id="steps"></div>
+</div></section>
+
+<!-- 異常處理 -->
+<section id="errors"><div class="wrap"><div class="screen" data-screen>
+  <p class="eyebrow reveal">異常處理</p>
+  <h2 class="reveal">系統錯誤也有清楚的指引，保證服務不中斷</h2>
+  <div class="band reveal">
+    <p class="row" style="gap:20px"><span class="mont" style="font-size:clamp(56px, 7vw, 80px)">14</span><span class="col"><b style="font-size:clamp(20px, 2.4vw, 26px)">類異常情境</b><span style="font-size:16px;opacity:.82">4 大分類 · 分層處理</span></span></p>
+    <b style="font-size:clamp(17px, 2vw, 22px)">發生錯誤時，說明原因並提供後續處理方式</b>
+  </div>
+  <div class="grid cats reveal" style="margin-top:20px">
+    <div class="card cat"><header style="background:#c5b2ff">文件上傳與辨識<span class="mont">4</span></header><ul><li>檔案格式錯誤</li><li>檔案超過 10 MB</li><li>文件無法辨識</li><li>系統辨識異常</li></ul></div>
+    <div class="card cat"><header style="background:#afbfff">身分與驗證<span class="mont">4</span></header><ul><li>OTP 輸入錯誤</li><li>OTP 已失效</li><li>OTP 錯誤達上限</li><li>帳號鎖定</li></ul></div>
+    <div class="card cat"><header style="background:#99ccff">資料與查詢<span class="mont">3</span></header><ul><li>欄位格式錯誤</li><li>查無有效保單</li><li>搜尋查無結果</li></ul></div>
+    <div class="card cat"><header style="background:#83d8ff">系統與對話<span class="mont">3</span></header><ul><li>連線／API 異常</li><li>對話逾時</li><li>不當輸入與提問上限</li></ul></div>
+  </div>
+
+  </div><div class="screen" id="errors-example" data-screen>
+  <h2 class="reveal">針對不同異常提供對應引導，讓使用者清楚知道原因與下一步</h2>
+  <div class="grid errphones reveal" id="errphones" data-chain></div>
+</div></div></section>
 
 <!-- 結案總結 -->
 <section id="summary" style="background:#fff"><div class="wrap screen" data-screen>
