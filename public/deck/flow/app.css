@@ -2393,3 +2393,16 @@ a.inline-link { text-decoration: underline; }
 
 /* 出發地／目的地：選定後顯示機場名稱，過長以刪節號收尾 */
 .boarding-field input.airport-input { text-overflow: ellipsis; }
+
+/* 系統異常訊息的「前往會員中心」：依 Figma 06-14，是訊息泡泡內的文字連結＋外連圖示，不是按鈕 */
+.chat-action[data-chat-action="claim-member"] {
+  display: inline-flex; align-items: center; gap: 8px;
+  width: auto; min-height: 0; margin: 22px 0 0; padding: 0;
+  border: 0; border-radius: 0; background: transparent; box-shadow: none;
+  color: var(--link); font-size: 16px; line-height: 22px; font-weight: 500; letter-spacing: .3px;
+}
+.chat-action[data-chat-action="claim-member"]:hover { background: transparent; }
+.chat-action[data-chat-action="claim-member"]::after {
+  content: ""; flex: none; width: 12px; height: 12px;
+  background: url("assets/external-link.svg") center / contain no-repeat;
+}

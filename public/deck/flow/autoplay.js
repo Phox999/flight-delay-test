@@ -540,9 +540,16 @@
       await sleep(900);
       await tap(".suggestion[data-prompt='我想申請班機延誤理賠']", { pause: 300 });
       hideCursor();
-      await waitFor("[data-chat-action='claim-confirm']");
-      await sleep(1200);
-      await scrollBox(document.querySelector("#chat-screen"), "bottom", 1800); // 用計時器捲動，分頁在背景時也能跑完
+      const confirm = await waitFor("[data-chat-action='claim-confirm']");
+      // 訊息出來後先停在頂端，讓人看完注意事項的文字，再往下捲到「確認申請」
+      const chat = document.querySelector("#chat-screen");
+      const row = confirm.closest(".assistant-row");
+      const toTop = () => { if (row) chat.scrollTop += (row.getBoundingClientRect().top - chat.getBoundingClientRect().top) / stageScale() - 8; };
+      toTop();
+      await sleep(400);
+      toTop();
+      await sleep(6000); // 依倍率換算約 4 秒
+      await scrollBox(chat, "bottom", 2200); // 用計時器捲動，分頁在背景時也能跑完
       await sleep(600);
       await finalPress("[data-chat-action='claim-confirm']");
     },
@@ -590,15 +597,15 @@
       await finalPress("#upload-confirm");
     },
 
-    // 05 航班資訊確認：辨識結果已帶入 → 示範機場搜尋 → 按下確認資訊
+    // 05 航班資訊確認：辨識結果已帶入 → 用中文搜尋機場 → 停在搜尋結果（命中的字以粗體標示）
     "05": async () => {
       await fastForward(toBoardingInfo);
       await waitFor("#confirm-info");
       await sleep(900);
       await type("#origin-airport", "杜拜", { perChar: 320 });
+      await waitFor("#origin-airport-options [data-airport-option][data-value='DXB']");
       await sleep(900);
-      await tap("#origin-airport-options [data-airport-option][data-value='DXB']", { pause: 500 });
-      await finalPress("#confirm-info");
+      await finalPress("#origin-airport-options [data-airport-option][data-value='DXB']");
     },
 
     // 06 延誤證明：選好檔案 → 按下確認上傳
@@ -614,10 +621,22 @@
       await finalPress("#upload-confirm");
     },
 
-    // 07 匯款資料：銀行、分行、帳號 → 按下確認資訊
+    // 07 匯款資料：上傳存摺 → 自動帶入銀行、分行、帳號 → 按下確認資訊
+    // （手動輸入的版本仍保留在 FLOW.bankFill，供後面步驟快轉使用）
     "07": async () => {
       await fastForward(toBankDialog);
-      await FLOW.bankFill();
+      await waitFor("#bankbook-dropzone");
+      await sleep(900);
+      await tap("#bankbook-dropzone", { pause: 700 });
+      await tap(".file-picker-row[data-sample-file='bankbook-sample']", { pause: 800 });
+      hideCursor();
+      await waitEnabled("#confirm-bank-info"); // 存摺辨識完成、欄位帶入後按鈕才會亮
+      await sleep(700);
+      // 捲到下方，讓自動帶入的銀行、分行、帳號露出來
+      let box = document.querySelector("#bank-info-form [name='account']");
+      while (box && !(box.scrollHeight > box.clientHeight + 4 && /auto|scroll/.test(getComputedStyle(box).overflowY))) box = box.parentElement;
+      if (box) await scrollBox(box, "bottom", 1200);
+      await sleep(1400);
       await finalPress("#confirm-bank-info");
     },
 
