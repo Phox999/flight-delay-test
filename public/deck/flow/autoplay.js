@@ -575,14 +575,13 @@
       await tap(".suggestion[data-prompt='我想申請班機延誤理賠']", { pause: 300 });
       hideCursor();
       const confirm = await waitFor("[data-chat-action='claim-confirm']");
-      // 訊息出來後先停在頂端，讓人看完注意事項的文字，再往下捲到「確認申請」
+      // 訊息出來後從注意事項頂端開始，直接往下捲到「確認申請」（使用者 11-17 要求拿掉頂端約 4 秒的停留）
       const chat = document.querySelector("#chat-screen");
       const row = confirm.closest(".assistant-row");
       const toTop = () => { if (row) chat.scrollTop += (row.getBoundingClientRect().top - chat.getBoundingClientRect().top) / stageScale() - 8; };
       toTop();
       await sleep(400);
       toTop();
-      await sleep(6000); // 依倍率換算約 4 秒
       await scrollBox(chat, "bottom", 2200); // 用計時器捲動，分頁在背景時也能跑完
       await sleep(600);
       await finalPress("[data-chat-action='claim-confirm']");
