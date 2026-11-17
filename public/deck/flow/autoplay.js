@@ -559,6 +559,12 @@
     window.setTimeout = (callback, delay, ...args) => nativeSetTimeout(callback, (Number(delay) || 0) / 2, ...args);
   }
 
+  // 加速模式：游標與停頓再快一些（factor 越小越快），原型自己的等待（上傳中、思考中）也縮短一半
+  function quickMode(factor) {
+    setRate(BASE_RATE * factor);
+    window.setTimeout = (callback, delay, ...args) => nativeSetTimeout(callback, (Number(delay) || 0) / 2, ...args);
+  }
+
   // ---- 各步驟腳本 ----
   // 每一步都停在「按下送出」的那一刻（finalPress），不會播到下一步的畫面。
   // 這裡只播正確流程；錯誤情境統一放在簡報下方的「異常處理」段落展示。
@@ -585,12 +591,13 @@
     // 02 身分驗證：輸入帳號、密碼、驗證碼 → 按下登入
     "02": async () => {
       await fastForward(toClaimButtons);
-      await sleep(600);
+      quickMode(0.55); // 使用者 11-17 要求加速
+      await sleep(300);
       await FLOW.loginOpen();
-      await sleep(400);
-      await type("#login-id", SAMPLE.id, { perChar: 55 });
-      await type("#login-password", SAMPLE.password, { perChar: 55 });
-      await type("#login-captcha-input", SAMPLE.captcha, { perChar: 110 });
+      await sleep(200);
+      await type("#login-id", SAMPLE.id, { perChar: 40 });
+      await type("#login-password", SAMPLE.password, { perChar: 40 });
+      await type("#login-captcha-input", SAMPLE.captcha, { perChar: 80 });
       await finalPress("#auth-primary");
     },
 
@@ -644,9 +651,10 @@
         await FLOW.boardingInfo({ edit: true });
         await waitFor("#upload-help-trigger");
       });
-      await sleep(800);
+      quickMode(0.5); // 使用者 11-17 要求加速
+      await sleep(500);
       await FLOW.pickFile("proof-sample-pdf");
-      await sleep(400);
+      await sleep(300);
       await finalPress("#upload-confirm");
     },
 
