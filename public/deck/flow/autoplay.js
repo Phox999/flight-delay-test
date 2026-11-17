@@ -301,7 +301,7 @@
   }
 
   // 以計時器（非 rAF）捲動任意容器，背景分頁也能跑完。
-  async function scrollBox(box, to, duration = 1400) {
+  async function scrollBox(box, to, duration = 1400, { easeOut = false } = {}) {
     if (!box) return;
     const from = box.scrollTop;
     const end = to === "bottom" ? box.scrollHeight - box.clientHeight : to;
@@ -310,7 +310,7 @@
     const started = Date.now();
     while (true) {
       const t = Math.min(1, (Date.now() - started) / total);
-      const eased = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      const eased = easeOut ? 1 - Math.pow(1 - t, 3) : (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
       box.scrollTop = from + (end - from) * eased;
       if (t >= 1) break;
       await realSleep(16);
@@ -575,15 +575,11 @@
       await tap(".suggestion[data-prompt='我想申請班機延誤理賠']", { pause: 300 });
       hideCursor();
       const confirm = await waitFor("[data-chat-action='claim-confirm']");
-      // 訊息出來後從注意事項頂端開始，直接往下捲到「確認申請」（使用者 11-17 要求拿掉頂端約 4 秒的停留）
+      // 訊息一出來就直接往下捲到「確認申請」，不停頓（使用者 11-17）
+      // 捲動一開始就要有速度（ease-out），不然前幾百毫秒幾乎不動，看起來像停住
       const chat = document.querySelector("#chat-screen");
-      const row = confirm.closest(".assistant-row");
-      const toTop = () => { if (row) chat.scrollTop += (row.getBoundingClientRect().top - chat.getBoundingClientRect().top) / stageScale() - 8; };
-      toTop();
-      await sleep(400);
-      toTop();
-      await scrollBox(chat, "bottom", 2200); // 用計時器捲動，分頁在背景時也能跑完
-      await sleep(600);
+      await scrollBox(chat, "bottom", 1500, { easeOut: true }); // 用計時器捲動，分頁在背景時也能跑完
+      await sleep(300);
       await finalPress("[data-chat-action='claim-confirm']");
     },
 
@@ -679,6 +675,7 @@
     // 08 動態密碼驗證：輸入動態密碼 → 按下送出申請
     "08": async () => {
       await fastForward(toOtpDialog);
+      quickMode(0.5); // 使用者 11-17 要求加速
       await FLOW.otpType();
       await finalPress("#otp-next");
     },
